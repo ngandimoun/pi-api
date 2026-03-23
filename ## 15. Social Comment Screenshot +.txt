@@ -1,0 +1,5 @@
+## 15. Social Comment Screenshot + Product
+
+🏷️ Screenshotted comment = instant credibility. Looks organic. Bold hook headline does the scroll-stopping.
+
+**Template Prompt:** Use the attached images as brand reference. Match the exact product design and colors precisely. Create: a static ad on a clean white background. Top: oversized bold black sans-serif headline reading "[HOOK HEADLINE like IF YOU'RE GOING THROUGH PERI..]" with [EMOJI like 😅] at the end. Center: a social media comment card with light gray rounded-rectangle background containing: a small circular profile avatar (top left), bold name "[REVIEWER NAME like Elaine McLean]", and a multi-sentence review in regular-weight sans-serif: "[FULL REVIEW TEXT, 3-4 sentences, conversational and emotional]". Small gray timestamp "[TIMESTAMP like 2d]" below the comment. Bottom center: [YOUR PRODUCT like product box and bar/bottle] photographed at a slight angle on white, soft studio lighting. No brand logo. No stars. The rawness is the point — this should look like someone screenshotted a real comment and dropped the product photo below it. 1:1 aspect ratio.

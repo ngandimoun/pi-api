@@ -1,0 +1,100 @@
+template avatar editing 
+
+
+{
+"subject": {
+"description": "A woman with light skin, freckles across her nose and cheeks, and blue-grey eyes. She has brown hair styled with thin, wispy see-through bangs and strands framing her face. Her build features a very prominent, large, and heavy bust that matches the reference volume exactly, appearing naturally affected by gravity and the pull of her top. Her skin shows realistic textures, including fine pores, subtle moles on her neck, and natural soft-tissue behavior.",
+"clothing": "A white, low-cut ribbed crop top or sports bra with thin straps. She is using both hands to pull the outer edges of the straps outward and downward, creating tension across the fabric.",
+"anatomical_fidelity": "Preserve the specific high-volume bust proportions and heavy physical weight of the chest. Maintain the exact width of the shoulders and the slimness of the neck in relation to the torso. No normalization of body proportions."
+},
+"pose": {
+"description": "A centered, front-facing seated position inside a vehicle. Her head is tilted slightly downward with her chin tucked, looking directly into the lens. Her shoulders are slightly hunched forward. Her hands are positioned symmetrically at the top of her chest, gripping and pulling the white straps of her top.",
+"hand_details": "Fingernails are manicured with a classic French tip (pink base with white tips). The grip on the straps is firm, showing the tension in the fabric."
+},
+"environment": {
+"location": "Interior of a luxury vehicle, specifically the back seat. The seats are bright red leather with black stitching and a black seatbelt strap visible over her right shoulder.",
+"background_details": "Through the rear window, a sunny outdoor urban environment is visible, including a road with yellow lines, a white car, green shrubbery, and distant buildings under a clear sky."
+},
+"camera": {
+"shot_type": "Close-up portrait",
+"angle": "Slightly high angle, looking down toward the subject, emphasizing the depth and volume of the foreground features.",
+"framing": "Chest-up framing, centered, with the top of her head near the upper edge and the bust dominating the lower half of the frame.",
+"lens_characteristics": "Standard focal length with natural depth of field; the background through the window is slightly out of focus while the subject is sharp."
+},
+"lighting": {
+"type": "Natural, bright daylight filtered through car windows.",
+"characteristics": "Soft, diffused light hitting the face and chest from the front and side, creating gentle highlights on the forehead, nose, and tops of the breasts. Subtle shadows define the collarbones and the cleavage area."
+},
+"mood_and_expression": {
+"expression": "Sultry and direct. She has a slight 'duck face' pout with her lips parted very slightly. Her gaze is intense and fixed on the camera.",
+"atmosphere": "Intimate, casual, and provocative."
+},
+"style_and_realism": {
+"mode": "Photorealistic",
+"details": "High-fidelity textures with no airbrushing. Realistic skin imperfections, stray hairs, and fabric ribbing. The image should look like a high-resolution mobile phone photo with natural light."
+},
+"colors_and_tone": {
+"palette": "High contrast between the bright white top, the vibrant red leather seats, and the natural skin tones. Warm sunlight tones contrast with the cool blues and greys of the background sky.",
+"saturation": "Natural and vivid."
+},
+"quality_and_technical_details": {
+"resolution": "High definition",
+"sharpness": "Focus is sharp on the eyes and facial features, with skin micro-details preserved.",
+"artifacts": "None, no digital smoothing or AI-generated 'beauty' filters."
+},
+"aspect_ratio_and_output": {
+"aspect_ratio": "3:4"
+},
+"controlnet": {
+"pose_control": {
+"model_type": "DWPose",
+"purpose": "Exact skeletal and pose lock",
+"constraints": [
+"preserve shoulder width",
+"preserve head tilt and chin tuck",
+"preserve hand placement on straps",
+"preserve forward-leaning shoulder posture"
+],
+"recommended_weight": 1.0
+},
+"depth_control": {
+"model_type": "ZoeDepth",
+"purpose": "Depth, volume, and camera-to-body spatial lock",
+"constraints": [
+"preserve chest foreground dominance",
+"prevent flat or compressed depth in the torso",
+"maintain 3D protrusion of the bust relative to the ribcage"
+],
+"recommended_weight": 0.85
+}
+},
+"negative_prompt": {
+"prohibited": [
+"anatomy normalization",
+"body proportion averaging",
+"smaller bust than reference",
+"reduced chest volume",
+"flattened or compressed breasts",
+"tightened, lifted, or artificially supported breasts",
+"slimmed torso",
+"aesthetic proportion correction",
+"beauty standard enforcement",
+"dataset-average female anatomy",
+"camera angles that reduce volume",
+"wide-angle distortion not in reference",
+"lens compression not in reference",
+"cropping that removes volume",
+"depth flattening",
+"mirror selfies",
+"phone-in-hand selfies",
+"reflections",
+"beautification filters",
+"skin smoothing",
+"plastic skin",
+"airbrushed texture",
+"stylized realism",
+"editorial fashion proportions",
+"naturalization of prominent features"
+]
+}
+}

@@ -1,0 +1,123 @@
+{
+  "generation_request": {
+    "meta_data": {
+      "tool": "NanoBanana Pro",
+      "task_type": "commercial_tropical_still_life_advertisement",
+      "language": "fr",
+      "priority": "highest",
+      "version": "v5.0_JEANNEA_TROPICAL_PODIUM"
+    },
+
+    "input": {
+      "mode": "layout_and_style_reference",
+      "reference_image_usage": "maximum",
+      "preserve_product_identity": true,
+      "style_reference": "warm_minimalist_podium_with_palm_leaves_and_window_shadows"
+    },
+
+    "output_settings": {
+      "aspect_ratio": "1:1",
+      "orientation": "square",
+      "resolution_target": "ultra_high_res",
+      "num_images": 1,
+      "render_style": "high_end_3d_product_visualization_style",
+      "sharpness": "crisp_advertising",
+      "color_grade": "warm_sand_beige_and_vibrant_tropical_green",
+      "lighting_style": "sunlight_with_window_blind_gobo_shadows"
+    },
+
+    "scene": {
+      "environment": "Minimalist warm beige/sand-colored background wall and a geometric matching beige display podium in the lower half.",
+      "lighting": "Beautiful natural sunlight casting distinct, aesthetic diagonal window blind shadows across the background wall.",
+      "props": "Vibrant green palm leaves framing the image in the top-left, top-right, and bottom-left corners, slightly out of focus to create a 3D depth effect."
+    },
+
+    "subject_products": {
+      "description": "The three Balea products replacing the plain cardboard packaging from the reference, arranged elegantly on the right side of the beige podium.",
+      "product_1": {
+        "name": "Balea Island Breeze Schaumbad",
+        "description": "Tall light-grey bottle with yellow cap and tropical fruit graphics.",
+        "position": "Standing at the back of the group on the podium."
+      },
+      "product_2": {
+        "name": "Balea Soft Creme",
+        "description": "Flat light-blue tub.",
+        "position": "Placed in the front left of the group on the podium."
+      },
+      "product_3": {
+        "name": "Balea 5in1 Protection Anti-Transpirant",
+        "description": "Small white roll-on with teal cap.",
+        "position": "Placed in the front right of the group on the podium."
+      }
+    },
+
+    "typography_and_graphics": {
+      "style": "Elegant, high-end commercial typography. A mix of small dark sans-serif for descriptions and large warm golden/orange serif font for the main titles, matching the reference.",
+      "elements":[
+        {
+          "type": "eyebrow_text",
+          "position": "top_left",
+          "text": "BOUTIQUE JEANNEA",
+          "design": "Small, elegant dark grey sans-serif text replacing 'SKIN Hydrated Ever After'."
+        },
+        {
+          "type": "main_headline_1",
+          "position": "below_eyebrow_text",
+          "text": "Pack Beauté",
+          "design": "Large, bold, golden/orange elegant serif font replacing 'Skincare'."
+        },
+        {
+          "type": "main_headline_2",
+          "position": "below_headline_1",
+          "text": "Balea",
+          "design": "Large, bold, golden/orange elegant serif font replacing 'Mini Kit'."
+        },
+        {
+          "type": "price_list",
+          "position": "middle_left",
+          "text": "Crème : 10 000 FCFA\nGel de douche : 6000 FCFA\nDéodorant : 3000 FCFA",
+          "design": "Clean, sophisticated dark grey list, aligned to the left, positioned in the empty space below the main title."
+        },
+        {
+          "type": "call_to_action_and_contact",
+          "position": "bottom_right_on_podium",
+          "text": "Commandez maintenant\nTél : 691 91 34 06",
+          "design": "Small, centered elegant text on the front face of the podium, replacing 'Order now / www.yourwebsite.com'."
+        }
+      ]
+    },
+
+    "camera": {
+      "lens": "50mm product photography lens",
+      "angle": "straight-on, eye-level with the podium",
+      "depth_of_field": "deep enough to keep products and text sharp, but palm leaves in the foreground must be slightly blurred (bokeh)."
+    },
+
+    "quality_control": {
+      "text_accuracy": "maximum",
+      "lighting_precision": "must perfectly replicate the diagonal window shadows",
+      "product_accuracy": "high",
+      "avoid":[
+        "cardboard packaging",
+        "spelling mistakes in French",
+        "wrong prices",
+        "missing palm leaves",
+        "wrong phone number",
+        "cluttered layout",
+        "products floating in the air"
+      ]
+    },
+
+    "negative_prompt":[
+      "low resolution",
+      "cardboard boxes",
+      "blank labels",
+      "wrong language",
+      "gibberish text",
+      "messy shadows",
+      "ugly fonts",
+      "watermark",
+      "missing products"
+    ]
+  }
+}

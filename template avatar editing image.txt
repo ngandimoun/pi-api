@@ -1,0 +1,66 @@
+template avatar editing image 
+
+{
+  "technical_specs": {
+    "aspect_ratio": "2:3",
+    "camera_angle": "Overhead / High-angle (bird's-eye view)",
+    "lighting_style": "Soft, natural indoor light"
+  },
+  "subject": {
+    "demographics": {
+      "type": "Woman",
+      "age": 19
+    },
+    "pose": {
+      "body": "Lying supine on back",
+      "head": "Facing camera, hair spread out above head"
+    },
+    "physical_appearance": {
+      "skin": {
+        "tone": "Fair",
+        "details": "Visible freckles on cheeks and nose",
+        "complexion": "Flushed pink cheeks"
+      },
+      "eyes": {
+        "color": "Brown",
+        "state": "Left eye open, right eye winking"
+      },
+      "hair": {
+        "color": "Black with braids",
+        "texture": "Wavy"
+      }
+    },
+    "expression": {
+      "mood": "Playful",
+      "mouth": {
+        "action": "Sticking out tongue",
+        "smile": "Broad, showing teeth"
+      },
+      "nose": "Wrinkled"
+    }
+  },
+  "styling": {
+    "apparel": {
+      "item": "Swimsuit top",
+      "cut": "Halter-neck",
+      "color": "Orange",
+      "accents": "Black embroidered zig-zag trim along edges"
+    },
+    "accessories": [
+      {
+        "type": "Earrings",
+        "detail": "Small diamond hoops"
+      },
+      {
+        "type": "Necklace",
+        "detail": "Delicate gold chain with a small, dark charm"
+      }
+    ]
+  },
+  "environment": {
+    "background_elements": [
+      "Light green textured fabric pillow",
+      "Light green textured blanket"
+    ]
+  }
+}

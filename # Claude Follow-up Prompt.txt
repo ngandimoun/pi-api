@@ -1,0 +1,5 @@
+# Claude Follow-up Prompt
+
+Now take this list of prompt templates for nano banana 2 and fill them in with detail for each one that needs context specifically for [BRAND NAME] that aligns with the brand dna information/doc, especially the image generation prompt modifier at the end of the document and the ad creative section guidelines.
+
+Please format me a new doc with finished prompts for each one that I can plug directly into nano banana 2 for this product - [SPECIFIC PRODUCT] (images attached). Make sure that each prompt is it's own standalone prompt that is immediately ready to put into nano banana 2 to create a high converting image that can be plugged into an ad account for [BRAND NAME] with no edits needed.

@@ -1,0 +1,70 @@
+Campaign Generator Prompt 👇
+
+[BRAND NAME]
+
+Create a bold editorial campaign composition built around the visual identity of the brand.
+
+BRAND INTERPRETATION
+Analyze the brand name and infer its visual personality, tone, and aesthetic direction.
+Determine an appropriate color palette, mood, and visual attitude that matches the brand.
+
+COLOR SYSTEM
+Use a strong two-color contrast system:
+
+• Background color → defines the brand atmosphere
+• Accent color → used for typography and graphic elements
+• Natural tones → preserved for skin, objects, and materials
+
+LAYOUT STRUCTURE
+Generate one horizontal image divided into three vertical sections with clean separation.
+The three sections must feel visually connected and share a cohesive color system.
+Do NOT display labels like "panel 1", "panel 2", or "panel 3" in the final image.
+
+SECTION A — HUMAN EXPRESSION
+A striking fashion portrait representing the spirit of the brand.
+Confident pose, strong facial expression, minimal background, editorial lighting.
+
+The person must look completely photorealistic, like a real human photographed in a professional studio.
+Visible natural skin texture, pores, subtle imperfections, realistic hair strands, natural facial asymmetry.
+
+SECTION B — PRODUCT HERO
+The brand's core product or symbolic object becomes the main focus.
+Clean commercial product shot with strong visual presence.
+
+Hands or subtle human interaction may appear, but the product remains the clear hero element.
+
+SECTION C — GRAPHIC IMPACT
+A bold typographic composition featuring a short slogan or brand statement.
+Oversized typography dominating the frame with a strong graphic design aesthetic.
+
+GRAPHIC LANGUAGE
+Subtle design elements may appear across the composition:
+
+• repeating micro text
+• geometric shapes
+• minimalist graphic lines
+• color blocks
+
+REALISM REQUIREMENTS
+The people must look like real fashion photography, not AI generated.
+
+photorealistic human anatomy
+natural skin texture and pores
+realistic lighting and shadows
+fine hair details
+cinematic depth of field
+subtle film grain
+
+Avoid artificial smooth skin, plastic faces, or synthetic appearance.
+
+AESTHETIC STYLE
+High-end editorial advertising photography
+clean minimal composition
+strong color blocking
+modern graphic design language
+
+professional studio photography
+cinematic lighting
+ultra detailed textures
+
+8k ultra realistic commercial campaign quality

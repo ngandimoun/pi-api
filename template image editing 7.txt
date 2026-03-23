@@ -1,0 +1,56 @@
+template image editing 7
+
+{
+  "subject": {
+    "identity": {
+      "biometric_reference": "Sabrina Carpenter",
+      "morphology": "petite ecto-mesomorph hybrid, heart-shaped cranial structure, high-set zygomatic arches, sharp mandibular definition.",
+      "facial_details": {
+        "iris_pattern": "vibrant blue irises, intricate radial stroma, sharp dark limbal rings, macro-definition.",
+        "lips": "full vermilion border, prominent Cupid's bow, neutral philtrum, closed mouth, strictly no smile, zero lipstick, natural tissue texture.",
+        "skin": "fair complexion, HEX #F5E1D2, visible epidermal micro-pores, natural follicular texture, subsurface scattering physics, no beautify smoothing.",
+        "dentition": "anatomically correct jaw alignment, pristine white enamel texture (subtly perceptible behind closed lip structure)."
+      },
+      "body_specs": {
+        "waist_to_hip_ratio": "0.65",
+        "measurements": "hyper-pronounced bust morphology, hyper-developed gluteal curvature, ultra-narrow waist, high-definition abdominal wall.",
+        "surface": "natural anatomical skin folds at joints, visible fine vellus hair, authentic bone markers at knees and ankles."
+      },
+      "cosmetics": {
+        "nail_polish": "opaque white, HEX #FFFFFF, high-gloss finish, pristine application on all ten toe nails and finger nails."
+      }
+    },
+    "wardrobe": {
+      "primary": "minimalist black satin mini dress, HEX #000000, high-luster silk texture, smooth surface. Strictly zero fur, zero feathers, zero lace.",
+      "lower": "ultra-minimalist T-back silhouette, black elasticized micro-straps, HEX #000000, visible due to micro-length hemline and pose geometry.",
+      "footwear": "silver rhinestone-encrusted wrap-around stiletto sandals, thin crystal straps winding up to the mid-calf, 120mm heel, razor-sharp focus.",
+      "accessories": "text-free, logo-free, focus on material physics and light refraction."
+    },
+    "pose_action": {
+      "position": "low-centered crouch on a polished marble step. The torso is vertically aligned while the lower body is compressed into a squat.",
+      "dynamics": "Extreme foreshortening: the leading foot is extended toward the lens, magnified and in macro-focus. The secondary leg is tucked. The spine is arched to emphasize the 0.65 WHR and posterior volume.",
+      "expression": "Stoic, editorial gaze directed at the camera lens. Face and feet are positioned on a mutual focal plane for synchronized sharpness."
+    },
+    "scene": {
+      "environment": "high-end minimalist architectural interior, polished beige travertine marble staircase.",
+      "reflections": "100% reflection integrity rules for the stiletto heels and subject's silhouette on the floor. Anatomically consistent mirrored surfaces.",
+      "background": "soft-focus luxury corridor, warm-toned walls, clean Euclidean geometry, zero text, zero clutter."
+    },
+    "lighting": {
+      "setup": "Three-point studio lighting within an architectural space. Recessed LED strips HEX #FFD2A1. Rim lighting to define hair and silhouette curves.",
+      "effects": "Point-source specular highlights on rhinestones and satin sheen. Subsurface scattering on skin of the face, legs, and feet."
+    },
+    "camera": {
+      "format": "9:16 vertical full-body",
+      "equipment": "Sony A7R V, 24mm wide-angle G-Master lens.",
+      "settings": "f/11.0 aperture for total depth-of-field clarity, ISO 64, 8k resolution, raw photo format, zero motion blur.",
+      "framing": "Vertical composition where the magnified front foot and the sharp face act as the primary anchors of the shot."
+    },
+    "negative_constraints": {
+      "anatomical": "no extra limbs, no fused fingers, no distorted foot morphology, no double heads, no floating limbs, no unnatural joint angles.",
+      "aesthetic": "no fur, no feathers, no beautify smoothing, no plastic skin, no makeup, no lipstick, no soft-focus face.",
+      "content": "no text, no logos, no watermarks, no signatures, no brand tags, no blurred facial features.",
+      "integrity": "no reflection errors, no light leakage, no clipping of the stiletto heels."
+    }
+  }
+}

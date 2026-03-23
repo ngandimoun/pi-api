@@ -1,0 +1,113 @@
+template image editing 6
+
+{
+  "generation_request": {
+    "meta_data": {
+      "tool": "NanoBanana Pro",
+      "task_type": "photoreal_fitness_lifestyle_portrait",
+      "language": "en",
+      "priority": "highest",
+      "version": "v1.0_POWDER_BLUE_GYM_HEADPHONES"
+    },
+
+    "input": {
+      "mode": "image_to_image",
+      "reference_image_usage": "very_high",
+      "preserve_identity": true,
+      "preserve_facial_features": true,
+      "preserve_pose": true,
+    },
+
+    "output_settings": {
+      "aspect_ratio": "1:1",
+      "orientation": "square",
+      "resolution_target": "ultra_high_res",
+      "num_images": 1,
+      "render_style": "ultra_photoreal_fitness_lifestyle",
+      "sharpness": "clean_natural_crisp",
+      "grain": "none",
+      "color_grade": "soft_clean_modern",
+      "dynamic_range": "natural_not_hdr",
+      "skin_rendering": "real_texture_no_retouch"
+    },
+
+    "scene": {
+      "environment": "modern gym floor with minimal workout equipment",
+      "lighting": "soft clean indoor gym lighting with natural highlights on skin and fabric, no harsh flash",
+      "mood": "fresh, calm, feminine, modern fitness lifestyle"
+    },
+
+    "subject": {
+      "description": "same elegant athletic woman from the reference, realistic facial proportions, soft peaceful expression",
+      "skin": "natural luminous skin texture",
+      "hair": "sleek dark hair pulled back neatly, same styling as the reference",
+      "makeup": "minimal clean beauty makeup, soft natural glow, subtle lashes, natural pink-nude lips",
+      "expression": "eyes closed, gentle soft smile, relaxed post-workout calm"
+    },
+
+    "wardrobe": {
+      "outfit": "light powder blue fitted athletic set",
+      "top": "light powder blue sports bra with smooth matte fabric and thin straps",
+      "bottom": "matching light powder blue high-waisted leggings in matte performance fabric",
+      "fabric": "soft matte athletic material, sculpting but realistic, no latex shine"
+    },
+
+    "accessories": {
+      "headphones": "light blue Apple-style over-ear headphones with sleek matte finish",
+      "mat": "matching light blue workout mat with matte texture",
+      "equipment": "single dumbbell on the mat, realistic gym accessory"
+    },
+
+    "pose": {
+      "position": "lying on the workout mat in the same pose as the reference",
+      "details": "one arm lifted naturally toward the camera, one arm relaxed beside the body, torso slightly angled, calm post-workout pose",
+      "anatomy": "perfect shoulders, arms, hands, torso, waist, and legs with realistic proportions"
+    },
+
+    "camera": {
+      "lens": "35mm lifestyle overhead shot",
+      "angle": "top-down selfie-like angle",
+      "framing": "upper body and waist emphasized, workout mat and dumbbell visible",
+      "focus_priority": "face, headphones, outfit texture, and natural body lines"
+    },
+
+    "quality_control": {
+      "identity_consistency": "maximum",
+      "anatomy_accuracy": "maximum",
+      "face_priority": "very_high",
+      "hands_priority": "very_high",
+      "fabric_realism": "high",
+      "object_consistency": "high",
+      "avoid": [
+        "extra fingers",
+        "missing fingers",
+        "warped hands",
+        "distorted headphones",
+        "wrong color headphones",
+        "wrong color mat",
+        "latex shine",
+        "plastic skin",
+        "identity drift",
+        "text",
+        "watermark",
+        "logo"
+      ]
+    },
+
+    "negative_prompt": [
+      "dark headphones",
+      "black headphones",
+      "wrong outfit color",
+      "wrong mat color",
+      "extra fingers",
+      "missing fingers",
+      "warped anatomy",
+      "distorted headphones",
+      "plastic skin",
+      "low resolution",
+      "text",
+      "watermark",
+      "logo"
+    ]
+  }
+}

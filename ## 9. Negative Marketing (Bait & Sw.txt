@@ -1,0 +1,7 @@
+## **9. Negative Marketing (Bait & Switch)**
+
+🏷️ Fake bad review that's actually a rave. Scroll-stopper.
+
+**Template Prompt:**
+
+Use the attached images as brand reference. Create: Background is close-up of [PRODUCT], slightly blurred. Center: white rounded-rectangle review card (Amazon-style). Gray user icon, "[NAME]", one gold star + four gray, orange "Verified Purchase" badge, bold text: "[BAIT that sounds negative but is positive]". Bottom: bold white sans-serif "[PUNCHLINE like THE REVIEWS ARE IN.]". [BRAND] logo bottom right. 4:5 aspect ratio.

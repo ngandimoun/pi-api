@@ -1,0 +1,7 @@
+## **2. Offer/Promotion**
+
+🏷️ The money-maker. Test your core offer.
+
+**Template Prompt:**
+
+Use the attached images as brand reference. Match exact brand colors and typography style. Create: a promotional ad with a split background. Top 60% is [PRIMARY BRAND COLOR] and bottom 40% is [CONTRAST COLOR like warm cream]. [YOUR PRODUCT] sits centered where colors meet, soft studio lighting. Upper area: large [CONTRAST TEXT] sans-serif reading "[YOUR OFFER like YOUR FIRST MONTH FREE]". Below: "[OFFER DETAILS]". Lower section: small [BRAND COLOR] text with [VALUE ADDS]. [BRAND] logo bottom right. 9:16 aspect ratio.

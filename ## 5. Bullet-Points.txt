@@ -1,0 +1,7 @@
+## **5. Bullet-Points**
+
+🏷️ Split composition. Product left, benefits right.
+
+**Template Prompt:**
+
+Use the attached images as brand reference. Create: a benefit-list ad, split composition on [BACKGROUND] background. Left 40%: [YOUR PRODUCT] on [SURFACE], shot at 85mm f/2.8. Right 60%: vertical stack of five lines with filled [BRAND COLOR] circles: "[BENEFIT 1-5]". Clean sans-serif, generous spacing. [BRAND] logo bottom right. 4:5 aspect ratio.

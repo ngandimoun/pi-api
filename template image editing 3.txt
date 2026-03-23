@@ -1,0 +1,133 @@
+template image editing 3 
+
+
+{
+  "generation_request": {
+    "meta_data": {
+      "tool": "NanoBanana Pro",
+      "task_type": "luxury_bridal_editorial_triptych",
+      "language": "en",
+      "priority": "highest",
+      "version": "v1.0_IVORY_SATIN_BOW_GOWN_TRIPTYCH"
+    },
+
+    "input": {
+      "mode": "image_to_image",
+      "reference_image_usage": "very_high",
+      "preserve_identity": true,
+      "preserve_facial_features": true
+    },
+
+    "output_settings": {
+      "aspect_ratio": "4:5",
+      "orientation": "portrait",
+      "resolution_target": "ultra_high_res",
+      "num_images": 1,
+      "layout": {
+        "type": "triptych",
+        "rows": 1,
+        "cols": 3,
+        "gutter": "thin",
+        "outer_border": "none",
+        "panel_consistency": "very_high"
+      },
+      "render_style": "luxury_bridal_editorial",
+      "sharpness": "editorial_crisp",
+      "grain": "subtle_film",
+      "color_grade": "soft_neutral_luxury",
+      "dynamic_range": "natural_not_hdr",
+      "skin_rendering": "real_texture_no_retouch"
+    },
+
+    "scene": {
+      "environment": "minimal luxury studio with a soft warm beige seamless background",
+      "lighting": "high-end soft studio lighting with clean satin highlights and controlled elegant shadows",
+      "mood": "romantic, refined, couture, timeless, sculptural"
+    },
+
+    "subject": {
+      "description": "same elegant adult woman across all three panels, realistic proportions, graceful posture, refined beauty",
+      "skin": "luminous realistic skin texture",
+      "hair": "soft dark brown hair in an elegant loose updo with face-framing strands, slightly undone couture feel",
+      "makeup": "soft luxury bridal glam, refined skin, subtle contour, defined eyes, satin nude lips",
+      "expression": "calm, poised, slightly mysterious couture expression"
+    },
+
+    "wardrobe": {
+      "outfit": "ivory off-shoulder liquid satin couture gown with long fitted sleeves, softly draped neckline, open back, dramatic oversized bow at the lower back, and floor-length train",
+      "fabric": "high-luxury silk satin with fluid shine and heavy elegant drape",
+      "details": "thigh-high slit in the front view, sculpted fit through the waist and hips, elongated train pooling on the floor"
+    },
+
+    "panel_design": {
+      "panel_1": {
+        "position": "left",
+        "view": "back three-quarter view",
+        "pose": "woman turned partly over her shoulder toward camera, showing the open back and oversized satin bow, one arm relaxed, elegant spine line",
+        "focus": "back design, bow structure, satin reflections, shoulder line"
+      },
+      "panel_2": {
+        "position": "center",
+        "view": "front full-length view",
+        "pose": "woman facing camera with one leg emerging through the thigh slit, torso elongated, one hand softly near the thigh, couture fashion stance",
+        "focus": "neckline, waist fit, slit, full gown silhouette"
+      },
+      "panel_3": {
+        "position": "right",
+        "view": "back full-length view",
+        "pose": "woman turned away from camera, showing the full open back and oversized bow with the train falling vertically to the floor",
+        "focus": "back symmetry, train, satin drape, sculptural silhouette"
+      }
+    },
+
+    "camera": {
+      "lens": "85mm portrait lens",
+      "style": "Vogue bridal couture photography",
+      "angle": "eye-level editorial camera",
+      "depth_of_field": "shallow but full dress remains sharp",
+      "framing": "full-length figure in all panels with consistent scale"
+    },
+
+    "quality_control": {
+      "identity_consistency": "maximum",
+      "panel_consistency": "very_high",
+      "anatomy_accuracy": "maximum",
+      "face_priority": "very_high",
+      "hands_priority": "high",
+      "fabric_realism": "maximum",
+      "dress_structure_priority": "very_high",
+      "avoid": [
+        "different woman in each panel",
+        "identity drift",
+        "extra fingers",
+        "missing fingers",
+        "warped limbs",
+        "broken wrists",
+        "twisted anatomy",
+        "plastic skin",
+        "distorted satin",
+        "bad bow structure",
+        "bad train physics",
+        "uneven dress fit",
+        "text",
+        "watermark",
+        "logo"
+      ]
+    },
+
+    "negative_prompt": [
+      "low resolution",
+      "blurred face",
+      "extra fingers",
+      "missing fingers",
+      "warped anatomy",
+      "plastic skin",
+      "distorted satin fabric",
+      "bad bow anatomy",
+      "flat lighting",
+      "text",
+      "watermark",
+      "logo"
+    ]
+  }
+}

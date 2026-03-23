@@ -1,0 +1,62 @@
+template image editing avatar 3
+
+{
+  "meta": {
+    "quality": "ultra photorealistic",
+    "resolution": "8k",
+    "camera": "iPhone 15 Pro Max",
+    "lens": "24mm",
+    "aspect_ratio": "2:3",
+    "style": "raw iphone selfie, strong window daylight, crisp highlights, natural grain"
+  },
+
+  "character_lock": {
+    "age": "mid 20s (clearly adult)",
+    "ethnicity": "Scandinavian blonde",
+    "hair": {
+      "color": "light blonde",
+      "style": "messy bed hair"
+    },
+    "eyes": "blue",
+    "body": {
+      "type": "slim-curvy",
+      "chest": "full",
+      "waist": "small",
+      "legs": "long"
+    },
+    "vibe": "hot spoiled brat"
+  },
+
+  "scene": {
+    "location": "sunlit bedroom window",
+    "time": "late morning",
+    "atmosphere": "lazy, dangerously pretty energy"
+  },
+
+  "subject": {
+    "action": "selfie lying on bed",
+    "pose": {
+      "expression": "soft pout",
+      "eyes": "half-lidded teasing gaze"
+    },
+
+    "outfit": {
+      "top": "tiny spaghetti strap tank (white)",
+      "bottom": "low-rise panties (black)"
+    }
+  },
+
+  "lighting": {
+    "type": "strong natural window light",
+    "effect": "soft skin glow, realistic contrast"
+  },
+
+  "photography_rules": {
+    "iphone_only_look": true,
+    "suggestive_not_explicit": true,
+    "thirst_trap_energy": true,
+    "realism": "very high",
+    "no_neon_lighting": true,
+    "no_male_presence": true
+  }
+}

@@ -1,0 +1,7 @@
+## **7. Us vs Them**
+
+🏷️ Side-by-side comparison. Photography quality gap IS the argument.
+
+**Template Prompt:**
+
+Use the attached images as brand reference. Create: a side-by-side divided vertically. Left: muted gray-blue background. Right: [PRIMARY BRAND COLOR]. Center top: white circle with "VS". Left header: "[COMPETITOR CATEGORY]" + generic competitor product + list with X marks: "[WEAKNESS 1-5]". Right header: "[YOUR BRAND]" + [YOUR PRODUCT] + list with checkmarks: "[STRENGTH 1-5]". [BRAND] logo bottom right. 4:5 aspect ratio.

@@ -1,0 +1,110 @@
+great template to do image edititing 
+
+
+Prompt:
+{
+  "style": {
+    "genre": "studio fashion photography",
+    "aesthetic": "minimalist high-fashion editorial",
+    "quality": "ultra realistic, high detail, 8k, sharp focus",
+    "lighting_style": "soft studio lighting, diffused key light, subtle shadows",
+    "color_grading": "neutral tones, soft skin highlights"
+  },
+
+  "character_identity": {
+    "source": "reference_image",
+    "description": "use the uploaded reference image as the person's face and identity",
+    "gender_presentation": "female",
+    "age_range": "young adult",
+    "body_type": "fit, curvy, toned legs, slim waist",
+    "face_consistency": "high"
+  },
+
+  "reference_control": {
+    "face_reference": "PRIMARY",
+    "identity_strength": "strong",
+    "allow_style_changes": true,
+    "preserve_face_features": true
+  },
+
+  "hair": {
+    "color": "deep black",
+    "length": "very long",
+    "style": "loose, voluminous, slightly wavy",
+    "placement": "flowing down the back and side",
+    "texture": "smooth and glossy"
+  },
+
+  "accessories": {
+    "earrings": "small gold hoop earrings",
+    "other_accessories": "none"
+  },
+
+  "face_features": {
+    "makeup": "soft glam makeup",
+    "skin": "smooth glowing skin",
+    "lips": "full lips, nude gloss",
+    "eyes": "defined eyeliner and mascara",
+    "eyebrows": "well-shaped natural brows"
+  },
+
+  "gaze": {
+    "direction": "slightly toward camera",
+    "expression": "sensual, confident, relaxed"
+  },
+
+  "mood": {
+    "vibe": "confident, sensual, elegant",
+    "energy": "calm, poised"
+  },
+
+  "clothing": {
+    "type": "one-piece bodysuit",
+    "color": "black",
+    "material": "stretch fabric",
+    "design": "minimalist sleeveless bodysuit with asymmetrical strap detail",
+    "fit": "tight fitted"
+  },
+
+  "pose": {
+    "body_position": "kneeling on the floor",
+    "legs": "folded under the body, sitting on heels",
+    "torso": "upright with slight arch in the back",
+    "arms": "both arms raised with hands placed behind the head",
+    "head": "tilted slightly back and to the side"
+  },
+
+  "camera": {
+    "angle": "three-quarter side angle",
+    "framing": "full body portrait",
+    "lens": "85mm portrait lens",
+    "focus": "sharp focus on subject",
+    "depth_of_field": "shallow to moderate"
+  },
+
+  "composition": {
+    "subject_position": "centered",
+    "orientation": "vertical portrait",
+    "crop": "full body visible with slight space around subject"
+  },
+
+  "background": {
+    "type": "studio backdrop",
+    "color": "light neutral gray",
+    "texture": "smooth seamless background",
+    "environment": "minimalist photography studio"
+  },
+
+  "lighting": {
+    "key_light": "softbox from front-left",
+    "fill_light": "soft fill from front-right",
+    "rim_light": "very subtle rim light from behind",
+    "shadow": "soft natural shadow under body"
+  },
+
+  "render_settings": {
+    "resolution": "high resolution",
+    "detail_level": "hyper-detailed skin and fabric",
+    "photorealism": "high photorealistic quality"
+  }
+}

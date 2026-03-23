@@ -1,0 +1,107 @@
+
+
+
+prompt desing 2
+
+
+As a senior brand strategist, I have deconstructed the [Brand Name] identity into a precise generation prompt. Recreate a highly structured, brutalist, and tech-forward brand identity presentation board consisting of a three by three grid.
+ 
+ The core color palette must feature [specific colors with descriptive qualities]. The central brand name is [BRAND NAME], set in [specific typography description]. The primary logomark is [detailed logo description with geometric specifications].
+ 
+ The aesthetic merges [style 1] with [style 2]. Include the following visual variations in the grid cells: [9 specific, detailed cell descriptions].
+ 
+ Ensure all layouts use strict alignment, high contrast, and [overall aesthetic direction].
+The difference is treating AI like a junior designer who needs an extremely detailed creative brief — not a mind reader.
+
+
+
+
+
+
+1. ROLE
+<ROLE>
+ As a senior brand strategist and visual designer with 15 years of experience at top agencies...
+ </ROLE>
+Sets the AI’s perspective and expertise level.
+2. TASK
+<TASK>
+ Generate a complete brand identity presentation board featuring [specific deliverables]...
+ </TASK>
+Defines exactly what you’re asking for.
+3. BRAND_CONTEXT
+<BRAND_CONTEXT>
+ Brand name: [NAME]
+ Industry: [INDUSTRY]
+ Target audience: [DEMOGRAPHIC]
+ Brand personality: [TRAITS]
+ Competitors: [REFERENCES]
+ </BRAND_CONTEXT>
+Provides the strategic foundation.
+4. COLOR_SYSTEM
+<COLOR_SYSTEM>
+ Primary: [HEX] - [descriptive name and usage]
+ Secondary: [HEX] - [descriptive name and usage]
+ Accent: [HEX] - [descriptive name and usage]
+ Neutral: [HEX] - [descriptive name and usage]
+ </COLOR_SYSTEM>
+Specific color definitions with context.
+5. TYPOGRAPHY
+<TYPOGRAPHY>
+ Primary typeface: [description - weight, style, characteristics]
+ Secondary typeface: [description]
+ Usage rules: [hierarchy and application]
+ </TYPOGRAPHY>
+Font direction without naming specific fonts (AI hallucinates font names).
+6. LOGO_SYSTEM
+<LOGO_SYSTEM>
+ Logomark: [geometric description, construction logic]
+ Wordmark: [typographic treatment]
+ Lockup variations: [horizontal, stacked, icon-only]
+ Clear space rules: [proportional spacing]
+ </LOGO_SYSTEM>
+Detailed logo construction guidance.
+7. VISUAL_LANGUAGE
+<VISUAL_LANGUAGE>
+ Aesthetic direction: [style references]
+ Imagery style: [photography/illustration approach]
+ Graphic elements: [patterns, shapes, textures]
+ Composition rules: [grid, alignment, spacing]
+ </VISUAL_LANGUAGE>
+The overall visual system.
+8. DELIVERABLES
+<DELIVERABLES>
+ Cell 1: [specific description]
+ Cell 2: [specific description]
+ ...
+ Cell 9: [specific description]
+ </DELIVERABLES>
+Exact specifications for each output element.
+9. TECHNICAL_SPECS
+<TECHNICAL_SPECS>
+ Output format: [grid layout description]
+ Resolution: [quality level]
+ Aspect ratio: [proportions]
+ </TECHNICAL_SPECS>
+Production requirements.
+10. STYLE_REFERENCES
+<STYLE_REFERENCES>
+ Reference 1: [aesthetic influence]
+ Reference 2: [aesthetic influence]
+ Avoid: [what NOT to include]
+ </STYLE_REFERENCES>
+Positive and negative style guidance.
+11. CONSTRAINTS
+<CONSTRAINTS>
+ - No [specific exclusions]
+ - Must include [required elements]
+ - Avoid [common AI artifacts]
+ </CONSTRAINTS>
+Boundaries and requirements.
+12. QUALITY_MARKERS
+<QUALITY_MARKERS>
+ - Professional presentation quality
+ - Agency-standard layouts
+ - Print-ready resolution
+ - Cohesive visual system
+ </QUALITY_MARKERS>
+Success criteria.

@@ -1,0 +1,8 @@
+
+
+
+The Brand Identity Generation Workflow
+Step 1: Brand Analysis
+Before touching  ,  analyze the brand:
+Input gathering: - Existing brand assets (if any) - Competitor analysis - Target audience definition - Brand personality traits - Industry conventions (and how to break them)
+Output: A brand brief document that becomes the foundation for prompt architecture.

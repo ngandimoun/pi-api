@@ -1,0 +1,439 @@
+greats fons for desing 
+
+1. MANROPE
+Clarity & confidence
+This is the font I use for in my social media designs. 
+I use Manrope SemiBold for headlines and Manrope Regular for body text to achieve a proper visual hierarchy.
+Good fit for:
+Digital products and interfaces, branding for tech, SaaS, and contemporary lifestyle companies.
+Why:
+Strong on‑screen legibility; clean, confident tone. 
+Clean, geometric letterforms with minimal stroke contrast give it a contemporary, tech‑friendly feel.
+This is the font I use for in my social media designs.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @Manrope SemiBold font  
+
+Font Style: Upright
+Color: Hex #000000
+ 
+Tracking: Tight (-4%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Background: #FFFFFF, Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+How to use this template 👆
+Download my Elements (as images) from this project
+Upload them into your LTX Project as Your Elements
+Copy my prompts from the LTX Project
+Paste the prompt into your project → tag the uploaded Element with @[ELEMENT NAME]
+Generate consistent typography → repeat with all the prompts 👇
+Use this advanced technicque to control over your designs
+
+
+2. FRAUNCES
+Premium, "Old money" style
+For:  Branding and logos that want a classic serif voice with a warm, offbeat personality (e.g., heritage, food, or friendly fintech/“saucy” business vibes).
+Why: Headlines, hero sections, and editorial layouts where expressive typography does the storytelling.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @Fraunces Font 
+
+Color: Hex #C4B773
+ 
+Tracking: Tight (-2%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background: #114A34, Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+
+
+
+3. SYNE
+Artsier, experimental geometric sans
+Fits for: 
+Cultural institutions, creative studios, posters, and edgy editorial layouts.
+Why: 
+Condensed, graphic shapes and bold weights create a strong, contemporary “art center” voice at display sizes.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @Syne Font 
+
+Color: Hex #FFFFFF
+ 
+Tracking: Tight (-4%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background: #0B2B43, Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+
+
+
+4. INTER
+System, product and UI workhorse
+Fits for: 
+Apps, dashboards, documentation, and any digital product needing maximum clarity.
+Why: 
+Neutral, highly readable at small sizes with a huge weight range and excellent language/feature support.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @Inter Font 
+
+Color: Hex #FFFFFF
+ 
+Tracking: Tight (-6%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background: #000000, Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+
+
+5. ALBERT SANS
+Friendly, modern grotesque sans
+Fits for: 
+Startups, lifestyle brands, landing pages, and simple marketing sites.
+Why: 
+Soft, approachable shapes make it feel less corporate than strict neo‑grotesques while staying versatile.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @Albert Sans font 
+
+Color: Hex #FFFFFF
+ 
+Tracking: Tight (-5%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background: #0208F9, Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+
+
+
+6. MERRIWEATHER
+Screen‑optimized classic serif
+Fits for: 
+Blogs, news sites, long‑form reading, and editorial platforms.
+Why: 
+Large x‑height and sturdy forms keep paragraphs comfortable and readable, especially on digital displays.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @Merriweather Font  
+
+Color: Hex #FFE3C3
+ 
+Tracking: Tight (-3%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background: #5B3A30, Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+
+
+
+
+7. TENOR SANS
+Refined, editorial sans
+Fits for: 
+Magazines, minimalist brands, and content‑heavy layouts with a sophisticated tone.
+Why: 
+Narrow proportions and subtle personality work well for headlines and shorter text with an editorial feel.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @Tenor Sans Font 
+
+Color: Hex #FFFFFF
+ 
+Tracking: Tight (-4%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background: #E67D54, Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+
+
+
+
+8. SPACE GROTESK
+Techy, retro‑futuristic sans
+Fits for: 
+Developer tools, Web3/crypto, tech startups, and data‑driven interfaces.
+Why: 
+Inherits “code” DNA from Space Mono, giving a distinctive digital character that pops in headlines and UI.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @Space Grotesk Font 
+
+Color: Hex #FFE3C3
+ 
+Tracking: Tight (-3%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background: #73001C, Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+
+
+
+
+
+9. GOOGLE SANS
+Branded, geometric‑humanist Google look
+Fits for: 
+Product and marketing sites that want a clean, “big tech” aesthetic.
+Why: 
+Rounded, geometric forms feel friendly and modern, great for bold headings and hero copy.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @Google Sans Font 
+
+Color: Hex #737574
+ 
+Tracking: Tight (-3%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background:  #F6F9F8 , Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+10. IBM PLEX SANS
+Corporate, engineered humanist sans
+Fits for: 
+Enterprise products, design systems, documentation, and tech brands.
+Why: 
+Built for IBM’s ecosystem, it balances technical precision with human warmth and scales well from UI to brand.
+PROMPT:
+plaintext
+Render a 2D isolated text on a solid background. 
+
+[CONTENT STRICT] TARGET_TEXT: 
+"INSERT YOUR TEXT HERE" 
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: @IBM Plex Sans Font 
+
+Color: Hex #FFFFFF
+ 
+Tracking: Tight (-3%). 
+Leading: 90%. 
+Alignment: Strictly Left Aligned. 
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background:  #09524F , Solid Fill. 
+
+Texture: None
+Generate with my customized template 🔽
+https://amirmushich.link/ai-fonts
+THE MAGIC OF DETAILS
+The settings I calculated for you aren’t random numbers - they’re your key for premium typography.
+Here’s how it works:
+Tracking / Kerning - the space between letters in your text. 
+Negative values (-3% to -7%) in headlines create tight, luxurious spacing.
+Leading - the space between lines of your text. 
+0.8–0.9 for headlines adds blocky and solid sense, making the headline a strong design element.
+
+
+
+
+Google Fonts choice - All free, web-safe, high-quality fonts I’ve battle-tested in real campaigns for years.
+Colors & alignment - not mandatory choices, but catchy, high contrast and hooky for many cases.
+
+
+PRO TIP:
+Custom colors - made easy:
+In my prompts I use HEX codes (#000000, #FFFFFF etc.) so you can copy-paste exactly.
+But inside LTX prompt window there’s a better way:
+Built-in Color Picker
+• Click the color field → opens visual selector
+• Use eyedropper tool → pick any color directly from your browser/screen
+• No need to hunt HEX codes - just point & click
+Repeat these 2 steps:
+DESIGN & FINE TUNE YOUR CONTENT:
+It’s time to design your content & make final polish steps to make it look great.
+Let’s do it 👇
+Overlay your text on an image:
+follow these simple steps + copy the prompt below
+0:00 / 0:11
+PROMPT:
+plaintext
+Overlay the text on the image as a background. 
+
+
+TARGET_TEXT: 
+["REPLACE THIS TEXT WITH YOURS"]
+
+ACTION: Render EXACTLY the string above. 
+
+PROHIBITED: 
+Do NOT generate subtitles. Do NOT generate descriptions. 
+
+[VISUAL SPECS - READ CAREFULLY] 
+Font Family: [TAG YOUR FONT ELEMENT HERE]
+
+Color: Hex (#FFFFFF)
+
+[LAYOUT & ALIGNMENT] 
+Position: Center of the layout. 
+Scale: 50% of the layout width. 
+Background: image attached

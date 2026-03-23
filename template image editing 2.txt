@@ -1,0 +1,45 @@
+template image editing 2
+
+{
+  "subject": {
+    "description": "young woman early 20s, long wavy chestnut brown hair, lying on back taking selfie",
+    "expression": "calm warm relaxed gaze direct to camera, gentle closed-lip smile",
+    "face": "natural dewy makeup",
+    "hair": "long wavy chestnut brown, flowing over shoulders",
+    "body": "slender toned curvaceous, slim waist, full bust, smooth thighs, fair glowing skin",
+    "pose": "lying on back, right arm extended holding phone, left arm resting",
+    "clothing": {
+      "top": "white tie-front crop top showing midriff",
+      "bottom": "black fitted shorts"
+    }
+  },
+  "additional_subject": {
+    "description": "beautiful blonde early 20s, long straight blonde hair, lying beside her",
+    "expression": "playful soft smile looking at camera",
+    "clothing": "vibrant glossy red latex minidress, deep V-neck, short hem, shiny reflective",
+    "pose": "on side facing main girl, propped on elbow, one leg bent casually"
+  },
+  "accessories": {
+    "jewelry": "gold chain bracelet on right wrist",
+    "plush": "white Hello Kitty + colored Labubu toys around them"
+  },
+  "photography": {
+    "style": "casual smartphone selfie, high angle, waist-up 9:16 vertical",
+    "quality": "realistic phone look, soft grain, shallow focus",
+    "lighting": "dim purple ambient bedroom light"
+  },
+  "background": {
+    "setting": "cozy bed with white sheets, dark walls, fluffy pillows",
+    "elements": "multiple stuffed animals (bunnies, black cat)",
+    "neon": "small purple neon 'KeorUnreal' in background"
+  },
+  "vibe": {
+    "mood": "soft cozy intimate nighttime, relaxed warm closeness",
+    "aesthetic": "authentic casual bedroom selfie moment"
+  },
+  "constraints": {
+    "must_have": ["dim purple light", "plush toys", "selfie arm pose", "visible midriff", "curvaceous figures"],
+    "avoid": ["bright light", "heavy makeup", "professional look", "symmetry", "watermark"]
+  },
+  "negative_prompt": ["blurry", "overexposed", "text", "deformed hands", "harsh light", "studio quality"]
+}

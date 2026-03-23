@@ -1,0 +1,7 @@
+## **3. Testimonials**
+
+🏷️ Real environments + text overlays. Tests composition depth.
+
+**Template Prompt:**
+
+Use the attached images as brand reference. Create: a testimonial ad set in [SETTING like bright bathroom / kitchen] with warm natural light. [YOUR PRODUCT] on [SURFACE], slightly out of focus. Overlaid: large bold white sans-serif "[SHORT HEADLINE]". Below: "[FULL QUOTE 2-3 sentences]. [NAME], [CREDENTIAL]." Five filled [BRAND COLOR] stars. [BRAND] logo bottom right in white. Shot on 35mm f/2.0. 9:16 aspect ratio.
