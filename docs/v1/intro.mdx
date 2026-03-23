@@ -1,0 +1,56 @@
+---
+title: Pi API — Introduction
+description: OpenAI-compatible, multi-modal orchestration API for Pi ($\pi$).
+---
+
+# Pi API (v1)
+
+**Pi** is an enterprise-grade **Agentic Infrastructure Intelligence Platform**: a multi-modal orchestration API with a predictable, **OpenAI-style** developer experience.
+
+## Base URL
+
+- Production: `https://api.example.com` (replace with your deployed host)
+- Versioned routes live under `/v1/…` (implemented in `src/app/api/v1/`).
+
+## Authentication
+
+Send a Bearer token on every request:
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+Keys are issued and verified via **Unkey** (rate limits and metering). Never embed secrets in client-side code.
+
+## Request / response shape
+
+Pi aims for **OpenAI-compatible** request and response structures where applicable. Responses use a consistent envelope:
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique request or resource id (e.g. `pi_req_…`) |
+| `object` | Resource type (e.g. `job`, `image.generation`) |
+| `status` | Current state |
+| `created_at` | Unix timestamp (seconds) |
+| `data` | Primary payload |
+| `error` | Optional structured error: `code`, `message` |
+
+## Long-running work
+
+Operations that may take **more than a few seconds** return **`202 Accepted`** with a **job id** and progress through:
+
+`queued` → `processing` → `completed` or `failed`
+
+Heavy execution runs on **Trigger.dev** workers (see `src/jobs/` and `trigger.config.ts`).
+
+## Idempotency
+
+`POST` requests support idempotency (e.g. `Idempotency-Key` header) to avoid duplicate side effects and **duplicate billing**.
+
+## Documentation policy
+
+Every new or changed endpoint must be documented here (MDX) and in code (TSDoc). See [`.cursorrules`](../../.cursorrules).
+
+## Next pages
+
+- Endpoint reference pages will be added alongside implementation under `docs/v1/`.
