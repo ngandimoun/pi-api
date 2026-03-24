@@ -1,0 +1,202 @@
+---
+title: Pi API — Quickstart
+description: Integrate with Pi v1 using curl, fetch, or Python; optional in-repo TypeScript SDK.
+---
+
+# Quickstart
+
+This guide is for **server-side** integrations. Use your Pi **API key** only on trusted backends, workers, or CLI tools — never in public browser bundles.
+
+## Prerequisites
+
+- **Base URL** — replace `https://api.example.com` with your deployed API host.
+- **API key** — Bearer token issued via Unkey (e.g. `pi_live_...`).
+- **TLS** — always use `https` in production.
+
+## Authentication
+
+Every request:
+
+```http
+Authorization: Bearer <your_api_key>
+Content-Type: application/json
+```
+
+## End-to-end flow
+
+1. **Extract** — `POST /api/v1/brands/extract` with at least one of `url`, `logoBase64`, or `imagesBase64`. Response is **202** with `data.job_id`.
+2. **Wait for the job** — `GET /api/v1/jobs/:job_id?wait_for_completion=true&timeout_seconds=20&expand=brand` until `data.status` is `completed` or `failed`.
+3. **Optional: fetch the brand** — `GET /api/v1/brands/:brand_id` if you did not use `expand=brand` on the job.
+4. **Project (dynamic context)** — `POST /api/v1/brands/:brand_id/project` with `{ "use_case": "..." }` for compact, use-case-specific JSON. See [Brand projection](./endpoints/brand-project) for `payload.meta` (model vs deterministic fallback).
+
+## Types and validation
+
+Server and the in-repo SDK validate payloads with **Zod** schemas in [`src/contracts/brand-api.ts`](../../src/contracts/brand-api.ts). Use that file as the contract reference when building your own client.
+
+---
+
+## 1. curl (copy-paste)
+
+Replace `API_KEY`, `BASE`, and IDs.
+
+```bash
+export BASE="https://api.example.com"
+export API_KEY="pi_live_***"
+
+# 1) Queue extraction
+curl -sS -X POST "$BASE/api/v1/brands/extract" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com"}'
+
+# 2) Long-poll job (use job_id from step 1)
+curl -sS "$BASE/api/v1/jobs/JOB_ID_HERE?wait_for_completion=true&timeout_seconds=20&expand=brand" \
+  -H "Authorization: Bearer $API_KEY"
+
+# 3) Project DNA for a use case (use brand id from job_result or brands list)
+curl -sS -X POST "$BASE/api/v1/brands/BRAND_ID_HERE/project" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"use_case":"Generate shadcn-style design tokens for a SaaS dashboard."}'
+```
+
+---
+
+## 2. TypeScript — external integration (`fetch`)
+
+**Recommended for apps that do not ship this monorepo.** No `@/` imports; works in Node 18+ or any runtime with `fetch`.
+
+```ts
+const BASE = process.env.PI_BASE_URL ?? "https://api.example.com";
+const API_KEY = process.env.PI_API_KEY!;
+
+type PiErrorBody = { error?: { code?: string; message?: string; request_id?: string } };
+
+async function piRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const url = path.startsWith("http") ? path : `${BASE.replace(/\/+$/, "")}${path}`;
+  const res = await fetch(url, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      "Content-Type": "application/json",
+      ...init.headers,
+    },
+  });
+  const json = (await res.json()) as T & PiErrorBody;
+  if (!res.ok) {
+    const msg = json.error?.message ?? res.statusText;
+    const code = json.error?.code ?? String(res.status);
+    throw new Error(`${code}: ${msg}`);
+  }
+  return json as T;
+}
+
+// --- Example flow ---
+async function main() {
+  const queued = await piRequest<{ data: { job_id: string } }>("/api/v1/brands/extract", {
+    method: "POST",
+    body: JSON.stringify({ url: "https://example.com" }),
+  });
+  const jobId = queued.data.job_id;
+
+  const job = await piRequest<{
+    data: {
+      status: string;
+      job_result?: { brand?: { id: string; brand_dna?: unknown } };
+    };
+  }>(`/api/v1/jobs/${jobId}?wait_for_completion=true&timeout_seconds=25&expand=brand`);
+
+  if (job.data.status !== "completed") {
+    throw new Error("Extraction did not complete");
+  }
+  const brandId = job.data.job_result?.brand?.id;
+  if (!brandId) throw new Error("No brand id on job result");
+
+  const projected = await piRequest<{ data: { payload: unknown } }>(
+    `/api/v1/brands/${brandId}/project`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        use_case: "Generate compact UI tokens for a marketing landing page.",
+      }),
+    }
+  );
+  console.log(projected.data.payload);
+}
+
+void main();
+```
+
+---
+
+## 3. Python (`requests`)
+
+Install: `pip install requests`.
+
+```python
+import os
+import requests
+
+BASE = os.environ.get("PI_BASE_URL", "https://api.example.com").rstrip("/")
+API_KEY = os.environ["PI_API_KEY"]
+H = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
+
+r = requests.post(f"{BASE}/api/v1/brands/extract", json={"url": "https://example.com"}, headers=H, timeout=60)
+r.raise_for_status()
+job_id = r.json()["data"]["job_id"]
+
+r = requests.get(
+    f"{BASE}/api/v1/jobs/{job_id}",
+    params={"wait_for_completion": "true", "timeout_seconds": 25, "expand": "brand"},
+    headers={"Authorization": f"Bearer {API_KEY}"},
+    timeout=120,
+)
+r.raise_for_status()
+job = r.json()["data"]
+if job["status"] != "completed":
+    raise RuntimeError("Extraction did not complete")
+brand_id = job["job_result"]["brand"]["id"]
+
+r = requests.post(
+    f"{BASE}/api/v1/brands/{brand_id}/project",
+    json={"use_case": "Generate compact UI tokens for a marketing landing page."},
+    headers=H,
+    timeout=120,
+)
+r.raise_for_status()
+print(r.json()["data"]["payload"])
+```
+
+---
+
+## 4. In-repo TypeScript SDK (this monorepo only)
+
+If you are **developing inside this repository**, you can use the typed client:
+
+```ts
+import { createPiClient } from "@/sdk";
+
+const client = createPiClient({
+  apiKey: process.env.PI_API_KEY!,
+  baseUrl: process.env.PI_BASE_URL ?? "http://localhost:3000",
+});
+
+const queued = await client.brands.extract({ url: "https://example.com" });
+const job = await client.jobs.retrieve(queued.data.job_id, {
+  wait_for_completion: true,
+  timeout_seconds: 25,
+  expand: "brand",
+});
+```
+
+The SDK wraps the same routes as above and parses responses with Zod (`src/sdk/client.ts`).
+
+**Publishing:** There is no published npm package for `createPiClient` in this repo yet. External apps should use the **fetch** example above or vendor a copy of `src/sdk/client.ts` and replace `@/contracts/...` imports with your package paths.
+
+---
+
+## Next steps
+
+- [Introduction](./intro.mdx) — envelopes, rate-limit headers, expansion convention.
+- [API index](../README.md) — full endpoint table.
+- [Brand projection](./endpoints/brand-project) — guardrails, errors, `payload.meta`.

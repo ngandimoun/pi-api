@@ -1,0 +1,84 @@
+{
+  "timestamp": "2026-03-24T18:36:04.634Z",
+  "base_url": "http://localhost:3000",
+  "brand_id": "ae6fb558-8855-4148-b881-e0044d41cccd",
+  "org_id": "f99d39cb-d556-43b0-9d74-9c94c58b2574",
+  "key_id": "key_gGGYkTpK",
+  "thresholds": {
+    "max_deterministic_rate": 0,
+    "max_non_llm_rate": 0,
+    "max_p95_ms": 15000,
+    "required_valid_json_rate": 1
+  },
+  "metrics": {
+    "total_prompts": 5,
+    "valid_json_rate": 1,
+    "deterministic_rate": 1,
+    "legacy_fallback_rate": 0,
+    "non_llm_rate": 1,
+    "p95_latency_ms": 8877
+  },
+  "pass": {
+    "valid_json_rate": true,
+    "deterministic_gate": false,
+    "non_llm_gate": false,
+    "p95_latency_ms": true
+  },
+  "results": [
+    {
+      "id": "ui_theme_short",
+      "title": "Short UI theme request",
+      "status": 200,
+      "duration_ms": 8877,
+      "valid_envelope": true,
+      "deterministic_path": true,
+      "legacy_fallback": false,
+      "non_llm": true,
+      "request_id": "req_pi_2ac8e0b5-ed8e-4409-a163-d23887b1fd5f"
+    },
+    {
+      "id": "vibe_coder_long",
+      "title": "Long noisy vibe-coder paragraph",
+      "status": 200,
+      "duration_ms": 3172,
+      "valid_envelope": true,
+      "deterministic_path": true,
+      "legacy_fallback": false,
+      "non_llm": true,
+      "request_id": "req_pi_dfcaf285-6000-4b53-8f5d-9a3ffbd3d830"
+    },
+    {
+      "id": "ecommerce_components",
+      "title": "E-commerce components theme",
+      "status": 200,
+      "duration_ms": 3063,
+      "valid_envelope": true,
+      "deterministic_path": true,
+      "legacy_fallback": false,
+      "non_llm": true,
+      "request_id": "req_pi_56d1156b-7282-4e84-a207-443044e51248"
+    },
+    {
+      "id": "email_template_tone",
+      "title": "Email/template tone extraction",
+      "status": 200,
+      "duration_ms": 2482,
+      "valid_envelope": true,
+      "deterministic_path": true,
+      "legacy_fallback": false,
+      "non_llm": true,
+      "request_id": "req_pi_47190a74-99fd-4db2-9b49-7bcd8b9ef5f1"
+    },
+    {
+      "id": "irrelevant_instruction_edge",
+      "title": "Negative edge prompt",
+      "status": 200,
+      "duration_ms": 3057,
+      "valid_envelope": true,
+      "deterministic_path": true,
+      "legacy_fallback": false,
+      "non_llm": true,
+      "request_id": "req_pi_d498c414-35ea-4074-9805-74d48802b2eb"
+    }
+  ]
+}

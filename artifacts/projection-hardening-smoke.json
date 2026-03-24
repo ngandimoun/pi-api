@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-03-24T16:44:10.335Z",
+  "status": 200,
+  "latency_ms": 21122,
+  "request_id": "req_pi_fb7adbe4-f429-4e61-aa1a-405a21586da4",
+  "is_wildcard": true,
+  "fallback": true,
+  "fallback_reason": "model_empty_or_invalid_json"
+}

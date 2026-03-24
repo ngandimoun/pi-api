@@ -1,0 +1,126 @@
+{
+  "timestamp": "2026-03-24T13:15:07.077Z",
+  "first": {
+    "ok": true,
+    "jobId": "b689749e-2dd3-4975-9b24-62dc7f44c52d",
+    "status": "failed",
+    "brandId": null,
+    "job": {
+      "id": "req_pi_622afcb8-95a1-4056-95c1-1005fd5b8e16",
+      "object": "job",
+      "status": "completed",
+      "created_at": 1774358043,
+      "data": {
+        "id": "b689749e-2dd3-4975-9b24-62dc7f44c52d",
+        "org_id": "f99d39cb-d556-43b0-9d74-9c94c58b2574",
+        "type": "brand_extraction",
+        "status": "failed",
+        "payload": {
+          "phase": "failed",
+          "failed_at": "2026-03-24T13:13:58.537Z"
+        },
+        "result_url": null,
+        "error_log": "No JSON object found in model response.\nError: No JSON object found in model response.\n    at tryParseJsonObject (file:///C:/Users/nchri/Downloads/piii/src/jobs/brand-extractor.ts:218:9)\n    at run (file:///C:/Users/nchri/Downloads/piii/src/jobs/brand-extractor.ts:404:32)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _tracer.startActiveSpan.attributes (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:430:18)\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tracer.ts:137:18\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:425:14\n    at _RunTimelineMetricsAPI.measureMetric (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/runTimelineMetrics/index.ts:67:22)\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:189:26\n    at tryCatch (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tryCatch.ts:10:18)\n    at executeTask (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:178:40)",
+        "created_at": 1774357967,
+        "updated_at": 1774358039
+      }
+    }
+  },
+  "second": {
+    "ok": true,
+    "jobId": "281af3e8-0be9-41cf-b5ae-01a6feb92d6d",
+    "status": "failed",
+    "brandId": null,
+    "job": {
+      "id": "req_pi_b8b5736d-1494-49fa-b1ab-7bf509c51962",
+      "object": "job",
+      "status": "completed",
+      "created_at": 1774358106,
+      "data": {
+        "id": "281af3e8-0be9-41cf-b5ae-01a6feb92d6d",
+        "org_id": "f99d39cb-d556-43b0-9d74-9c94c58b2574",
+        "type": "brand_extraction",
+        "status": "failed",
+        "payload": {
+          "phase": "failed",
+          "failed_at": "2026-03-24T13:15:02.449Z"
+        },
+        "result_url": null,
+        "error_log": "Failed to insert brand record: Could not find the 'domain' column of 'brands' in the schema cache\nError: Failed to insert brand record: Could not find the 'domain' column of 'brands' in the schema cache\n    at run (file:///C:/Users/nchri/Downloads/piii/src/jobs/brand-extractor.ts:461:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _tracer.startActiveSpan.attributes (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:430:18)\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tracer.ts:137:18\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:425:14\n    at _RunTimelineMetricsAPI.measureMetric (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/runTimelineMetrics/index.ts:67:22)\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:189:26\n    at tryCatch (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tryCatch.ts:10:18)\n    at executeTask (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:178:40)\n    at tryCatch (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tryCatch.ts:10:18)",
+        "created_at": 1774358044,
+        "updated_at": 1774358103
+      }
+    }
+  },
+  "brand": {
+    "id": null,
+    "http": 0,
+    "domain": null,
+    "logo_root": null,
+    "logo_asset": null,
+    "screenshot_asset": null,
+    "colors": {}
+  },
+  "checks": {
+    "runs_completed": false,
+    "screenshot_persisted_to_r2": false,
+    "logo_hoisted": false,
+    "color_role_fields_present": false,
+    "upsert_same_brand_id": false,
+    "domain_count_apple": null
+  },
+  "errors": [
+    {
+      "ok": true,
+      "jobId": "b689749e-2dd3-4975-9b24-62dc7f44c52d",
+      "status": "failed",
+      "brandId": null,
+      "job": {
+        "id": "req_pi_622afcb8-95a1-4056-95c1-1005fd5b8e16",
+        "object": "job",
+        "status": "completed",
+        "created_at": 1774358043,
+        "data": {
+          "id": "b689749e-2dd3-4975-9b24-62dc7f44c52d",
+          "org_id": "f99d39cb-d556-43b0-9d74-9c94c58b2574",
+          "type": "brand_extraction",
+          "status": "failed",
+          "payload": {
+            "phase": "failed",
+            "failed_at": "2026-03-24T13:13:58.537Z"
+          },
+          "result_url": null,
+          "error_log": "No JSON object found in model response.\nError: No JSON object found in model response.\n    at tryParseJsonObject (file:///C:/Users/nchri/Downloads/piii/src/jobs/brand-extractor.ts:218:9)\n    at run (file:///C:/Users/nchri/Downloads/piii/src/jobs/brand-extractor.ts:404:32)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _tracer.startActiveSpan.attributes (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:430:18)\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tracer.ts:137:18\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:425:14\n    at _RunTimelineMetricsAPI.measureMetric (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/runTimelineMetrics/index.ts:67:22)\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:189:26\n    at tryCatch (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tryCatch.ts:10:18)\n    at executeTask (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:178:40)",
+          "created_at": 1774357967,
+          "updated_at": 1774358039
+        }
+      }
+    },
+    {
+      "ok": true,
+      "jobId": "281af3e8-0be9-41cf-b5ae-01a6feb92d6d",
+      "status": "failed",
+      "brandId": null,
+      "job": {
+        "id": "req_pi_b8b5736d-1494-49fa-b1ab-7bf509c51962",
+        "object": "job",
+        "status": "completed",
+        "created_at": 1774358106,
+        "data": {
+          "id": "281af3e8-0be9-41cf-b5ae-01a6feb92d6d",
+          "org_id": "f99d39cb-d556-43b0-9d74-9c94c58b2574",
+          "type": "brand_extraction",
+          "status": "failed",
+          "payload": {
+            "phase": "failed",
+            "failed_at": "2026-03-24T13:15:02.449Z"
+          },
+          "result_url": null,
+          "error_log": "Failed to insert brand record: Could not find the 'domain' column of 'brands' in the schema cache\nError: Failed to insert brand record: Could not find the 'domain' column of 'brands' in the schema cache\n    at run (file:///C:/Users/nchri/Downloads/piii/src/jobs/brand-extractor.ts:461:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at _tracer.startActiveSpan.attributes (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:430:18)\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tracer.ts:137:18\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:425:14\n    at _RunTimelineMetricsAPI.measureMetric (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/runTimelineMetrics/index.ts:67:22)\n    at file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:189:26\n    at tryCatch (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tryCatch.ts:10:18)\n    at executeTask (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/workers/taskExecutor.ts:178:40)\n    at tryCatch (file:///C:/Users/nchri/Downloads/piii/node_modules/@trigger.dev/core/src/v3/tryCatch.ts:10:18)",
+          "created_at": 1774358044,
+          "updated_at": 1774358103
+        }
+      }
+    }
+  ]
+}

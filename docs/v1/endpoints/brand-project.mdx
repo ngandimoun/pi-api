@@ -1,0 +1,151 @@
+---
+title: Brand Projection
+description: Dynamically project stored brand DNA into compact, use-case-specific JSON.
+---
+
+# POST `/api/v1/brands/:id/project`
+
+Projects a stored `brand_dna` resource into a compact payload for a developer-defined `use_case`.
+
+- Auth: Bearer API key (Unkey)
+- Execution: synchronous
+- Model path: Gemini Flash (`GOOGLE_BRAND_PROJECTION_MODEL`)
+- Tracking: every projection is logged in `projected_payloads`
+- Guardrails: max `use_case` length, request-body threshold, and abuse window limits
+
+Use this endpoint when you already completed extraction and want clean context for frontend/codegen agents without passing the full raw DNA.
+
+## Why this exists
+
+Extraction stores a "fat JSON" with rich context for reliability and replayability. AI coding workflows usually need a smaller payload.
+
+This endpoint converts:
+
+- **input:** full `brand_dna`
+- **output:** minimal JSON shaped for your requested use case
+
+## Request
+
+```http
+POST /api/v1/brands/12cecf5a-42e9-48b4-85bb-6743126ff2e8/project
+Authorization: Bearer pi_live_***
+Content-Type: application/json
+```
+
+```json
+{
+  "use_case": "generate shadcn design tokens for a SaaS dashboard"
+}
+```
+
+## Response
+
+Success responses use the standard envelope (`apiSuccess`). Top-level `status` is **`completed`** (same helper as other synchronous Pi resources).
+
+```json
+{
+  "id": "req_pi_2f2b3de6-aaaa-bbbb-cccc-ddddeeeeffff",
+  "object": "brand.projection",
+  "status": "completed",
+  "created_at": 1762540000,
+  "data": {
+    "use_case": "generate shadcn design tokens for a SaaS dashboard",
+    "is_wildcard": true,
+    "payload": {
+      "use_case": "generate shadcn design tokens for a SaaS dashboard",
+      "brand_projection": {
+        "primary_background_hex": "#FFFFFF",
+        "primary_accent_hex": "#0071E3",
+        "color_palette": ["#FFFFFF", "#0071E3", "#1D1D1F"],
+        "typography_rules": "…",
+        "core_slogan": "…",
+        "imagen_style_conditioning": "…",
+        "logo_url": null
+      },
+      "meta": {
+        "source": "deterministic_projection",
+        "reason": "model_unavailable_or_invalid_json"
+      }
+    }
+  }
+}
+```
+
+### `payload.meta` and HTTP 200
+
+The handler **always** returns **200** when a payload is produced. If the Gemini path cannot produce valid structured output, the server falls back to a **deterministic** projection derived from stored DNA (`meta.source`: `deterministic_projection`). Inspect `data.payload.meta` if you need to distinguish model output from fallback. Tracking inserts may also merge **guardrails** into `meta` (request size, limits).
+
+When the model path succeeds, `meta` may be absent or omit `source: "deterministic_projection"` depending on the returned object shape.
+
+## cURL example
+
+```bash
+curl -X POST "https://api.example.com/api/v1/brands/<brand_id>/project" \
+  -H "Authorization: Bearer pi_live_***" \
+  -H "Content-Type: application/json" \
+  -d '{"use_case":"create lovable.dev-ready UI variables and button style guide"}'
+```
+
+## TypeScript SDK example (in-repo / monorepo)
+
+```ts
+import { createPiClient } from "@/sdk";
+
+const client = createPiClient({
+  apiKey: process.env.PI_API_KEY!,
+  baseUrl: "https://api.example.com",
+});
+
+const projected = await client.brands.project(
+  "12cecf5a-42e9-48b4-85bb-6743126ff2e8",
+  { use_case: "build a Next.js landing page token contract" }
+);
+
+console.log(projected.data.payload);
+```
+
+## When to use
+
+- You need concise brand context for Cursor/Copilot/Windsurf prompts.
+- You want to avoid token waste from raw extraction payloads.
+- You need auditability of projection usage per developer/use case.
+
+## Cost + Abuse Guardrails
+
+Projection wildcard calls include hardening controls to keep cost predictable:
+
+- `GOOGLE_BRAND_PROJECTION_MAX_USE_CASE_CHARS` limits accepted `use_case` length.
+- `GOOGLE_BRAND_PROJECTION_MODEL_USE_CASE_CHARS` truncates model-facing prompt text.
+- `GOOGLE_BRAND_PROJECTION_MAX_DNA_CHARS` truncates embedded `brand_dna` context.
+- `GOOGLE_BRAND_PROJECTION_MAX_BODY_BYTES` rejects oversized request bodies.
+- `GOOGLE_BRAND_PROJECTION_ABUSE_WINDOW_MS` and `GOOGLE_BRAND_PROJECTION_ABUSE_MAX_VIOLATIONS` enforce repeated-abuse thresholds.
+
+Low-cost Firecrawl scrape mode (for ingestion side) is controlled by:
+
+- `FIRECRAWL_ENABLE_SCREENSHOT`
+- `FIRECRAWL_ENABLE_ACTION_WAIT`
+- `FIRECRAWL_ACTION_WAIT_MS`
+
+Recommended low-cost baseline:
+
+- `FIRECRAWL_ENABLE_ACTION_WAIT=false`
+- `FIRECRAWL_ACTION_WAIT_MS=0`
+
+## When not to use
+
+- You need full provenance/debug fields from extraction (`brand_dna` directly).
+- You need deterministic fixed mappings (not part of this wildcard-only endpoint scope).
+- The extraction job has not completed yet.
+
+## Errors
+
+- `400 invalid_brand_id`: path id is not UUID.
+- `400 invalid_request_body`: missing/invalid `use_case`.
+- `400 invalid_json_body`: body is not valid JSON.
+- `400 projection_request_too_large`: request body exceeds projection body-size guard.
+- `404 brand_not_found`: missing brand or cross-org access.
+- `429 projection_abuse_threshold_exceeded`: repeated abusive oversized requests in active window.
+- `500 brand_lookup_failed`: database error while loading the brand.
+- `502 projection_generation_failed`: thrown before a payload could be built (rare; most model failures still return **200** with deterministic fallback — see above).
+
+External developers without this monorepo should use plain `fetch` — see [Quickstart](../quickstart).

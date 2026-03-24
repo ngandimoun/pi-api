@@ -6,12 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "predeploy": "npm run firecrawl:check",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "firecrawl:check": "node scripts/firecrawl-check.mjs",
+    "projection:golden-check": "node scripts/projection-golden-check.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.0",
     "@ai-sdk/google": "^2.0.0",
     "@ai-sdk/openai": "^2.0.0",
+    "@aws-sdk/client-s3": "^3.1014.0",
+    "@aws-sdk/s3-request-presigner": "^3.1014.0",
     "@base-ui/react": "^1.3.0",
     "@mastra/core": "^1.15.0",
     "@supabase/ssr": "^0.6.0",
@@ -43,6 +49,7 @@
     "tailwindcss": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
     "trigger.dev": "4.4.3",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.1"
   }
 }

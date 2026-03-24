@@ -1,0 +1,200 @@
+---
+title: Job Retrieval
+description: Poll asynchronous Pi jobs for status, results, and errors.
+---
+
+# Job Retrieval
+
+Pi runs heavyweight agentic workflows asynchronously. Use this endpoint to poll a job until it reaches `completed` or `failed`.
+
+## Endpoint
+
+- `GET /api/v1/jobs/:id`
+
+## Query parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `expand` | `"brand"` | No | Expands the resolved brand resource when `result_url` points to `brands/{brand_id}`. |
+| `include` | `"brand"` | No | Alias of `expand=brand`. |
+| `wait_for_completion` | `boolean` | No | Long-poll until terminal state (`completed`/`failed`) or timeout. |
+| `timeout_seconds` | `number` | No | Long-poll timeout window. Range: `1` to `30`, default `20`. |
+| `fields` | `csv` | No | Select specific job fields only (e.g. `fields=id,status,result_url`). |
+
+## Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## Path parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `id` | `uuid` | Yes | Job ID returned by async endpoints (e.g. brand extraction). |
+
+## Behavior and security
+
+- Returns `404` when:
+  - the job does not exist, or
+  - the job belongs to a different organization.
+- This prevents job ID enumeration across tenants.
+
+## Example cURL
+
+```bash
+curl -X GET "https://api.example.com/api/v1/jobs/7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## Example cURL with expansion
+
+```bash
+curl -X GET "https://api.example.com/api/v1/jobs/7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a?expand=brand" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## Example cURL with long-poll and projection
+
+```bash
+curl -X GET "https://api.example.com/api/v1/jobs/7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a?wait_for_completion=true&timeout_seconds=20&fields=id,status,result_url&include=brand" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## Example TypeScript
+
+```ts
+const response = await fetch(
+  "https://api.example.com/api/v1/jobs/7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a",
+  {
+    headers: {
+      Authorization: `Bearer ${process.env.PI_API_KEY}`,
+    },
+  }
+);
+
+const json = await response.json();
+console.log(json.data.status);
+```
+
+## Response example: processing
+
+```json
+{
+  "id": "req_pi_6f2d...",
+  "object": "job",
+  "status": "completed",
+  "created_at": 1760000000,
+  "data": {
+    "id": "7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a",
+    "org_id": "30c0342f-4f28-4a13-9d63-5f5a10f57cc6",
+    "type": "brand_extraction",
+    "status": "processing",
+    "payload": {
+      "phase": "phase_c_claude_structuring"
+    },
+    "result_url": null,
+    "error_log": null,
+    "created_at": 1760000000,
+    "updated_at": 1760000020
+  }
+}
+```
+
+## Response example: completed with results
+
+```json
+{
+  "id": "req_pi_8a4c...",
+  "object": "job",
+  "status": "completed",
+  "created_at": 1760000100,
+  "data": {
+    "id": "7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a",
+    "org_id": "30c0342f-4f28-4a13-9d63-5f5a10f57cc6",
+    "type": "brand_extraction",
+    "status": "completed",
+    "payload": {
+      "phase": "completed",
+      "brand_id": "1c26bcfa-e50e-4800-a7df-5b97db5fd50c"
+    },
+    "result_url": "brands/1c26bcfa-e50e-4800-a7df-5b97db5fd50c",
+    "error_log": null,
+    "created_at": 1760000000,
+    "updated_at": 1760000088
+  }
+}
+```
+
+## Response example: completed with `expand=brand`
+
+```json
+{
+  "id": "req_pi_8a4c...",
+  "object": "job",
+  "status": "completed",
+  "created_at": 1760000100,
+  "data": {
+    "id": "7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a",
+    "org_id": "30c0342f-4f28-4a13-9d63-5f5a10f57cc6",
+    "type": "brand_extraction",
+    "status": "completed",
+    "payload": {
+      "phase": "completed",
+      "brand_id": "1c26bcfa-e50e-4800-a7df-5b97db5fd50c"
+    },
+    "result_url": "brands/1c26bcfa-e50e-4800-a7df-5b97db5fd50c",
+    "error_log": null,
+    "created_at": 1760000000,
+    "updated_at": 1760000088,
+    "expanded": {
+      "brand": {
+        "id": "1c26bcfa-e50e-4800-a7df-5b97db5fd50c",
+        "name": "apple.com",
+        "primary_hex": "#000000",
+        "secondary_hex": "#F5F5F7"
+      }
+    }
+  }
+}
+```
+
+## When to use `expand=brand`
+
+- Use it when your UI needs final brand content immediately on `completed`.
+- Use it to reduce one extra network call (`/jobs/:id` + `/brands/:id` becomes one call).
+- Use it for polling flows where fastest final paint matters.
+
+## When to not use `expand=brand`
+
+- Do not use it for lightweight status-only polling loops.
+- Do not use it if you cache/read brand resources separately already.
+- Do not use it when you want minimum payload size and lowest bandwidth.
+
+## When to use `wait_for_completion`
+
+- Use it on backend/server clients to reduce polling loops.
+- Use it when your UX needs immediate terminal-state transition.
+
+## When to not use `wait_for_completion`
+
+- Do not use it in browser loops where short status polling is simpler.
+- Do not use it if your platform enforces strict request timeout limits.
+
+## When to use `fields`
+
+- Use it for minimal payload polling (`id,status`).
+- Use it in high-frequency polling to reduce bandwidth and parsing cost.
+
+## When to not use `fields`
+
+- Do not use it if your consumer expects full job objects.
+- Do not use it when switching fields dynamically per request without schema handling.
+
+## Job statuses
+
+- `queued`
+- `processing`
+- `completed`
+- `failed`
+

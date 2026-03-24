@@ -1,0 +1,15 @@
+{
+  "description": "Required documentation files; tests/docs/smoke.test.ts asserts these exist.",
+  "requiredPaths": [
+    "docs/README.md",
+    "docs/v1/README.md",
+    "docs/v1/intro.mdx",
+    "docs/v1/quickstart.mdx",
+    "docs/v1/endpoints/brand-extraction.mdx",
+    "docs/v1/endpoints/list-brands.mdx",
+    "docs/v1/endpoints/get-brand.mdx",
+    "docs/v1/endpoints/brand-project.mdx",
+    "docs/v1/endpoints/jobs.mdx",
+    "docs/marketing/product-blurbs.md"
+  ]
+}

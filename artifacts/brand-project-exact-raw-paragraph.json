@@ -1,0 +1,44 @@
+{
+  "timestamp": "2026-03-24T16:28:42.735Z",
+  "baseUrl": "http://localhost:3000",
+  "brandId": "ae6fb558-8855-4148-b881-e0044d41cccd",
+  "orgId": "f99d39cb-d556-43b0-9d74-9c94c58b2574",
+  "keyId": "key_9KsZRh6p",
+  "request": {
+    "use_case": "now le rerun all the test to see if everything is working well , alos if the user do the dynamic json \n\n\nfor example like  this peekabo \n\nInstall\nTwo ways: native app/CLI via Homebrew, or MCP server via npm. Both expose the same toolset.\n\nHomebrew\nMCP (npm)\nnpx -y @steipete/peekaboo\n\nRequires macOS Screen Recording + Accessibility permissions. Grant guide.\n\npeekaboo \"Open Safari, go to github.com, and search for Peekaboo\""
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "id": "req_pi_1e642e82-f63c-4bc1-9bf0-702fb315d70c",
+      "object": "brand.projection",
+      "status": "completed",
+      "created_at": 1774369722,
+      "data": {
+        "use_case": "now le rerun all the test to see if everything is working well , alos if the user do the dynamic json \n\n\nfor example like  this peekabo \n\nInstall\nTwo ways: native app/CLI via Homebrew, or MCP server via npm. Both expose the same toolset.\n\nHomebrew\nMCP (npm)\nnpx -y @steipete/peekaboo\n\nRequires macOS Screen Recording + Accessibility permissions. Grant guide.\n\npeekaboo \"Open Safari, go to github.com, and search for Peekaboo\"",
+        "is_wildcard": true,
+        "payload": {
+          "use_case": "now le rerun all the test to see if everything is working well , alos if the user do the dynamic json \n\n\nfor example like  this peekabo \n\nInstall\nTwo ways: native app/CLI via Homebrew, or MCP server via npm. Both expose the same toolset.\n\nHomebrew\nMCP (npm)\nnpx -y @steipete/peekaboo\n\nRequires macOS Screen Recording + Accessibility permissions. Grant guide.\n\npeekaboo \"Open Safari, go to github.com, and search for Peekaboo\"",
+          "brand_projection": {
+            "primary_background_hex": "#FFFFFF",
+            "primary_accent_hex": "#0071E3",
+            "color_palette": [
+              "#FFFFFF",
+              "#0071E3",
+              "#1D1D1F",
+              "#2997FF"
+            ],
+            "typography_rules": "Use SF Pro Display for headings and SF Pro Text for body text with clear hierarchy.",
+            "core_slogan": "Discover the innovative world of Apple and shop everything iPhone, iPad, Apple Watch, Mac, and Apple TV, plus explore accessories, entertainment, and expert device support",
+            "imagen_style_conditioning": "Minimalist premium visual style with clean surfaces, balanced contrast, and modern product focus. Maintain sharp lighting, precise composition, and restrained color accents.",
+            "logo_url": null
+          },
+          "meta": {
+            "fallback": true,
+            "reason": "model_empty_or_invalid_json"
+          }
+        }
+      }
+    }
+  }
+}

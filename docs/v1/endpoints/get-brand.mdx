@@ -1,0 +1,99 @@
+---
+title: Get Brand
+description: Retrieve a first-class brand resource by brand_id.
+---
+
+# Get Brand
+
+Fetches a single brand resource for the authenticated organization.
+
+This endpoint is the direct resolver for `result_url: brands/{brand_id}` returned by completed brand extraction jobs.
+
+## Endpoint
+
+- `GET /api/v1/brands/:id`
+
+## Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## Path parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `id` | `uuid` | Yes | Brand ID to retrieve. |
+
+## Query parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `expand` | `"latest_job"` | No | Include latest extraction job metadata as `data.expanded.latest_job`. |
+| `include` | `"latest_job"` | No | Alias of `expand=latest_job`. |
+| `fields` | `csv` | No | Select specific brand fields only. |
+
+## Security behavior
+
+- Returns `404` when:
+  - the brand does not exist, or
+  - the brand belongs to a different organization.
+
+## Example cURL
+
+```bash
+curl -X GET "https://api.example.com/api/v1/brands/1c26bcfa-e50e-4800-a7df-5b97db5fd50c" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## Example cURL with expansion
+
+```bash
+curl -X GET "https://api.example.com/api/v1/brands/1c26bcfa-e50e-4800-a7df-5b97db5fd50c?include=latest_job&fields=id,name,brand_dna" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## When to use expansion and fields
+
+- Use expansion when brand detail screens also show extraction status.
+- Use fields when you only need a subset (e.g. `id,name`).
+
+## When to not use expansion and fields
+
+- Avoid expansion for high-throughput internal lookups that only need brand data.
+- Avoid fields when your consumer expects the complete canonical brand object.
+
+## Example response
+
+```json
+{
+  "id": "req_pi_9dc4...",
+  "object": "brand",
+  "status": "completed",
+  "created_at": 1760002100,
+  "data": {
+    "id": "1c26bcfa-e50e-4800-a7df-5b97db5fd50c",
+    "org_id": "30c0342f-4f28-4a13-9d63-5f5a10f57cc6",
+    "domain": "apple.com",
+    "name": "apple.com",
+    "primary_hex": "#000000",
+    "secondary_hex": "#F5F5F7",
+    "logo_url": "https://cdn.example.com/brands/org/brand/logo.png",
+    "font_file_url": null,
+    "layout_rules": {
+      "core_slogan": "Think different."
+    },
+    "brand_dna": {
+      "primary_background_hex": "#000000",
+      "primary_accent_hex": "#0071E3",
+      "color_palette": ["#000000", "#F5F5F7", "#A3AAAE", "#FFFFFF"],
+      "typography_rules": "Use bold minimalist sans-serif hierarchy.",
+      "core_slogan": "Think different.",
+      "imagen_style_conditioning": "Clean premium product photography. Soft studio lighting and high contrast details."
+    },
+    "created_at": "2026-03-24T12:10:00.000Z",
+    "updated_at": "2026-03-24T12:10:40.000Z"
+  }
+}
+```
+

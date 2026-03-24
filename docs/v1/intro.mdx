@@ -12,6 +12,13 @@ description: OpenAI-compatible, multi-modal orchestration API for Pi ($\pi$).
 - Production: `https://api.example.com` (replace with your deployed host)
 - Versioned routes live under `/v1/…` (implemented in `src/app/api/v1/`).
 
+## Local development
+
+- **Environment variables:** Next.js reads `.env.local` when the **dev server starts**. After changing variables (API keys, `GOOGLE_BRAND_PROJECTION_*`, etc.), **restart** `npm run dev` / `next dev` so the running process picks up new values.
+- **Single server, known port:** Run **one** `next dev` on the port you expect (e.g. `http://localhost:3000`). Multiple instances (or a server on `3001` while scripts point at `3000`) produce confusing `projection:golden-check` and E2E results.
+- **Scripts:** Set `PI_BASE_URL` when the API is not on the default host/port (e.g. `PI_BASE_URL=http://localhost:3001`).
+- **Reusing a saved brand (no re-extract):** Pinned E2E snapshots live under [`artifacts/`](../../artifacts/README.md). Read [`artifacts/README.md`](../../artifacts/README.md) for the **canonical** file, `brand_id`, `org_id`, and JSON paths to `brand_dna`. Set `PROJECTION_GOLDEN_BRAND_ID` / `PROJECTION_GOLDEN_ORG_ID` (and scripts) to match that snapshot when your database still contains that brand.
+
 ## Authentication
 
 Send a Bearer token on every request:
@@ -21,6 +28,19 @@ Authorization: Bearer <your_api_key>
 ```
 
 Keys are issued and verified via **Unkey** (rate limits and metering). Never embed secrets in client-side code.
+
+## Security and tracing headers
+
+Pi includes Stripe-style operational headers on authenticated requests:
+
+| Header | Description |
+|-------|-------------|
+| `X-Request-Id` | Unique request trace id (`req_pi_<uuid>`) for support/debugging |
+| `X-RateLimit-Limit` | Max requests in the current limit window |
+| `X-RateLimit-Remaining` | Remaining requests in the current window |
+| `X-RateLimit-Reset` | Unix timestamp (seconds) when the current window resets |
+
+Always include `X-Request-Id` when contacting support.
 
 ## Request / response shape
 
@@ -35,6 +55,97 @@ Pi aims for **OpenAI-compatible** request and response structures where applicab
 | `data` | Primary payload |
 | `error` | Optional structured error: `code`, `message` |
 
+## Expansion Convention (`expand=`)
+
+Pi supports an opt-in expansion pattern for related resources on selected endpoints.
+
+- Use query parameter `expand=<relation>` to include a related object inline.
+- Expansions are additive: base resource fields remain unchanged.
+- If expansion is missing or unsupported, the endpoint returns the base payload only.
+- Expansion never bypasses tenant isolation checks.
+
+Example:
+
+- `GET /api/v1/jobs/:id?expand=brand`
+  - returns normal job payload plus `data.expanded.brand` when `result_url` resolves to a brand in the same organization.
+
+Use expansion when you want to reduce follow-up requests; avoid it for lightweight polling where minimal payload size matters.
+
+## Integration Path (End-to-End)
+
+1. **Create job**: call `POST /api/v1/brands/extract`.
+2. **Track job**: poll `GET /api/v1/jobs/:id` (or use long-poll with `wait_for_completion=true`).
+3. **Resolve result**:
+   - use `job_result` from jobs response, or
+   - resolve `result_url` using `GET /api/v1/brands/:id`.
+4. **Handle retries/errors**:
+   - on `failed`, inspect `error_log`.
+   - re-submit extraction with corrected inputs.
+5. **Project for app use**:
+   - call `POST /api/v1/brands/:id/project` with a `use_case` string to get compact context JSON.
+
+### cURL flow
+
+```bash
+# 1) Create extraction job
+curl -X POST "https://api.example.com/api/v1/brands/extract" \
+  -H "Authorization: Bearer pi_live_***" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com"}'
+
+# 2) Poll job with expansion + long-poll
+curl -X GET "https://api.example.com/api/v1/jobs/<job_id>?wait_for_completion=true&timeout_seconds=20&expand=brand" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+### TypeScript flow (in-repo SDK)
+
+The snippet below applies when developing **inside this repository** (`@/sdk`). For external apps, use plain `fetch` or copy the client — see [Quickstart](./quickstart).
+
+```ts
+import { createPiClient } from "@/sdk";
+
+const client = createPiClient({
+  apiKey: process.env.PI_API_KEY!,
+  baseUrl: "https://api.example.com",
+});
+
+const queued = await client.brands.extract({ url: "https://example.com" });
+const jobId = queued.data.job_id;
+
+const job = await client.jobs.retrieve(jobId, {
+  wait_for_completion: true,
+  timeout_seconds: 20,
+  expand: "brand",
+});
+
+if (job.data.status === "completed") {
+  const brand = job.data.job_result?.brand;
+  console.log(brand?.brand_dna);
+}
+```
+
+## Integration Compatibility Notes
+
+- **Shopify app backends**: prefer `wait_for_completion=true` on server-side workers, then persist `brand_id` in your shop config.
+- **ManyChat / automation middleware**: use polling with `fields=id,status,job_result` to keep responses small between steps.
+- **Zapier-style connectors**: use extract -> poll -> resolve pattern and emit `brand_id` as the stable downstream key.
+
+### Error envelope
+
+Errors follow a Stripe-style format:
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "missing_authorization_header",
+    "message": "Missing Authorization header. Use Bearer <api_key>.",
+    "request_id": "req_pi_9a8b7c6d"
+  }
+}
+```
+
 ## Long-running work
 
 Operations that may take **more than a few seconds** return **`202 Accepted`** with a **job id** and progress through:
@@ -45,12 +156,41 @@ Heavy execution runs on **Trigger.dev** workers (see `src/jobs/` and `trigger.co
 
 ## Idempotency
 
-`POST` requests support idempotency (e.g. `Idempotency-Key` header) to avoid duplicate side effects and **duplicate billing**.
+**Roadmap:** `Idempotency-Key` on `POST` requests is specified for OpenAI-style integrations to avoid duplicate side effects and duplicate billing. **It is not yet implemented** on current v1 routes; treat duplicate submits as distinct requests until support ships.
+
+## Deploy Checklist
+
+Before production deploys, run runtime connectivity checks for external dependencies:
+
+- `npm run firecrawl:check`
+- `npm run projection:golden-check`
+
+Pi also includes an npm lifecycle hook:
+
+- `predeploy` runs `firecrawl:check` automatically before `deploy` workflows that use npm lifecycle scripts.
+
+If `firecrawl:check` fails, fix `FIRECRAWL_API_KEY` or network access before deploying.
+
+If `projection:golden-check` fails, inspect `artifacts/projection-golden-check.json`. Metrics include **`deterministic_rate`** (responses using DNA fallback because the model path did not produce valid output), **`non_llm_rate`** (deterministic or legacy fallback flags), and **`p95_latency_ms`**. Thresholds are controlled by env (defaults are strict for LLM-shaped output):
+
+- `PROJECTION_GOLDEN_MAX_DETERMINISTIC_RATE` (default `0`) — fail the check if deterministic share exceeds this; set to `1` to disable the deterministic-only gate.
+- `PROJECTION_GOLDEN_MAX_NON_LLM_RATE` — if unset, falls back to `PROJECTION_GOLDEN_MAX_FALLBACK_RATE`, then default `0` (strict). Raise toward `0.4` for lenient local runs when fallback is acceptable.
+- `PROJECTION_GOLDEN_MAX_P95_MS` (default `15000`).
+
+## Types and validation
+
+Request and response shapes for the Pi API are defined with **Zod** in [`src/contracts/brand-api.ts`](../../src/contracts/brand-api.ts). The typed client [`src/sdk/client.ts`](../../src/sdk/client.ts) parses responses with those contracts.
 
 ## Documentation policy
 
-Every new or changed endpoint must be documented here (MDX) and in code (TSDoc). See [`.cursorrules`](../../.cursorrules).
+Every new or changed endpoint must be documented under `docs/v1/` (MDX) and in code (TSDoc). See [`.cursorrules`](../../.cursorrules).
 
 ## Next pages
 
-- Endpoint reference pages will be added alongside implementation under `docs/v1/`.
+- [API reference index (all endpoints)](../README.md)
+- [Quickstart (curl, fetch, Python)](./quickstart)
+- [Brand Extraction](./endpoints/brand-extraction)
+- [Job Retrieval](./endpoints/jobs)
+- [List Brands](./endpoints/list-brands)
+- [Get Brand](./endpoints/get-brand)
+- [Brand Projection](./endpoints/brand-project)

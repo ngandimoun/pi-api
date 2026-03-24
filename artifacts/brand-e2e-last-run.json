@@ -1,0 +1,289 @@
+{
+  "timestamp": "2026-03-24T12:32:32.868Z",
+  "orgId": "f99d39cb-d556-43b0-9d74-9c94c58b2574",
+  "key": "pi_Q879dQYydDjxjG3TVKx2PB8DaYaog2LUM",
+  "createdKeyId": "key_XYcmQIF4",
+  "extract": {
+    "status": 202,
+    "body": {
+      "id": "req_pi_de914f3a-1b5c-4345-9e78-f98f4fab3597",
+      "object": "job",
+      "status": "queued",
+      "created_at": 1774355498,
+      "data": {
+        "job_id": "9a27a7c3-6324-4331-a575-79fe092d7964"
+      }
+    }
+  },
+  "dbJob": {
+    "id": "9a27a7c3-6324-4331-a575-79fe092d7964",
+    "status": "completed",
+    "result_url": "brands/ae6fb558-8855-4148-b881-e0044d41cccd",
+    "error_log": null,
+    "updated_at": "2026-03-24T12:32:29.013964+00:00"
+  },
+  "jobApi": {
+    "status": 400,
+    "body": "{\"error\":{\"type\":\"invalid_request_error\",\"code\":\"invalid_job_id\",\"message\":\"Job id must be a valid UUID.\",\"request_id\":\"req_pi_150d8c2e-9786-4bf3-b2a4-5de797cc2d7f\"}}"
+  },
+  "brand": {
+    "status": 400,
+    "body": {
+      "error": {
+        "type": "invalid_request_error",
+        "code": "invalid_brand_id",
+        "message": "Brand id must be a valid UUID.",
+        "request_id": "req_pi_cbd022f6-bbfd-48f4-b8b6-84b27784443c"
+      }
+    }
+  },
+  "list": {
+    "status": 200,
+    "body": {
+      "id": "req_pi_3c80c4c8-ff68-4280-a0ab-f133050c4445",
+      "object": "list",
+      "status": "completed",
+      "created_at": 1774355552,
+      "data": {
+        "data": [
+          {
+            "id": "ae6fb558-8855-4148-b881-e0044d41cccd",
+            "org_id": "f99d39cb-d556-43b0-9d74-9c94c58b2574",
+            "name": "apple.com",
+            "primary_hex": "#FFFFFF",
+            "secondary_hex": "#F5F5F7",
+            "logo_url": null,
+            "font_file_url": null,
+            "layout_rules": {
+              "core_slogan": "Discover the innovative world of Apple.",
+              "typography_rules": "Implement SF Pro Display for crisp, high-impact headings and SF Pro Text for highly legible body copy.",
+              "imagen_style_conditioning": "Minimalist, high-end product photography featuring sleek hardware heavily isolated on crisp white and subtle light gray backgrounds. The visual composition emphasizes premium, modern aesthetics with sharp lighting, clean lines, and vibrant blue interactive accents."
+            },
+            "created_at": "2026-03-24T12:32:28.709745+00:00",
+            "updated_at": "2026-03-24T12:32:28.709745+00:00",
+            "brand_dna": {
+              "assets": [
+                {
+                  "url": "https://pub-e3d2aa5e84a64d3b8b7ad17538896701.r2.dev/brands/f99d39cb-d556-43b0-9d74-9c94c58b2574/9a27a7c3-6324-4331-a575-79fe092d7964/logo.png",
+                  "kind": "logo"
+                },
+                {
+                  "url": "https://storage.googleapis.com/firecrawl-scrape-media/screenshot-c31e22db-a2f9-4b54-b7ea-3926418db2d4.png?GoogleAccessId=scrape-bucket-accessor%40firecrawl.iam.gserviceaccount.com&Expires=1774960310&Signature=Y9U4Fcte%2F11BCWF4lFpwJLfHFcLPD8cNXWL7FbMbAyGAL0%2FRjSHG6QhUPnafMVkx2n7An02uD4dniE33Vq8vWYN6pLf78jIf4mmY3M1B5%2BufnFbavL8jO3BCC0Z%2Bm%2B2AJFIfoEwQp5%2Fp7OL9uHZoeUQQQYgfznahDFxFl5O5Nl1TLtQ8XFziJI6dsxSGmqRK%2F7d27VvmSt5cDpaDCay9xmg7gMP9QmSOgevOl2EWcyPrvBCOc4%2BbyJ84MwK4S47U2rd2TZZbuS40rLEXorR%2F0skT3U7CUjAj%2B1MIYE2UTGhpjOA4cRlIHHT3Pnye5WygcfC%2BzYyCdE5ROFnjXHWe8g%3D%3D",
+                  "kind": "website_screenshot"
+                }
+              ],
+              "source": "omnivorous-brand-extractor",
+              "core_slogan": "Discover the innovative world of Apple.",
+              "color_palette": [
+                "#FFFFFF",
+                "#F5F5F7",
+                "#0071E3",
+                "#1D1D1F"
+              ],
+              "manifest_excerpt": "1) Color Palette Signals\n* Dominant backgrounds utilize crisp white and subtle light gray to heavily isolate products. (#FFFFFF, #F5F5F7)\n* Primary interactive elements demand attention with a vibrant, high-contrast",
+              "typography_rules": "Implement SF Pro Display for crisp, high-impact headings and SF Pro Text for highly legible body copy.",
+              "firecrawl_actions": null,
+              "firecrawl_branding": {
+                "fonts": [
+                  {
+                    "role": "body",
+                    "family": "SF Pro Text"
+                  },
+                  {
+                    "role": "heading",
+                    "family": "SF Pro Display"
+                  },
+                  {
+                    "role": "unknown",
+                    "family": "Myriad Set Pro"
+                  }
+                ],
+                "colors": {
+                  "link": "#2997FF",
+                  "accent": "#0071E3",
+                  "primary": "#0071E3",
+                  "background": "#FFFFFF",
+                  "textPrimary": "#1D1D1F"
+                },
+                "images": {
+                  "logo": "data:image/svg+xml;utf8,%3Csvg%20height%3D%2244%22%20viewBox%3D%220%200%2014%2044%22%20width%3D%2214%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20data-fc-idx%3D%220%22%3E%3Cpath%20d%3D%22m13.0729%2017.6825a3.61%203.61%200%200%200%20-1.7248%203.0365%203.5132%203.5132%200%200%200%202.1379%203.2223%208.394%208.394%200%200%201%20-1.0948%202.2618c-.6816.9812-1.3943%201.9623-2.4787%201.9623s-1.3633-.63-2.613-.63c-1.2187%200-1.6525.6507-2.644.6507s-1.6834-.9089-2.4787-2.0243a9.7842%209.7842%200%200%201%20-1.6628-5.2776c0-3.0984%202.014-4.7405%203.9969-4.7405%201.0535%200%201.9314.6919%202.5924.6919.63%200%201.6112-.7333%202.8092-.7333a3.7579%203.7579%200%200%201%203.1604%201.5802zm-3.7284-2.8918a3.5615%203.5615%200%200%200%20.8469-2.22%201.5353%201.5353%200%200%200%20-.031-.32%203.5686%203.5686%200%200%200%20-2.3445%201.2084%203.4629%203.4629%200%200%200%20-.8779%202.1585%201.419%201.419%200%200%200%20.031.2892%201.19%201.19%200%200%200%20.2169.0207%203.0935%203.0935%200%200%200%202.1586-1.1368z%22%20style%3D%22fill%3A%20rgba(0%2C%200%2C%200%2C%200.8)%20!important%3B%22%2F%3E%3C%2Fsvg%3E",
+                  "favicon": null,
+                  "ogImage": "https://www.apple.com/ac/structured-data/images/open_graph_logo.png?202110180743",
+                  "logoHref": "/"
+                },
+                "spacing": {
+                  "baseUnit": 4,
+                  "borderRadius": "6px"
+                },
+                "components": {
+                  "input": {
+                    "shadow": "none",
+                    "textColor": "#333336",
+                    "background": "transparent",
+                    "borderColor": null,
+                    "borderRadius": "0px",
+                    "borderRadiusCorners": {
+                      "topLeft": "0px",
+                      "topRight": "0px",
+                      "bottomLeft": "0px",
+                      "bottomRight": "0px"
+                    }
+                  },
+                  "buttonPrimary": {
+                    "shadow": "none",
+                    "textColor": "#FFFFFF",
+                    "background": "#0071E3",
+                    "borderRadius": "980px",
+                    "borderRadiusCorners": {
+                      "topLeft": "980px",
+                      "topRight": "980px",
+                      "bottomLeft": "980px",
+                      "bottomRight": "980px"
+                    }
+                  },
+                  "buttonSecondary": {
+                    "shadow": "none",
+                    "textColor": "#0066CC",
+                    "background": "#F5F5F7",
+                    "borderColor": "#0066CC",
+                    "borderRadius": "980px",
+                    "borderRadiusCorners": {
+                      "topLeft": "980px",
+                      "topRight": "980px",
+                      "bottomLeft": "980px",
+                      "bottomRight": "980px"
+                    }
+                  }
+                },
+                "confidence": {
+                  "colors": 0.9,
+                  "buttons": 0.95,
+                  "overall": 0.925
+                },
+                "typography": {
+                  "fontSizes": {
+                    "h1": "34px",
+                    "h2": "12px",
+                    "body": "28px"
+                  },
+                  "fontStacks": {
+                    "body": [
+                      "SF Pro Text",
+                      "SF Pro Icons",
+                      "Helvetica Neue",
+                      "Helvetica",
+                      "Arial",
+                      "sans-serif"
+                    ],
+                    "heading": [
+                      "SF Pro Text",
+                      "SF Pro Icons",
+                      "Helvetica Neue",
+                      "Helvetica",
+                      "Arial",
+                      "sans-serif"
+                    ],
+                    "paragraph": [
+                      "SF Pro Display",
+                      "SF Pro Icons",
+                      "Helvetica Neue",
+                      "Helvetica",
+                      "Arial",
+                      "sans-serif"
+                    ]
+                  },
+                  "fontFamilies": {
+                    "heading": "SF Pro Display",
+                    "primary": "SF Pro Text"
+                  }
+                },
+                "colorScheme": "light",
+                "personality": {
+                  "tone": "modern",
+                  "energy": "high",
+                  "targetAudience": "tech-savvy consumers"
+                },
+                "designSystem": {
+                  "framework": "custom",
+                  "componentLibrary": ""
+                },
+                "__llm_metadata": {
+                  "logoSelection": {
+                    "llmCalled": true,
+                    "finalSource": "llm",
+                    "llmSucceeded": true,
+                    "rawLogoSelection": {
+                      "confidence": 0.95,
+                      "selectedLogoIndex": 0,
+                      "selectedLogoReasoning": "Selected #0 because it is visible, located in the header, and links to the homepage, matching the brand 'Apple'."
+                    }
+                  },
+                  "buttonClassification": {
+                    "llmCalled": true,
+                    "llmSucceeded": true
+                  }
+                },
+                "__llm_logo_reasoning": {
+                  "source": "llm",
+                  "reasoning": "Selected #0 because it is visible, located in the header, and links to the homepage, matching the brand 'Apple'.",
+                  "confidence": 0.95,
+                  "selectedIndex": 0
+                },
+                "__llm_button_reasoning": {
+                  "primary": {
+                    "text": "Learn more",
+                    "index": 9,
+                    "reasoning": "Button #2 'Learn more' with a vibrant brand color (#0071E3) is likely the primary CTA due to its prominent color and action-oriented text."
+                  },
+                  "secondary": {
+                    "text": "Buy",
+                    "index": 2,
+                    "reasoning": "Button #5 'Buy' with a different background color (#F5F5F7) serves as a secondary CTA, offering a complementary action to the primary button."
+                  },
+                  "confidence": 0.95
+                }
+              },
+              "firecrawl_metadata": {
+                "url": "https://www.apple.com/",
+                "ogUrl": "https://www.apple.com/",
+                "title": "Apple",
+                "og:url": "https://www.apple.com/",
+                "og:type": "website",
+                "ogImage": "https://www.apple.com/ac/structured-data/images/open_graph_logo.png?202110180743",
+                "ogTitle": "Apple",
+                "language": "en-US",
+                "og:image": "https://www.apple.com/ac/structured-data/images/open_graph_logo.png?202110180743",
+                "og:title": "Apple",
+                "ogLocale": "en_US",
+                "scrapeId": "019d1fd4-600f-76bd-a60e-27a2fbd78278",
+                "timezone": "America/New_York",
+                "viewport": "width=device-width, initial-scale=1, viewport-fit=cover",
+                "og:locale": "en_US",
+                "proxyUsed": "basic",
+                "sourceURL": "https://www.apple.com",
+                "ogSiteName": "Apple",
+                "statusCode": 200,
+                "Description": "Discover the innovative world of Apple and shop everything iPhone, iPad, Apple Watch, Mac, and Apple TV, plus explore accessories, entertainment, and expert device support.",
+                "contentType": "text/html; charset=utf-8",
+                "creditsUsed": 1,
+                "og:site_name": "Apple",
+                "ogDescription": "Discover the innovative world of Apple and shop everything iPhone, iPad, Apple Watch, Mac, and Apple TV, plus explore accessories, entertainment, and expert device support.",
+                "og:description": "Discover the innovative world of Apple and shop everything iPhone, iPad, Apple Watch, Mac, and Apple TV, plus explore accessories, entertainment, and expert device support.",
+                "analytics-track": "Apple - Index/Tab",
+                "concurrencyLimited": false,
+                "analytics-s-channel": "homepage",
+                "globalnav-store-key": "SFX9YPYY9PPXCU9KH",
+                "analytics-s-bucket-0": "applestoreww",
+                "analytics-s-bucket-1": "applestoreww",
+                "analytics-s-bucket-2": "applestoreww"
+              },
+              "imagen_style_conditioning": "Minimalist, high-end product photography featuring sleek hardware heavily isolated on crisp white and subtle light gray backgrounds. The visual composition emphasizes premium, modern aesthetics with sharp lighting, clean lines, and vibrant blue interactive accents."
+            }
+          }
+        ],
+        "total_count": 1,
+        "has_more": false
+      }
+    }
+  }
+}

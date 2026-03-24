@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-03-24T12:33:25.281Z",
+  "unauthorized": {
+    "status": 401,
+    "body": "{\"error\":{\"type\":\"authentication_error\",\"code\":\"unkey_not_found\",\"message\":\"Invalid API key.\",\"request_id\":\"req_pi_32e85dc7-99d1-4e72-9cd9-ddf89fdc4b4f\"}}"
+  },
+  "orgA": {
+    "status": 200,
+    "count": 1,
+    "ids": [
+      "ae6fb558-8855-4148-b881-e0044d41cccd"
+    ]
+  },
+  "orgB": {
+    "status": 200,
+    "count": 0,
+    "ids": []
+  }
+}

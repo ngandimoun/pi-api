@@ -1,0 +1,111 @@
+---
+title: List Brands
+description: List and search brand identities for an organization.
+---
+
+# List Brands
+
+Retrieves brand identities for the authenticated organization with optional fuzzy search and offset pagination.
+
+This is the primary endpoint for discovering `brand_id` values used in downstream generation tasks.
+
+## Endpoint
+
+- `GET /api/v1/brands`
+
+## Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## Query parameters
+
+| Parameter | Type | Required | Default | Notes |
+|---|---|---|---|---|
+| `query` | `string` | No | - | Case-insensitive fuzzy match on `name` (`ilike`). |
+| `limit` | `number` | No | `20` | Max `100`. |
+| `offset` | `number` | No | `0` | Start index for pagination. |
+| `expand` | `"latest_job"` | No | - | Inline latest brand extraction job for each brand. |
+| `include` | `"latest_job"` | No | - | Alias of `expand=latest_job`. |
+| `fields` | `csv` | No | - | Select specific brand fields (e.g. `fields=id,name,brand_dna`). |
+
+## Example cURL
+
+```bash
+curl -X GET "https://api.example.com/api/v1/brands?query=apple&limit=20&offset=0" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## Example cURL with expansion and projection
+
+```bash
+curl -X GET "https://api.example.com/api/v1/brands?query=apple&limit=20&offset=0&expand=latest_job&fields=id,name,created_at" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## Response schema
+
+| Field | Type | Description |
+|---|---|---|
+| `data` | `Brand[]` | Brand rows matching org + query filter. |
+| `total_count` | `number` | Total rows matching filter. |
+| `has_more` | `boolean` | Whether additional rows are available. |
+
+## Response example
+
+```json
+{
+  "id": "req_pi_0f4b...",
+  "object": "list",
+  "status": "completed",
+  "created_at": 1760001200,
+  "data": {
+    "data": [
+      {
+        "id": "1c26bcfa-e50e-4800-a7df-5b97db5fd50c",
+        "org_id": "30c0342f-4f28-4a13-9d63-5f5a10f57cc6",
+        "domain": "apple.com",
+        "name": "apple.com",
+        "primary_hex": "#000000",
+        "secondary_hex": "#F5F5F7",
+        "logo_url": "https://cdn.example.com/brands/org/brand/logo.png",
+        "font_file_url": null,
+        "layout_rules": {},
+        "brand_dna": {
+          "primary_background_hex": "#000000",
+          "primary_accent_hex": "#0071E3",
+          "color_palette": ["#000000", "#F5F5F7", "#A3AAAE", "#FFFFFF"],
+          "core_slogan": "Think different."
+        },
+        "created_at": "2026-03-24T12:10:00.000Z",
+        "updated_at": "2026-03-24T12:10:40.000Z"
+      }
+    ],
+    "total_count": 1,
+    "has_more": false
+  }
+}
+```
+
+## When to use `expand=latest_job`
+
+- Use it when brand dashboards need status context beside each brand row.
+- Use it to avoid extra `/jobs/:id` lookups.
+
+## When to not use `expand=latest_job`
+
+- Do not use it for lightweight dropdown selectors.
+- Do not use it when you only need brand IDs/names.
+
+## When to use `fields`
+
+- Use it for typeahead/search UIs that only need `id,name`.
+- Use it in list-heavy views to reduce payload size.
+- Include `domain` when you need stable brand identity keys in client-side caches.
+
+## When to not use `fields`
+
+- Do not use it if your component assumes full brand objects.
+- Do not use it without a stable consumer-side schema contract.
+

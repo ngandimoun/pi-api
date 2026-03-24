@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-03-24T16:21:40.395Z",
+  "baseUrl": "http://localhost:3000",
+  "orgId": "f99d39cb-d556-43b0-9d74-9c94c58b2574",
+  "keyId": "key_LiGK5yZY",
+  "brandId": "ae6fb558-8855-4148-b881-e0044d41cccd",
+  "long": {
+    "status": 200,
+    "body": {
+      "id": "req_pi_6ba89b76-dbfb-4c43-9f98-fab0af23690c",
+      "object": "brand.projection",
+      "status": "completed",
+      "created_at": 1774369277,
+      "data": {
+        "use_case": "peekabo Open Safari, go to github.com, and search for Peekaboo. Install options: Homebrew native app/CLI or MCP via npm npx -y @steipete/peekaboo. Return a dynamic JSON playbook for a branded onboarding wizard and command palette UX.",
+        "is_wildcard": true,
+        "payload": {
+          "bg": "#0071E3",
+          "text": "#FFFFFF",
+          "borderRadius": "980px"
+        }
+      }
+    },
+    "use_case": "peekabo Open Safari, go to github.com, and search for Peekaboo. Install options: Homebrew native app/CLI or MCP via npm npx -y @steipete/peekaboo. Return a dynamic JSON playbook for a branded onboarding wizard and command palette UX."
+  },
+  "short": {
+    "status": 200,
+    "body": {
+      "id": "req_pi_327a8638-23be-40b9-a354-021f19fdfd76",
+      "object": "brand.projection",
+      "status": "completed",
+      "created_at": 1774369300,
+      "data": {
+        "use_case": "Generate a compact UI theme + component token JSON for a branded dashboard.",
+        "is_wildcard": true,
+        "payload": {
+          "use_case": "Generate a compact UI theme + component token JSON for a branded dashboard.",
+          "brand_projection": {
+            "primary_background_hex": "#FFFFFF",
+            "primary_accent_hex": "#0071E3",
+            "color_palette": [
+              "#FFFFFF",
+              "#0071E3",
+              "#1D1D1F",
+              "#2997FF"
+            ],
+            "typography_rules": "Use SF Pro Display for headings and SF Pro Text for body text with clear hierarchy.",
+            "core_slogan": "Discover the innovative world of Apple and shop everything iPhone, iPad, Apple Watch, Mac, and Apple TV, plus explore accessories, entertainment, and expert device support",
+            "imagen_style_conditioning": "Minimalist premium visual style with clean surfaces, balanced contrast, and modern product focus. Maintain sharp lighting, precise composition, and restrained color accents.",
+            "logo_url": null
+          },
+          "meta": {
+            "fallback": true,
+            "reason": "model_empty_or_invalid_json"
+          }
+        }
+      }
+    },
+    "use_case": "Generate a compact UI theme + component token JSON for a branded dashboard."
+  }
+}

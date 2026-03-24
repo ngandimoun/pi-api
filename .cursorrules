@@ -36,16 +36,26 @@ Before suggesting or installing ANY new dependency, you MUST check this list. If
   - `created_at` (Unix timestamp)
   - `data` (The payload)
   - `error` (If applicable, structured clearly with `code` and `message`)
-- **Idempotency:** Implement idempotency keys for all `POST` requests to prevent duplicate billing.
+- **Idempotency:** `Idempotency-Key` on `POST` requests is the target for duplicate protection; **v1 routes do not implement it yet** — see `docs/v1/intro.mdx`. New `POST` endpoints should plan for keys before claiming idempotent behavior.
 
 ## 5. Documentation-Driven Development (Simultaneous Docs)
-- You MUST document every API and all endpoints as you create it. 
-- Whenever you create or modify an endpoint, you MUST simultaneously:
+- You MUST document every API and all endpoints as you create it.
+- Whenever you create or modify a route under `src/app/api/v1/`, you MUST simultaneously:
   1. Add inline TSDoc comments to the code.
-  2. Update the corresponding Markdown/MDX file in the `docs/` and `frontend/` directory so the user-facing documentation is always 100% in sync with the codebase.
+  2. Validate request/response payloads with **Zod** (prefer shared contracts in `src/contracts/brand-api.ts` when the shape is reusable).
+  3. Update or add MDX under `docs/v1/` (endpoint page, `intro.mdx`, or `quickstart.mdx` as appropriate). If marketing copy changes, update `docs/marketing/` when relevant.
+  4. Add new first-class doc file paths to `docs/docs-manifest.json` so `tests/docs/smoke.test.ts` keeps coverage.
 - Code without documentation is considered incomplete.
 
-## 6. AI Communication & Workflow Rules
+## 6. Reusable brand / E2E fixtures (do not pay for duplicate extracts)
+
+- **Before** proposing a new brand extraction, running full E2E extract-to-projection just to get test data, or picking random `brand_id` values for scripts: **read `artifacts/README.md` first** (canonical snapshot + env ids).
+- The **canonical** pinned snapshot is **`artifacts/brand-e2e-green-run.json`**. Copy **`brand_id`**, **`org_id`**, and (when needed) **`brand_dna`** paths from that README into `.env.local` (e.g. `PROJECTION_GOLDEN_BRAND_ID`, `PROJECTION_GOLDEN_ORG_ID`) and tests — **as long as that brand still exists in the target Supabase**.
+- Prefer **fixture-driven** tests (static JSON from the canonical artifact or mocks) for new `/api/v1/` work. Only run **live extract** when the change under test **is** the extraction pipeline or you intentionally need fresh DNA.
+- If you replace the canonical file or IDs, **update `artifacts/README.md`** in the same change.
+- Human docs also point here: `docs/v1/intro.mdx`, `docs/README.md`, `architecture/operations-runbook.md`.
+
+## 7. AI Communication & Workflow Rules
 - **Ask First:** If requirements are ambiguous, or if multiple architectural paths exist, pause and ask me before writing 500 lines of code.
 - **Think Out Loud:** Briefly explain your architectural choices before implementing them.
 - **Create Markdown Artifacts:** When starting a new major module (e.g., the Billing Engine, or the Parsing Engine), create a structured `.md` architectural plan file in an `architecture/` folder to map out the data flow before coding.

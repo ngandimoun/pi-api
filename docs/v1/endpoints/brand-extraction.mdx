@@ -1,0 +1,189 @@
+---
+title: Brand Extraction
+description: Queue an omnivorous async brand identity extraction job.
+---
+
+# Brand Extraction
+
+Starts an async omnivorous ingestion pipeline that accepts any mix of website URL, logo image, or reference images and produces normalized Brand DNA.
+
+## Endpoint
+
+- `POST /api/v1/brands/extract`
+
+## Authentication
+
+Use Bearer API key authentication:
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## Request body
+
+At least one of `url`, `logoBase64`, or `imagesBase64` is required.
+
+```json
+{
+  "url": "https://example.com",
+  "logoBase64": "data:image/png;base64,...",
+  "imagesBase64": ["data:image/jpeg;base64,..."],
+  "location": {
+    "country": "US",
+    "languages": ["en-US", "en"]
+  }
+}
+```
+
+## Async behavior
+
+The API always returns `202 Accepted` for valid requests and immediately gives you a `job_id`.
+
+Then either:
+- poll your jobs endpoint using `job_id`, or
+- listen for your webhook/event pipeline.
+
+Heavy work runs in Trigger.dev and transitions through:
+
+`queued` -> `processing` -> `completed` or `failed`
+
+## Response (`202`)
+
+```json
+{
+  "id": "req_pi_...",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1760000000,
+  "data": {
+    "job_id": "a4f52db4-...."
+  }
+}
+```
+
+## Extraction pipeline
+
+1. **Phase A - Asset normalization**
+   - URL input uses Firecrawl extensive scrape with `branding`, `markdown`, and `screenshot`.
+   - Supports Firecrawl actions and location/language routing.
+   - Uploaded base64 assets are moved to Cloudflare R2.
+   - Firecrawl screenshot URLs are proxied into your own R2 bucket to avoid signed URL expiration issues.
+2. **Phase B - Multimodal vision**
+   - Gemini generates a detailed brand manifesto from visuals + context.
+3. **Phase C - Deterministic structuring**
+   - Gemini 3.1 Pro Preview (`generateObject`) returns strict Brand DNA JSON.
+4. **Phase D - Persistence**
+   - Upserts Brand DNA into `brands` using identity key `(org_id, domain)` and updates job status.
+
+## Model strategy (Gemini-only)
+
+- Phase B and Phase C both use Gemini provider routing (no Claude dependency in this path).
+- Recommended structuring model: `gemini-3.1-pro-preview`.
+- Model IDs and tuning are environment-driven for safe swapping.
+
+## Robust prompt behavior (current)
+
+### Phase B manifesto prompt
+
+- Uses a balanced-compact template with fixed sections:
+  - `Color Palette Signals`
+  - `Typography Behavior`
+  - `Logo Geometry and Placement`
+  - `Photographic/Illustrative Vibe`
+  - `Confidence Notes`
+- Enforces concise bullet limits and no-JSON output.
+- Uses **visual-first conflict resolution**: screenshots/logos override conflicting text claims.
+
+### Phase C structuring prompt
+
+- Uses strict JSON-only extraction into `brand_dna`.
+- Explicitly enforces:
+  - `primary_background_hex` dominant surface/background color
+  - `primary_accent_hex` dominant CTA/interaction accent color
+  - `color_palette` exactly 4 unique `#RRGGBB`
+  - concise `typography_rules`
+  - single best `core_slogan`
+  - `imagen_style_conditioning` exactly 2 sentences
+- Also applies **visual-first conflict resolution** when text and visuals disagree.
+
+## Cost controls (important)
+
+- Context is trimmed before structuring to avoid oversized prompts:
+  - manifesto is capped
+  - markdown is capped
+  - branding/metadata JSON are compacted and capped
+- Output token budgets are explicitly bounded in both Gemini phases.
+- `thinking_level` is configurable (`low|medium|high`) and defaults to balanced (`medium`).
+- Prompts include anti-bloat rules: no long preambles, no repetition, no extra commentary.
+
+### Use this for lower cost
+
+- Send only necessary images (logo + 1-3 references is usually enough).
+- Prefer high-signal URLs/pages over full-site noise.
+- Use balanced thinking unless deep reasoning is needed.
+- Keep inputs focused on high-signal pages and visual references.
+
+### Avoid this if you want lower cost
+
+- Sending many redundant images with near-identical style.
+- Passing giant markdown contexts when only key brand sections matter.
+- Using high thinking depth for routine brand extraction requests.
+- Overly verbose prompts or repeated duplicate context blocks.
+
+## Reliability and debugging
+
+- Phase transitions emit `console.info` logs.
+- Caught exceptions emit `console.error` with stack context.
+- Failures persist stack traces to `jobs.error_log`.
+- Prompt template/version markers are logged for Phase B and Phase C to trace production behavior.
+
+## Firecrawl setup (runtime + MCP)
+
+Pi uses Firecrawl in two ways:
+
+- **Runtime API pipeline** (production): `src/lib/firecrawl.ts` calls Firecrawl HTTP scrape for URL inputs.
+- **Agent tooling via MCP** (developer workflows): `firecrawl-mcp` can be used by coding agents/tools.
+
+### Project-level MCP config (team-shared)
+
+Create or keep this in `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "firecrawl-mcp": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+### Local user-level MCP config (machine-specific)
+
+If you prefer local-only setup, add equivalent config in your local Cursor MCP settings and use your local env variable.
+
+```json
+{
+  "mcpServers": {
+    "firecrawl-mcp": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "$FIRECRAWL_API_KEY"
+      }
+    }
+  }
+}
+```
+
+Security note: never commit real API key values; commit only env var references.
+
+### Runtime vs MCP: when to use what
+
+- Use **runtime API integration** for production extraction requests.
+- Use **MCP integration** for agent-assisted dev workflows (debugging, exploration, tooling automation).
+
