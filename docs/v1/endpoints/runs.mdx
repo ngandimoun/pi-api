@@ -1,0 +1,165 @@
+---
+title: Runs
+description: Execute multi-step pipeline jobs in one request with DAG dependencies and step-level tracking.
+---
+
+# Runs API
+
+Use Runs when you want to execute multiple Pi APIs in one request and pass data between them with DAG-style dependencies.
+
+`POST /api/v1/runs`
+
+## Supported step actions
+
+- `brands.extract`
+- `campaigns.generate`
+- `campaigns.edit`
+- `campaigns.localize_ad`
+
+## What Runs solves
+
+- One API call for long-running multi-step work.
+- Clear per-step status (`pending`, `queued`, `processing`, `completed`, `failed`, `skipped`).
+- Native data passing with `input_map`.
+- Agent-friendly orchestration object (`run`) for retries/observability.
+
+## Request body
+
+```json
+{
+  "steps": [
+    {
+      "id": "extract_brand",
+      "action": "brands.extract",
+      "input": { "url": "https://example.com" }
+    },
+    {
+      "id": "generate_hero",
+      "action": "campaigns.generate",
+      "depends_on": ["extract_brand"],
+      "input": {
+        "prompt": "Create a hero campaign ad for this brand"
+      },
+      "input_map": {
+        "brand_id": "$steps.extract_brand.result.brand_id"
+      }
+    }
+  ],
+  "metadata": {
+    "pipeline": "campaign-launch"
+  }
+}
+```
+
+### `input_map` format
+
+`input_map` lets you inject prior step output into current step input:
+
+- Format: `$steps.<step_id>.result.<field_path>`
+- Example: `"source_job_id": "$steps.generate_hero.result.job_id"`
+
+### Common mappings
+
+- `brand_id <- $steps.extract_brand.result.brand_id`
+- `source_job_id <- $steps.generate_hero.result.job_id`
+- `source_job_id <- $steps.edit_variant.result.job_id`
+
+## Response (202)
+
+```json
+{
+  "id": "req_pi_...",
+  "object": "run",
+  "status": "queued",
+  "created_at": 1760000000,
+  "data": {
+    "run_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "status": "pending",
+    "steps": [
+      { "id": "extract_brand", "status": "pending" },
+      { "id": "generate_hero", "status": "pending" }
+    ]
+  }
+}
+```
+
+## Retrieve run status
+
+`GET /api/v1/runs/:run_id`
+
+Optional query params:
+
+- `wait_for_completion=true|false`
+- `timeout_seconds=1..30`
+
+Response includes full run state and per-step status (`pending`, `queued`, `processing`, `completed`, `failed`, `skipped`).
+
+## End-to-end example
+
+```json
+{
+  "steps": [
+    {
+      "id": "extract_brand",
+      "action": "brands.extract",
+      "input": { "url": "https://example.com" }
+    },
+    {
+      "id": "generate_base",
+      "action": "campaigns.generate",
+      "depends_on": ["extract_brand"],
+      "input": { "prompt": "Create a hero campaign ad" },
+      "input_map": { "brand_id": "$steps.extract_brand.result.brand_id" }
+    },
+    {
+      "id": "localize_fr",
+      "action": "campaigns.localize_ad",
+      "depends_on": ["generate_base"],
+      "input": {
+        "prompt": "Keep composition exactly",
+        "target_culture": "French urban premium",
+        "target_language": "fr",
+        "target_currency": "EUR"
+      },
+      "input_map": { "source_job_id": "$steps.generate_base.result.job_id" }
+    }
+  ]
+}
+```
+
+## JavaScript SDK sample
+
+```ts
+import { createPiClient } from "@/sdk";
+
+const client = createPiClient({
+  apiKey: process.env.PI_API_KEY!,
+  baseUrl: process.env.PI_BASE_URL ?? "https://api.example.com",
+});
+
+const created = await client.runs.create({
+  steps: [
+    {
+      id: "extract_brand",
+      action: "brands.extract",
+      input: { url: "https://example.com" },
+    },
+    {
+      id: "generate_base",
+      action: "campaigns.generate",
+      depends_on: ["extract_brand"],
+      input: { prompt: "Create a hero campaign ad" },
+      input_map: { brand_id: "$steps.extract_brand.result.brand_id" },
+    },
+  ],
+});
+
+const run = await client.runs.retrieve(created.data.run_id, {
+  wait_for_completion: true,
+  timeout_seconds: 30,
+});
+
+console.log(run.data.status, run.data.steps);
+```
+
+For a full production playbook with multiple use-cases and curl/Python examples, see [Pipeline orchestration guide](../guides/pipeline-orchestration.mdx).

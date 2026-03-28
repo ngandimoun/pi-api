@@ -1,0 +1,279 @@
+---
+title: Voice agent templates (enterprise)
+description: Full JSON examples for interviews, healthcare intake, product reviews, meditation, support, and sales — with output_schema and sample completion results.
+---
+
+# Voice agent templates (enterprise)
+
+Use these as **copy-paste starting points** for `POST /api/v1/voice/agents`. Adjust `instructions`, `questions`, and `output_schema` / `output_schema_strict` for your product.
+
+**Shared conventions**
+
+- Realtime model is always **`gemini-3.1-flash-live-preview`** (see [Voice API](../endpoints/voice)).
+- Valid `voice.name` values: call **`GET /api/v1/voice/voices`** or see `GEMINI_LIVE_VOICES` in the codebase.
+- Optional **`voice.language_code`** (e.g. `en-US`, `fr-FR`) is passed to Live speech synthesis when set.
+- Per-session voice override: include `"voice": { "name": "Aoede", "language_code": "fr-FR" }` on **`POST /api/v1/voice/sessions`**.
+- Preview compiled prompt: **`GET /api/v1/voice/agents/:id/preview`** returns `system_instruction` without starting a session.
+- Structured extraction: optional **`output_schema_strict`** (JSON Schema subset) + optional **`extraction_model`**; completion may return **`extraction_warnings`** if post-parse validation finds issues.
+
+---
+
+## 1. Job interview screening
+
+**Goal:** Structured answers + score; firm tone, moderate length, all questions required.
+
+```json
+{
+  "name": "Interview screening",
+  "language": "en-US",
+  "purpose": "Screen candidates for a customer success role.",
+  "instructions": "You are a structured interviewer. Be fair and neutral; one question at a time; acknowledge answers briefly.",
+  "questions": [
+    { "key": "years_experience", "ask": "How many years of experience do you have in customer-facing roles?", "type": "number", "min": 0, "max": 50 },
+    { "key": "channel_preference", "ask": "Do you prefer email, chat, or phone for customer contact?", "type": "enum", "options": ["email", "chat", "phone"] },
+    { "key": "difficult_situation", "ask": "Describe a difficult customer situation and how you resolved it.", "type": "text" }
+  ],
+  "behaviors": {
+    "tone": "professional",
+    "speaking_pace": "normal",
+    "response_length": "moderate",
+    "require_all_questions": true,
+    "end_conversation_after_questions": true,
+    "closing_message": "Thank you for your time. A recruiter will follow up if there is a match."
+  },
+  "output_schema": {
+    "years_experience": "number",
+    "channel_preference": "enum:email,chat,phone",
+    "difficult_situation": "text",
+    "overall_score": "number",
+    "recommendation": "enum:advance,hold,reject"
+  },
+  "output_schema_strict": {
+    "type": "object",
+    "properties": {
+      "years_experience": { "type": "number" },
+      "channel_preference": { "type": "string", "enum": ["email", "chat", "phone"] },
+      "difficult_situation": { "type": "string" },
+      "overall_score": { "type": "number", "minimum": 1, "maximum": 10 },
+      "recommendation": { "type": "string", "enum": ["advance", "hold", "reject"] }
+    },
+    "required": ["years_experience", "channel_preference", "difficult_situation", "overall_score", "recommendation"],
+    "additionalProperties": false
+  },
+  "voice": { "name": "Kore", "language_code": "en-US" }
+}
+```
+
+**Example `POST .../complete` `results`** (illustrative):
+
+```json
+{
+  "years_experience": 4,
+  "channel_preference": "chat",
+  "difficult_situation": "Customer angry about billing; escalated to finance and offered credit.",
+  "overall_score": 7,
+  "recommendation": "advance"
+}
+```
+
+---
+
+## 2. Product review collection
+
+**Goal:** Rating + open feedback; brief agent turns.
+
+```json
+{
+  "name": "Product review",
+  "language": "en-US",
+  "purpose": "Collect post-purchase feedback.",
+  "instructions": "Keep it light and grateful. Ask for a rating then optional detail.",
+  "questions": [
+    { "key": "rating", "ask": "From one to five, how would you rate the product?", "type": "number", "min": 1, "max": 5 },
+    { "key": "liked_most", "ask": "What did you like most?", "type": "text" },
+    { "key": "improve", "ask": "What could we improve?", "type": "text" }
+  ],
+  "behaviors": {
+    "tone": "friendly",
+    "response_length": "brief",
+    "follow_up_enabled": true,
+    "closing_message": "Thanks — your feedback helps us improve."
+  },
+  "output_schema": {
+    "rating": "number",
+    "liked_most": "text",
+    "improve": "text",
+    "sentiment": "enum:positive,mixed,negative"
+  },
+  "voice": { "name": "Puck" }
+}
+```
+
+**Sample `results`:**
+
+```json
+{
+  "rating": 5,
+  "liked_most": "Battery life",
+  "improve": "Faster shipping",
+  "sentiment": "positive"
+}
+```
+
+---
+
+## 3. Healthcare-style intake (triage)
+
+**Goal:** Empathetic, slow pace, escalation phrase, compliance-oriented closing. **Not** a substitute for licensed medical care — tune disclaimers in `instructions` for your jurisdiction.
+
+```json
+{
+  "name": "Symptom triage intake",
+  "language": "en-US",
+  "purpose": "Collect symptoms and urgency for nurse callback scheduling.",
+  "instructions": "You are not diagnosing. Gather symptoms, duration, severity, and allergies. If emergency symptoms are mentioned, urge calling local emergency services immediately.",
+  "questions": [
+    { "key": "chief_complaint", "ask": "What is the main reason for your call today?", "type": "text" },
+    { "key": "duration", "ask": "How long have you had these symptoms?", "type": "text" },
+    { "key": "severity", "ask": "On a scale of 1 to 10, how severe is the discomfort right now?", "type": "number", "min": 1, "max": 10 }
+  ],
+  "behaviors": {
+    "tone": "empathetic",
+    "speaking_pace": "slow",
+    "response_length": "brief",
+    "escalation_phrase": "I will connect you with a nurse who can help further.",
+    "silence_timeout_seconds": 20,
+    "closing_message": "This call may be recorded for quality and training purposes. A clinician may call you back based on availability."
+  },
+  "output_schema": {
+    "chief_complaint": "text",
+    "duration": "text",
+    "severity": "number",
+    "urgency": "enum:routine,same_day,emergency_redirect"
+  },
+  "voice": { "name": "Vindemiatrix", "language_code": "en-US" }
+}
+```
+
+**Sample `results`:**
+
+```json
+{
+  "chief_complaint": "Sore throat and fever",
+  "duration": "2 days",
+  "severity": 6,
+  "urgency": "same_day"
+}
+```
+
+---
+
+## 4. Meditation / wellness check-in
+
+**Goal:** No scripted business questions; empathetic, slow; optional empty `output_schema` with summary-only completion.
+
+```json
+{
+  "name": "Wellness check-in",
+  "language": "en-US",
+  "purpose": "Short grounding conversation and mood check.",
+  "instructions": "Lead a gentle 3-minute style check-in: breathing cue, ask how they feel, validate, offer one small next step. Do not give medical advice.",
+  "questions": [],
+  "behaviors": {
+    "tone": "empathetic",
+    "speaking_pace": "slow",
+    "response_length": "moderate",
+    "greeting": "Hi, I'm glad you're here. We'll take this at your pace.",
+    "allow_interruptions": true
+  },
+  "output_schema": {},
+  "voice": { "name": "Achernar" }
+}
+```
+
+With an empty `output_schema` and no `output_schema_strict`, **`complete`** stores a simple `transcript_summary` object unless you add fields later.
+
+---
+
+## 5. Customer support triage
+
+**Goal:** Issue classification, escalation, brief responses.
+
+```json
+{
+  "name": "Support triage",
+  "language": "en-US",
+  "purpose": "Classify issue and route.",
+  "instructions": "Identify billing, technical, or account issues. Offer one clarifying question if needed.",
+  "questions": [
+    { "key": "issue_type", "ask": "Is this about billing, a technical problem, or your account?", "type": "enum", "options": ["billing", "technical", "account", "other"] },
+    { "key": "summary", "ask": "In one sentence, what happened?", "type": "text" }
+  ],
+  "behaviors": {
+    "tone": "professional",
+    "response_length": "brief",
+    "escalation_phrase": "Let me transfer you to a specialist who can resolve this.",
+    "follow_up_enabled": false,
+    "end_conversation_after_questions": true
+  },
+  "output_schema": {
+    "issue_type": "enum:billing,technical,account,other",
+    "summary": "text",
+    "priority": "enum:low,medium,high"
+  },
+  "voice": { "name": "Charon" }
+}
+```
+
+---
+
+## 6. Sales qualification (BANT-style)
+
+**Goal:** Budget, authority, need, timeline + lead score.
+
+```json
+{
+  "name": "Sales qualification",
+  "language": "en-US",
+  "purpose": "Qualify inbound leads.",
+  "instructions": "Be consultative; do not be pushy. Capture budget range, decision maker, need, and timeline.",
+  "questions": [
+    { "key": "budget", "ask": "What budget range are you working with for this purchase?", "type": "text" },
+    { "key": "decision_maker", "ask": "Who else is involved in the decision?", "type": "text" },
+    { "key": "timeline", "ask": "When are you hoping to decide?", "type": "text" }
+  ],
+  "behaviors": {
+    "tone": "friendly",
+    "speaking_pace": "fast",
+    "response_length": "brief",
+    "require_all_questions": true
+  },
+  "output_schema": {
+    "budget": "text",
+    "decision_maker": "text",
+    "timeline": "text",
+    "lead_score": "number",
+    "qualified": "boolean"
+  },
+  "voice": { "name": "Laomedeia" }
+}
+```
+
+**Sample `results`:**
+
+```json
+{
+  "budget": "10-20k annually",
+  "decision_maker": "CFO and IT lead",
+  "timeline": "Next 30 days",
+  "lead_score": 72,
+  "qualified": true
+}
+```
+
+---
+
+## Related
+
+- [Voice API reference](../endpoints/voice)
+- [Voice sessions & duration](./voice-sessions)

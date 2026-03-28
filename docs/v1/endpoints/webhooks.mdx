@@ -1,0 +1,149 @@
+---
+title: Webhooks
+description: Register webhooks to receive job completion/failure events.
+---
+
+# Webhooks API
+
+Pi can push job terminal-state events to your systems so automation platforms (n8n, agent runners, internal pipelines) can react without polling.
+
+## Endpoints
+
+- `GET /api/v1/webhooks`
+- `POST /api/v1/webhooks`
+- `PATCH /api/v1/webhooks/:id`
+
+## Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## GET `/api/v1/webhooks`
+
+Lists webhooks registered for the authenticated organization.
+
+### Example cURL
+
+```bash
+curl -X GET "https://api.example.com/api/v1/webhooks" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## POST `/api/v1/webhooks`
+
+Registers a new webhook endpoint.
+
+- `endpoint_url`: must be a valid URL and must use **HTTPS**.
+- `secret`: shared secret used to sign delivery payloads.
+
+### Example request
+
+```json
+{
+  "endpoint_url": "https://example.com/pi/webhooks",
+  "secret": "whsec_..."
+}
+```
+
+### Example cURL
+
+```bash
+curl -X POST "https://api.example.com/api/v1/webhooks" \
+  -H "Authorization: Bearer pi_live_***" \
+  -H "Content-Type: application/json" \
+  -d '{"endpoint_url":"https://example.com/pi/webhooks","secret":"whsec_..."}'
+```
+
+## PATCH `/api/v1/webhooks/:id`
+
+Enable/disable a webhook.
+
+### Example request
+
+```json
+{ "is_active": false }
+```
+
+### Example cURL
+
+```bash
+curl -X PATCH "https://api.example.com/api/v1/webhooks/<webhook_id>" \
+  -H "Authorization: Bearer pi_live_***" \
+  -H "Content-Type: application/json" \
+  -d '{"is_active":false}'
+```
+
+## Delivery
+
+### Event types
+
+Pi sends these event types:
+
+- `job.completed`
+- `job.failed`
+
+Avatar generation jobs emit these when the async worker reaches a terminal state.
+
+### Headers
+
+- `X-Pi-Event`: event type (`job.completed` or `job.failed`)
+- `X-Pi-Signature`: HMAC SHA-256 signature of the **raw JSON body** using your webhook secret.\n  Format: `sha256=<hex>`
+
+### Payload shape
+
+```json
+{
+  "id": "evt_pi_...",
+  "object": "event",
+  "type": "job.completed",
+  "created_at": 1760000000,
+  "data": {
+    "job": {
+      "id": "<job_id>",
+      "type": "avatar_generation",
+      "status": "completed",
+      "result_url": null,
+      "error_log": null,
+      "payload": {
+        "phase": "completed",
+        "image_url": "https://...png",
+        "input": {
+          "prompt": "...",
+          "reference_image_count": 0,
+          "client_reference_id": "...",
+          "metadata": { "workflow": "..." }
+        }
+      }
+    }
+  }
+}
+```
+
+### Signature verification (Node.js / TypeScript)
+
+```ts
+import crypto from "crypto";
+
+export function verifyPiWebhookSignature(params: {
+  secret: string;
+  rawBody: string;
+  signatureHeader: string | null;
+}) {
+  if (!params.signatureHeader) return false;
+  if (!params.signatureHeader.startsWith("sha256=")) return false;
+
+  const expected = crypto
+    .createHmac("sha256", params.secret)
+    .update(params.rawBody)
+    .digest("hex");
+
+  const received = params.signatureHeader.slice("sha256=".length);
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received));
+}
+```
+
+## Retry model
+
+Pi retries webhook delivery on non-2xx responses.\n\nFor best results, make your webhook handler idempotent (e.g. dedupe on `evt_pi_*` event id).
+

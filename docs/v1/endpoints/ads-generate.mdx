@@ -1,0 +1,42 @@
+---
+title: Ads Generate
+description: Dedicated alias for static marketing ads image generation.
+---
+
+# Ads Generate API
+
+Dedicated alias route for ads generation:
+
+- `POST /api/v1/ads/generate`
+
+This endpoint is functionally equivalent to:
+
+- `POST /api/v1/images/generations`
+
+Use whichever path best fits your integration style.
+
+## Why this alias exists
+
+- `images/generations`: OpenAI-compatible integration surface.
+- `ads/generate`: explicit domain route for ad-specific orchestration.
+
+Both routes share:
+
+- same request schema
+- same async lifecycle (`202` + `job_id`)
+- same idempotency behavior (`Idempotency-Key`)
+- same retrieval path (`GET /api/v1/jobs/:id`)
+
+## Example cURL
+
+```bash
+curl -X POST "https://api.example.com/api/v1/ads/generate" \
+  -H "Authorization: Bearer pi_live_***" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 4cb74a64-83f1-4fb8-96cf-1098f145008f" \
+  -d '{
+    "prompt":"Create a static ad for running shoes targeting young urban commuters in Kenya, high readability CTA",
+    "output":{"aspect_ratio":"4:5","resolution":"1K"}
+  }'
+```
+

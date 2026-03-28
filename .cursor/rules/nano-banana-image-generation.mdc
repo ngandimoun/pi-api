@@ -1,0 +1,30 @@
+---
+description: Mandates Nano Banana 2 for Gemini native image generation and requires consulting the integration doc before image APIs
+globs: src/**/*.{ts,tsx},src/app/api/**/*,docs/v1/**/*.{mdx,md}
+alwaysApply: false
+---
+
+# Gemini native image generation (piii)
+
+## Mandatory model
+
+For **native Gemini** image generation or editing (text-to-image, image+text, multi-turn image chat, grounded image gen), use:
+
+- **`gemini-3.1-flash-image-preview`** (Nano Banana 2)
+
+Do **not** use `gemini-3-pro-image-preview`, `gemini-2.5-flash-image`, Imagen, or other image models unless the **task owner explicitly overrides** in that conversation.
+
+## Before implementing or changing image APIs
+
+1. Open and cross-check **`docs/integrations/nano-banana-gemini-image.md`** — especially **Section 0 (piii policy)** and **Section 1 (capability matrix)**.
+2. Match features to API design: `responseModalities`, `imageConfig` (`aspectRatio`, `imageSize`), reference-image limits, Google Search vs Image Search (3.1 Flash only), multi-turn **thought signatures** (manual REST vs SDK chat), SynthID, and documented **limitations**.
+
+## Implementation (Next.js / TypeScript)
+
+- Prefer **`@google/genai`** with `GoogleGenAI` and `generateContent` / chat APIs as in the integration doc.
+- Keys: align with repo env conventions (`GEMINI_API_KEY`, or `GEMINI_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` as used in scripts). Do not introduce new secret names without a reason.
+- Respect `.cursorrules`: no hardcoded keys; model IDs may be env-driven while **defaulting** to `gemini-3.1-flash-image-preview`.
+
+## New `/api/v1/` routes
+
+Follow doc-driven development in `.cursorrules`: Zod contracts, MDX under `docs/v1/`, and `docs/docs-manifest.json` updates where applicable.

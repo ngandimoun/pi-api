@@ -1,0 +1,128 @@
+---
+title: Images Generations
+description: OpenAI-compatible async image generation for static marketing ads.
+---
+
+# Images Generations API
+
+OpenAI-style entrypoint for static ad generation.
+
+- Auth: Bearer API key (Unkey)
+- Execution: **async** (`202` + `job_id`)
+- Route: `POST /api/v1/images/generations`
+
+## Request body
+
+- `prompt` (**required**): ad intent prompt.
+- `reference_images` (optional): up to 6 images (`https://...` URL, data URL, or base64).
+- `brand_id` (optional): use stored brand context.
+- `brand_identity_json` (optional): inline brand context.
+- `output` (optional): `aspect_ratio`, `resolution`, `thinking_intensity`.
+- `client_reference_id` / `metadata` (optional): tracing.
+
+```json
+{
+  "prompt": "Create a static shoe ad for French-speaking West Africa, premium but approachable, strong CTA",
+  "reference_images": ["https://example.com/reference-1.jpg"],
+  "output": {
+    "aspect_ratio": "4:5",
+    "resolution": "1K",
+    "thinking_intensity": "minimal"
+  }
+}
+```
+
+## Response (202)
+
+```json
+{
+  "id": "req_pi_...",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1760000000,
+  "data": {
+    "job_id": "7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a"
+  }
+}
+```
+
+## Retrieve results
+
+Poll:
+
+- `GET /api/v1/jobs/:job_id?wait_for_completion=true&timeout_seconds=30&expand=ad`
+
+On completion, use:
+
+- `data.ad.image_url` (expanded field), or
+- `data.payload.image_url` in the job payload.
+
+## Debug logs (E2E)
+
+When running E2E locally or in worker logs, you can grep these tags:
+
+- `[ads.retrieve]` corpus retrieval tier + selected corpus id
+- `[ads.refs]` final reference composition (corpus + developer refs)
+- `[ads.plan]` planner success + language/market
+- `[ads.generate]` generation started/completed
+- `[ads.eval]` deterministic gate + evaluator scores
+- `[ads.fail]` deterministic failure code + message
+
+## Internal intelligence behavior
+
+Developers provide a simple prompt; backend workflow handles:
+
+- prompt understanding and weak-prompt enhancement
+- corpus image + corpus prompt retrieval (**mandatory: at least one corpus image is always included in generation**)
+- uploaded image understanding
+- culture/language/CTA adaptation
+- policy validation
+- planner + compiler stages
+- evaluator pass with one bounded auto-revision retry
+
+## Cost/latency optimization behavior
+
+The backend now uses adaptive orchestration tiers:
+
+- `fast_path`: low-complexity prompt (cheaper, lower latency)
+- `standard_path`: full baseline intelligence path
+- `hard_path`: stricter quality checks + evaluator enforcement
+
+Additional efficiency controls:
+
+- hash-based artifact cache for repeated near-identical jobs
+- deterministic pre-evaluator gate before model evaluator
+- targeted revision directives (not broad global rewrite)
+- runtime budgets (`stage` and `end-to-end`) with graceful failure codes
+
+## Feature flags / runtime controls
+
+Environment-driven controls:
+
+- `PI_ADS_CACHE_TTL_MS`
+- `PI_ADS_CACHE_TTL_JITTER_MS`
+- `PI_ADS_CACHE_MAX_ENTRIES`
+- `PI_ADS_CACHE_MAX_BYTES`
+- `PI_ADS_CACHE_MAX_ENTRY_BYTES`
+- `PI_ADS_CACHE_BACKEND` (`memory` | `supabase`)
+- `PI_ADS_CACHE_TELEMETRY` (`true` | `false`)
+- `PI_ADS_CACHE_TELEMETRY_FLUSH_MS`
+- `PI_ADS_FAST_PATH_MODEL_EVAL`
+- `PI_ADS_DETERMINISTIC_MIN_BYTES`
+- `PI_ADS_STAGE_MAX_MS`
+- `PI_ADS_MAX_RUN_MS`
+- `PI_ADS_MAX_REVISION_ATTEMPTS`
+
+Use these to tune intelligence-per-dollar and p95 latency without changing client integrations.
+
+### Recommended production settings (high-volume orchestrators)
+
+- Prefer persistent cache when running multiple workers/instances:\n  - `PI_ADS_CACHE_BACKEND=supabase`\n  - keep `PI_ADS_CACHE_MAX_ENTRY_BYTES` conservative (e.g. `131072`)\n- If using memory cache:\n  - `PI_ADS_CACHE_MAX_BYTES` ~ `33554432` (32MB) per isolate\n  - enable `PI_ADS_CACHE_TTL_JITTER_MS` to reduce stampedes\n- Keep evaluator cost bounded:\n  - `PI_ADS_FAST_PATH_MODEL_EVAL=false`\n  - `PI_ADS_MAX_REVISION_ATTEMPTS=1`\n- Tight latency budgets:\n  - `PI_ADS_STAGE_MAX_MS` 20s–30s\n  - `PI_ADS_MAX_RUN_MS` 60s–120s depending on SLA\n+
+## Suggested rollout order
+
+1. Enable caching only (`PI_ADS_CACHE_*`).
+2. Enable adaptive tiers + deterministic gate.
+3. Enable fast-path evaluator skip (`PI_ADS_FAST_PATH_MODEL_EVAL=false`).
+4. Tune stage/run budgets for your target p95 latency.
+5. Adjust revision cap (`PI_ADS_MAX_REVISION_ATTEMPTS`) only after quality telemetry baseline is stable.
+

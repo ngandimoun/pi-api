@@ -1,0 +1,59 @@
+---
+title: Campaigns Edit
+description: Edit a previously generated campaign ad image (OpenAI-compatible async endpoint).
+---
+
+# Campaigns Edit API
+
+`POST /api/v1/campaigns/edit`
+
+This endpoint lets developers edit the image produced by:
+
+- `POST /api/v1/campaigns/generate` (job type: `campaign_ad_generation`)
+
+Edits are identified by `source_job_id` (the `data.job_id` returned by `campaigns/generate`).
+
+For iterative refinement, `source_job_id` can also reference a previously created edit job of type `campaign_ad_edit` (edit-of-edit chaining).
+
+## Request body
+
+- `source_job_id` (**required**): UUID of a completed `campaign_ad_generation` job (or a completed `campaign_ad_edit` job when chaining) to use as the image source.
+- `prompt` (**required**): instruction describing what to change in the image.
+- `reference_images` (optional): up to 6 https URLs or base64/data URLs to guide the edit.
+- `brand_id` (optional): reinforce edits with a stored brand identity.
+- `output` (optional): `aspect_ratio`, `resolution`, `thinking_intensity`.
+- `client_reference_id` / `metadata` (optional): tracing fields.
+
+```json
+{
+  "source_job_id": "11111111-2222-3333-4444-555555555555",
+  "prompt": "Change the background to a sunset beach scene while keeping the same layout and text.",
+  "output": { "aspect_ratio": "4:5", "resolution": "1K", "thinking_intensity": "high" }
+}
+```
+
+## Response (202)
+
+```json
+{
+  "id": "req_pi_...",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1760000000,
+  "data": {
+    "job_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+  }
+}
+```
+
+## Retrieval
+
+Poll:
+
+- `GET /api/v1/jobs/:job_id?wait_for_completion=true&timeout_seconds=30&expand=ad`
+
+On completion:
+
+- `data.ad.image_url`, or
+- `data.payload.image_url`
+

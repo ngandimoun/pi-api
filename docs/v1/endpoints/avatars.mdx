@@ -1,0 +1,204 @@
+---
+title: Avatar generation
+description: Async avatar image generation with optional saved avatars for reuse.
+---
+
+# Avatars API
+
+Create marketing-style avatar images from a short creative prompt. Processing runs in the background; poll the job until the image is ready.
+
+- Auth: Bearer API key (Unkey)
+- Execution: **async** (job + poll)
+
+## Endpoints
+
+- `POST /api/v1/avatars/generate`
+- `POST /api/v1/avatars/save`
+- `GET /api/v1/avatars`
+- `GET /api/v1/avatars/:id`
+
+## Two input modes
+
+1. **Library-assisted** — Send only `prompt` (and optional `hints`). The service selects a single internal reference for inspiration and produces a **new** character (not a copy).
+2. **Bring-your-own references** — Send `reference_images` (1–6 items, data URL or base64 per image). The internal library is **not** used; generation uses your images plus `prompt` / `hints`.
+
+Reference images: max **6** per request; max size **15 MB** each; types **JPEG, PNG, WebP**.
+
+## POST `/api/v1/avatars/generate`
+
+Returns **202** with a `job_id`.
+
+### Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+Content-Type: application/json
+```
+
+### Request body (summary)
+
+- `prompt` (**required**): non-empty string.
+- `hints` (optional): flat object to steer composition/lighting/etc.
+- `reference_images` (optional): 1–6 items (data URL or raw base64). If non-empty, library retrieval is skipped.
+- `output` (optional): `aspect_ratio`, `resolution`, `thinking_intensity`.
+- `client_reference_id` (optional): correlation id for workflow/agent tracing.
+- `metadata` (optional): string map echoed into the job payload and webhook delivery.
+
+```json
+{
+  "prompt": "confident founder vibe for a fintech app, modest professional outfit",
+  "hints": {
+    "filter_culture": "middle_east",
+    "avatar_composition": "Portrait",
+    "art_direction": "Ultra Realistic"
+  },
+  "output": {
+    "aspect_ratio": "auto",
+    "resolution": "1K",
+    "thinking_intensity": "minimal"
+  },
+  "client_reference_id": "n8n-run-2026-03-26T12:00:00Z-step-7",
+  "metadata": {
+    "workflow": "lead-enrichment",
+    "customer_id": "cus_123"
+  }
+}
+```
+
+With client references (library skipped):
+
+```json
+{
+  "prompt": "same energy but younger, softer lighting",
+  "reference_images": ["data:image/png;base64,..."]
+}
+```
+
+### Response (202)
+
+```json
+{
+  "id": "<request_id>",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1710000000,
+  "data": { "job_id": "<uuid>" }
+}
+```
+
+### Getting the image output
+
+The `generate` endpoint is async. You get a `job_id` and then retrieve the final image URL via the Jobs API.
+
+- Poll: `GET /api/v1/jobs/:job_id` (see [Jobs](./jobs.mdx))
+- When completed, use `?expand=avatar` (or `include=avatar`) to include `data.avatar.image_url`.
+
+#### Example: long-poll until complete (cURL)
+
+```bash
+curl -X GET "https://api.example.com/api/v1/jobs/<job_id>?wait_for_completion=true&timeout_seconds=30&expand=avatar" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+#### Example: long-poll until complete (TypeScript SDK)
+
+```ts
+import crypto from "crypto";
+import { createPiClient } from "@/sdk";
+
+const client = createPiClient({
+  apiKey: process.env.PI_API_KEY!,
+  baseUrl: "https://api.example.com",
+});
+
+const queued = await client.avatars.generate(
+  {
+    prompt: "professional founder headshot, clean studio lighting",
+    output: { aspect_ratio: "3:4", resolution: "1K" },
+    client_reference_id: "workflow-run-123-step-7",
+    metadata: { workflow: "lead-enrichment" },
+  },
+  { idempotencyKey: crypto.randomUUID() }
+);
+
+const job = await client.jobs.retrieve(queued.data.job_id, {
+  wait_for_completion: true,
+  timeout_seconds: 30,
+  expand: "avatar",
+});
+
+console.log(job.data.avatar?.image_url);
+```
+
+## Output (optional)
+
+`output` controls canvas/aspect and pixel tier only. If omitted, server defaults apply.
+
+- `output.aspect_ratio` (optional): `auto` (default when omitted) or one of: `1:1`, `1:4`, `1:8`, `2:3`, `3:2`, `3:4`, `4:1`, `4:3`, `4:5`, `5:4`, `8:1`, `9:16`, `16:9`, `21:9`.
+  - When `auto` or omitted, the server derives an aspect ratio from `hints` (for example, `avatar_composition`).
+  - `auto` is never sent to the image generation API.
+- `output.resolution` (optional): `512`, `1K`, `2K`, `4K`. Default: `1K`.
+  - Note: lowercase `1k` is rejected by request validation.
+- `output.thinking_intensity` (optional): `minimal` or `high`.
+## Correlation (optional)
+
+- `client_reference_id` (optional): A developer-provided correlation id for workflow/agent tracing.
+- `metadata` (optional): String map (max 16 keys; values max 500 chars). Echoed into the job payload for debugging and webhook delivery.
+
+## Automation platforms
+
+- Prefer long-poll for simple flows: `GET /api/v1/jobs/:job_id?wait_for_completion=true&timeout_seconds=20&expand=avatar`.
+- Handle `429 rate_limit_error` by honoring `Retry-After` (when present) and backing off.
+- Use `client_reference_id` and `metadata` to correlate results back to workflow runs.
+
+## Idempotency (recommended)
+
+`POST /api/v1/avatars/generate` supports `Idempotency-Key`.
+
+- Retries with the **same** key and **same** request body may replay the original `202` response.
+- Reusing the same key with a **different** request body returns `409 idempotency_key_mismatch`.
+
+## POST `/api/v1/avatars/save`
+
+Persist a completed generation so you can reuse the URL without regenerating.
+
+```json
+{ "job_id": "<uuid>", "label": "CEO hero v2" }
+```
+
+Requires the job to be **completed** and owned by your organization.
+
+### Example cURL
+
+```bash
+curl -X POST "https://api.example.com/api/v1/avatars/save" \
+  -H "Authorization: Bearer pi_live_***" \
+  -H "Content-Type: application/json" \
+  -d '{"job_id":"<job_id>","label":"CEO hero v2"}'
+```
+
+## GET `/api/v1/avatars`
+
+Lists saved avatars (`limit`, `offset` query params).
+
+### Example cURL
+
+```bash
+curl -X GET "https://api.example.com/api/v1/avatars?limit=20&offset=0" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## GET `/api/v1/avatars/:id`
+
+Returns one saved avatar by id.
+
+### Example cURL
+
+```bash
+curl -X GET "https://api.example.com/api/v1/avatars/<saved_avatar_id>" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+## Hints (optional)
+
+`hints` is a flat object of optional string (or string array for `accessories`) fields, for example: `ethnicity`, `gender_expression`, `avatar_composition`, `art_direction`, `lighting`, `background`, `filter_culture`, `filter_industry`, etc. Invalid keys are ignored downstream; prefer documented keys for predictable results.

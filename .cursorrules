@@ -18,7 +18,7 @@ Before suggesting or installing ANY new dependency, you MUST check this list. If
 - **Durable Execution / Background Jobs:** Trigger.dev v3 (Mandatory for tasks > 5 seconds).
 - **Agent Orchestration:** Mastra and Vercel AI SDK.
 - **Model Providers (DYNAMIC):** Anthropic (Claude I will sepcify the models), Google (Gemini 3.1 pro, Embeddings v2), OpenAI (GPT i will specify the models), deepseek i will specify the model.
-- **Gemini Gemini 3 Pro (Nano Banana Pro)** (for images/pixel generation).
+- **Gemini native image generation (Nano Banana 2):** `gemini-3.1-flash-image-preview` — see `docs/integrations/nano-banana-gemini-image.md` for capabilities; Imagen, Nano Banana Pro (`gemini-3-pro-image-preview`), and `gemini-2.5-flash-image` are documented there for reference only unless explicitly requested.
 - **Deterministic Rendering:** Satori (React-to-SVG typography) + Sharp (PNG compositing).
 - **UI & Frontend Docs:** Tailwind CSS + Shadcn UI + Mintlify/MDX.
 

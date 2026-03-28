@@ -1,0 +1,66 @@
+---
+title: Campaigns Generate
+description: OpenAI-compatible async endpoint for premium static marketing campaign ads.
+---
+
+# Campaigns Generate API
+
+`POST /api/v1/campaigns/generate`
+
+This endpoint is a separate generation stack from `images/generations` and `ads/generate`, designed for higher-quality static campaign ads with mandatory corpus retrieval from the data layer.
+
+## Request body
+
+- `prompt` (**required**): generation intent from the developer.
+- `reference_images` (optional): up to 6 references (HTTPS URL or base64/data URL).
+- `brand_id` (optional): reuse an extracted Brand DNA record from `POST /api/v1/brands/extract`.
+- `brand_identity_json` (optional): inline brand identity payload when you already have brand data.
+- `output` (optional): `aspect_ratio`, `resolution`, `thinking_intensity`.
+- `client_reference_id` / `metadata` (optional): tracing fields.
+
+```json
+{
+  "prompt": "Generate a Gen Z Coca Cola static ad for summer vibes in Paris",
+  "reference_images": ["https://example.com/ref1.jpg"],
+  "brand_id": "11111111-2222-3333-4444-555555555555",
+  "output": { "aspect_ratio": "4:5", "resolution": "1K", "thinking_intensity": "high" }
+}
+```
+
+## Response (202)
+
+```json
+{
+  "id": "req_pi_...",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1760000000,
+  "data": {
+    "job_id": "11111111-2222-3333-4444-555555555555"
+  }
+}
+```
+
+## Retrieval
+
+Poll:
+
+- `GET /api/v1/jobs/:job_id?wait_for_completion=true&timeout_seconds=30&expand=ad`
+
+On completion:
+
+- `data.ad.image_url`, or
+- `data.payload.image_url`
+
+## Internal flow (hidden from API consumers)
+
+The endpoint keeps a single simple DX for developers while running a strict 6-step workflow internally:
+
+1. Prompt + image understanding
+2. Summary synthesis
+3. Hybrid data-layer retrieval (embedding + metadata/text) with mandatory corpus image URL from R2
+4. Reasoning/gap analysis
+5. JSON prompt construction
+6. Gemini image generation + upload
+
+To edit the generated image, use `data.job_id` as `source_job_id` in `POST /api/v1/campaigns/edit`.

@@ -10,6 +10,20 @@
     "docs/v1/endpoints/get-brand.mdx",
     "docs/v1/endpoints/brand-project.mdx",
     "docs/v1/endpoints/jobs.mdx",
+    "docs/v1/endpoints/avatars.mdx",
+    "docs/v1/endpoints/images-generations.mdx",
+    "docs/v1/endpoints/images-campaigns.mdx",
+    "docs/v1/endpoints/ads-generate.mdx",
+    "docs/v1/endpoints/campaigns-generate.mdx",
+    "docs/v1/endpoints/campaigns-edit.mdx",
+    "docs/v1/endpoints/campaigns-localize-ad.mdx",
+    "docs/v1/endpoints/runs.mdx",
+    "docs/v1/endpoints/webhooks.mdx",
+    "docs/v1/guides/idempotency.mdx",
+    "docs/v1/guides/pipeline-orchestration.mdx",
+    "docs/v1/guides/voice-sessions.mdx",
+    "docs/v1/guides/voice-templates.mdx",
+    "docs/v1/endpoints/voice.mdx",
     "docs/marketing/product-blurbs.md"
   ]
 }

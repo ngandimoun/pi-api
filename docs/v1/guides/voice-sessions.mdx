@@ -1,0 +1,61 @@
+---
+title: Voice agents — sessions and call duration
+description: How Pi voice sessions use LiveKit plus Gemini Live, how max_duration_seconds works, and when to add a worker.
+---
+
+# Voice agents — sessions and call duration
+
+This guide complements the **[Voice API reference](../endpoints/voice)**. For deeper LiveKit transport notes (tracks, webhooks, self-hosting), see the internal reference [LiveKit integration](../../integrations/livekit.md). For Gemini Live auth and audio semantics, see [Gemini Live API](../../integrations/gemini-live-api.md).
+
+## Two connections per session
+
+`POST /api/v1/voice/sessions` returns **two** independent connection payloads:
+
+| Connection | Purpose |
+|------------|---------|
+| `data.connection.livekit` | WebRTC room URL + JWT. Use with `livekit-client` (or mobile SDKs) for media, recording, or multi-party. |
+| `data.connection.gemini_live` | WebSocket URL + **ephemeral** token for **direct** client access to Gemini Live (`gemini-3.1-flash-live-preview` only). |
+
+Pi does **not** run a per-call server process that pipes audio between LiveKit and Gemini. Your app should:
+
+1. Connect the user to **LiveKit** (if you need WebRTC / room features).
+2. Open the **Gemini Live** WebSocket and stream mic audio / play model audio per the Live API.
+3. When the call ends, call **`POST /api/v1/voice/sessions/:id/complete`** with a **transcript** so Pi can run structured extraction (non-live Gemini pass) using the agent’s `output_schema`.
+
+## `max_duration_seconds` — explicit call cap
+
+Pi exposes a **maximum call length** so your client can auto-end reliably:
+
+- **Source:** Agent default `behaviors.max_duration_seconds` (60–1800), optionally **overridden** per session in the create body (`max_duration_seconds`).
+- **API:** Returned on session create (`201`) and on `GET /api/v1/voice/sessions/:id` as `max_duration_seconds` (number or `null` if no cap is configured).
+- **Database:** Stored on `voice_sessions.max_duration_seconds`.
+- **LiveKit room metadata:** The same value is included in the room’s JSON `metadata` (alongside `pi_voice_session_id`, `org_id`, `agent_id`) for observability.
+
+### Enforcement (client-side)
+
+Pi’s HTTP API **cannot** forcibly hang up the user’s browser WebRTC or Gemini socket from a short-lived serverless handler. **You should:**
+
+1. Start a timer when the session starts (use `max_duration_seconds` from the response, or `null` = no cap from Pi).
+2. When the timer fires: disconnect Gemini Live, leave the LiveKit room, then **`POST .../complete`** with the transcript.
+
+The compiled **system instruction** may also mention a duration as a **soft** hint to the model; product limits should rely on your **client timer** (and your own backend rules if needed).
+
+## `ttl_seconds` vs `max_duration_seconds`
+
+- **`ttl_seconds`** (optional, default **600**, max **3600**): Provisioning window — LiveKit room empty timeout, LiveKit JWT TTL, and Gemini ephemeral token expiry.
+- **Rule:** If both `ttl_seconds` and `max_duration_seconds` are set in the create body, Pi requires **`ttl_seconds >= max_duration_seconds`** so tokens do not expire before your intended call cap.
+- If the agent defines `max_duration_seconds` but the client omits an override, the server still enforces **`ttl_seconds >=` resolved max** when starting the session (error `voice_session_ttl_too_short` if too low).
+
+## LiveKit room “max duration”
+
+The pinned **`livekit-server-sdk`** `CreateRoom` options used in this repo **do not** include a maximum room lifetime field. Call length is therefore **not** enforced by the SFU via `createRoom` alone. For server-driven teardown, use a **LiveKit Agents** worker, a **scheduled job** that deletes stale rooms, or a future stack that exposes an explicit max room duration.
+
+## Optional: single WebRTC surface (worker)
+
+If you want the end user to only talk to **LiveKit** while a **server participant** bridges audio to Gemini Live, you need an **always-on** worker (e.g. LiveKit Agents). That is **not** included in the serverless Voice REST slice; the REST API still provisions room + tokens and structured completion via `.../complete`.
+
+## Related
+
+- [Voice API (endpoints)](../endpoints/voice)
+- [LiveKit — internal stack](../../integrations/livekit.md)
+- [Gemini Live API](../../integrations/gemini-live-api.md)

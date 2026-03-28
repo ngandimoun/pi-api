@@ -1,0 +1,55 @@
+---
+description: Gemini Live API (voice agents) stack rules — strict 3.1 Flash Live Preview only; internal stack location; tool use + session management guidance.
+globs: src/**/*.{ts,tsx},src/app/api/**/*,docs/**/*.{md,mdx}
+alwaysApply: true
+---
+
+# Gemini Live API (piii) — Voice agents
+
+> [!WARNING]
+> **Preview:** The Gemini Live API is in preview. Expect breaking changes and handle disconnects gracefully.
+
+## Mandatory: use skills to close knowledge gaps
+
+Before implementing or modifying any Gemini Live code, you MUST read:
+- `.agents/skills/gemini-interactions-api/SKILL.md`
+
+## Strict model policy (non-negotiable)
+
+- We ONLY use **`gemini-3.1-flash-live-preview`** for Live voice agents.
+- Do NOT add support for 2.5 Live models.
+- The canonical stack must **fail fast** if a different Live model is configured.
+
+## Where Live code must live (discoverable + reusable)
+
+Use the internal stack under:
+- `src/lib/gemini/live/*`
+
+Do not inline WebSocket setup, message schemas, or session management logic inside random API routes/workflow steps.
+
+## Tool use policy (Live API)
+
+- Allowed tools for our Live voice agents:
+  - **Function calling** (manual tool-response loop; synchronous only)
+  - **Google Search grounding**
+- Not supported for 3.1 Flash Live Preview (do not implement):
+  - async function calling (`behavior: NON_BLOCKING`)
+  - code execution / url context / google maps
+
+## Streaming & interruptions
+
+- Handle `interrupted: true` by immediately discarding queued audio playback.
+- Do not buffer audio for long durations; send small chunks (20–100ms).
+
+## Session management (required for production)
+
+- Be prepared for server resets; implement:
+  - **GoAway** handling (graceful wrap-up/reconnect)
+  - **Session resumption** (retain latest handle from updates; reconnect with it)
+  - **Context window compression** (audio tokens accumulate quickly)
+
+## Output modalities
+
+- Native audio models only support `AUDIO` response modality.
+- If you need text output, enable transcriptions in session config.
+

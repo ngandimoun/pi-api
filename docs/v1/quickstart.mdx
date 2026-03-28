@@ -35,6 +35,55 @@ Server and the in-repo SDK validate payloads with **Zod** schemas in [`src/contr
 
 ---
 
+## Campaign ads quick invoke (both routes)
+
+Campaign-grade static ads are available via two equivalent public routes:
+
+- `POST /api/v1/campaigns/generate`
+- `POST /api/v1/images/campaigns` (image-style alias)
+
+Use whichever naming fits your integration conventions. Both return `202` + `data.job_id` and are polled through `GET /api/v1/jobs/:id`.
+
+```bash
+export BASE="https://api.example.com"
+export API_KEY="pi_live_***"
+
+# Option A: domain route
+curl -sS -X POST "$BASE/api/v1/campaigns/generate" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"Create a premium Gen Z static ad for a soft drink","output":{"aspect_ratio":"4:5","resolution":"1K"}}'
+
+# Option B: image-style alias (same backend)
+curl -sS -X POST "$BASE/api/v1/images/campaigns" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"Create a premium Gen Z static ad for a soft drink","output":{"aspect_ratio":"4:5","resolution":"1K"}}'
+```
+
+```ts
+const BASE = process.env.PI_BASE_URL ?? "https://api.example.com";
+const API_KEY = process.env.PI_API_KEY!;
+
+async function createCampaign(route: "/api/v1/campaigns/generate" | "/api/v1/images/campaigns") {
+  const res = await fetch(`${BASE}${route}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt: "Create a premium Gen Z static ad for a soft drink",
+      output: { aspect_ratio: "4:5", resolution: "1K" },
+    }),
+  });
+  const json = await res.json();
+  return json.data.job_id as string;
+}
+```
+
+---
+
 ## 1. curl (copy-paste)
 
 Replace `API_KEY`, `BASE`, and IDs.
@@ -200,3 +249,4 @@ The SDK wraps the same routes as above and parses responses with Zod (`src/sdk/c
 - [Introduction](./intro.mdx) — envelopes, rate-limit headers, expansion convention.
 - [API index](../README.md) — full endpoint table.
 - [Brand projection](./endpoints/brand-project) — guardrails, errors, `payload.meta`.
+- [Pipeline orchestration guide](./guides/pipeline-orchestration.mdx) — use all APIs together with practical use-cases and sample code.

@@ -1,0 +1,55 @@
+---
+description: Prefer Mastra Workflows/Agents for agentic APIs; require Mastra + Gemini skills activation; keep enterprise OpenAI-compatible API constraints.
+globs: src/**/*.{ts,tsx},src/app/api/**/*,docs/**/*.{mdx,md}
+alwaysApply: true
+---
+
+# Mastra (piii) — agents + workflows
+
+## Mandatory: use skills to close knowledge gaps
+
+This repo vendors Agent Skills under `.agents/skills/`.
+
+When building **any Mastra** feature (agents, workflows, tools, memory, server/studio integration), you MUST read:
+- `.agents/skills/mastra/SKILL.md`
+
+Then follow its “embedded docs first” rule by consulting:
+- `node_modules/@mastra/core/dist/docs/**`
+
+## Default choice: Workflows vs Agents
+
+- **Prefer Mastra Workflows** for multi-step deterministic pipelines with known control flow:
+  - explicit step ordering / dataflow
+  - retries / error handling policy
+  - suspend/resume, HITL approvals, snapshots/time-travel debugging
+  - fan-out / fan-in (parallel/foreach/map/branch)
+- **Prefer Mastra Agents** only when the task is open-ended and requires autonomous reasoning/decision-making.
+- **Prefer Mastra Tools** for deterministic operations (DB/API calls, parsing, validation, IO). Tools must be typed (Zod) and return structured output.
+
+## Using agents/tools in this repo (template)
+
+- Tools live under `src/mastra/tools/*` (example: `src/mastra/tools/demo-weather-tool.ts`)
+- Agents live under `src/mastra/agents/*` (example: `src/mastra/agents/demo-agent.ts`)
+- Register agents/workflows in `src/mastra/index.ts` and reference them via:
+  - `mastra.getAgentById(...)` / `mastra.getAgent(...)`
+  - `mastra.getWorkflow(...)`
+
+## Model configuration (no hardcoding)
+
+- Agent `model` must be environment-driven via `PI_MASTRA_DEFAULT_MODEL` (see `src/mastra/model.ts`).
+- In production, missing model env should be treated as a config error (fail fast).
+
+## Gemini + Mastra together
+
+If a Mastra agent/workflow step calls Gemini (tools, structured output, streaming, background tasks), you must also apply:
+- `.cursor/rules/gemini-skills.mdc`
+- `.agents/skills/gemini-interactions-api/SKILL.md`
+
+## Enterprise API constraints (do not regress)
+
+When exposing HTTP endpoints:
+- Preserve **OpenAI-compatible** request/response shapes and auth per `.cursorrules`.
+- Use **Zod** for request/response validation.
+- Use **202 + job state machine** for tasks expected to exceed ~5 seconds (Trigger.dev where appropriate).
+- Do not add new dependencies without checking the existing stack and getting explicit permission if needed.
+

@@ -9,8 +9,8 @@ const paramsSchema = z.object({
 });
 
 const querySchema = z.object({
-  expand: z.enum(["brand"]).optional(),
-  include: z.enum(["brand"]).optional(),
+  expand: z.enum(["brand", "avatar", "ad", "diagnostics"]).optional(),
+  include: z.enum(["brand", "avatar", "ad", "diagnostics"]).optional(),
   fields: z.string().trim().min(1).optional(),
   wait_for_completion: z
     .string()
@@ -75,6 +75,51 @@ function parseBrandResult(resultUrl: string | null) {
   };
 }
 
+function parseAvatarJobResult(job: Record<string, unknown>) {
+  if (job.type !== "avatar_generation") {
+    return null;
+  }
+  const payload = job.payload;
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  const imageUrl = record.image_url;
+  if (typeof imageUrl !== "string") {
+    return null;
+  }
+  return {
+    type: "avatar" as const,
+    id: String(job.id),
+    image_url: imageUrl,
+  };
+}
+
+function parseAdJobResult(job: Record<string, unknown>) {
+  if (
+    job.type !== "ad_generation" &&
+    job.type !== "campaign_ad_generation" &&
+    job.type !== "campaign_ad_edit" &&
+    job.type !== "campaign_ad_localization"
+  ) {
+    return null;
+  }
+  const payload = job.payload;
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  const imageUrl = record.image_url;
+  if (typeof imageUrl !== "string") {
+    return null;
+  }
+  return {
+    type: "ad" as const,
+    id: String(job.id),
+    image_url: imageUrl,
+  };
+}
+
 async function resolveRouteParams(
   params: unknown
 ): Promise<Record<string, string | string[]> | undefined> {
@@ -121,7 +166,7 @@ export const GET = withApiAuth(async (request, context) => {
   if (!parsedQuery.success) {
     return apiError(
       "invalid_expand_param",
-      "expand must be 'brand' when provided.",
+      "expand/include must be 'brand', 'avatar', 'ad', or 'diagnostics' when provided.",
       400,
       request.requestId
     );
@@ -129,10 +174,17 @@ export const GET = withApiAuth(async (request, context) => {
 
   const includeBrand =
     parsedQuery.data.expand === "brand" || parsedQuery.data.include === "brand";
+  const includeAvatar =
+    parsedQuery.data.expand === "avatar" || parsedQuery.data.include === "avatar";
+  const includeAd = parsedQuery.data.expand === "ad" || parsedQuery.data.include === "ad";
+  const includeDiagnostics =
+    parsedQuery.data.expand === "diagnostics" || parsedQuery.data.include === "diagnostics";
   const requestedFields = parseFields(parsedQuery.data.fields);
   const selectedFields = new Set(requestedFields);
-  if (includeBrand || requestedFields.includes("*")) {
+  if (includeBrand || includeAvatar || includeAd || requestedFields.includes("*")) {
     selectedFields.add("result_url");
+    selectedFields.add("payload");
+    selectedFields.add("type");
   }
   const selectClause =
     requestedFields.includes("*") ? "*" : Array.from(selectedFields).join(",");
@@ -186,7 +238,10 @@ export const GET = withApiAuth(async (request, context) => {
     return apiError("job_not_found", "Job not found.", 404, request.requestId);
   }
 
-  const resultRef = parseBrandResult((job.result_url as string | null) ?? null);
+  const brandRef = parseBrandResult((job.result_url as string | null) ?? null);
+  const avatarRef = parseAvatarJobResult(job);
+  const adRef = parseAdJobResult(job);
+  const resultRef = brandRef ?? avatarRef ?? adRef;
 
   console.info("[jobs.get] lookup_success", {
     requestId: request.requestId,
@@ -201,11 +256,11 @@ export const GET = withApiAuth(async (request, context) => {
   });
 
   let expanded: { brand?: Record<string, unknown> } | undefined;
-  if (includeBrand && resultRef) {
+  if (includeBrand && brandRef) {
     const { data: brand } = await supabase
       .from("brands")
       .select("*")
-      .eq("id", resultRef.id)
+      .eq("id", brandRef.id)
       .eq("org_id", request.organizationId)
       .maybeSingle();
     if (brand) {
@@ -216,20 +271,35 @@ export const GET = withApiAuth(async (request, context) => {
   }
 
   return apiSuccess(
-    {
-      ...job,
-      created_at: toUnixTimestamp(String(job.created_at)),
-      updated_at: toUnixTimestamp(String(job.updated_at)),
-      ...(resultRef
-        ? {
-            job_result: {
-              ...resultRef,
-              ...(expanded?.brand ? { brand: expanded.brand } : {}),
-            },
-          }
-        : {}),
-      ...(expanded ? { expanded } : {}),
-    },
+    (() => {
+      const responseJob = { ...job } as Record<string, unknown>;
+      if (!includeDiagnostics) {
+        const payload = responseJob.payload;
+        if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+          const payloadRecord = { ...(payload as Record<string, unknown>) };
+          delete payloadRecord.diagnostics;
+          // Hide additional heavy provenance fields by default.
+          delete payloadRecord.retrieval_diagnostics;
+          responseJob.payload = payloadRecord;
+        }
+      }
+      return {
+        ...responseJob,
+        created_at: toUnixTimestamp(String(job.created_at)),
+        updated_at: toUnixTimestamp(String(job.updated_at)),
+        ...(resultRef
+          ? {
+              job_result: {
+                ...resultRef,
+                ...(expanded?.brand ? { brand: expanded.brand } : {}),
+              },
+            }
+          : {}),
+        ...(includeAvatar && avatarRef ? { avatar: { image_url: avatarRef.image_url } } : {}),
+        ...(includeAd && adRef ? { ad: { image_url: adRef.image_url } } : {}),
+        ...(expanded ? { expanded } : {}),
+      };
+    })(),
     "job",
     request.requestId
   );

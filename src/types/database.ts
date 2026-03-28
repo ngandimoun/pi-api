@@ -154,6 +154,8 @@ export interface StyleReferenceUpdate {
 export interface Job {
   id: string;
   org_id: string;
+  run_id: string | null;
+  run_step_id: string | null;
   type: string;
   status: JobStatus;
   payload: Json;
@@ -166,6 +168,8 @@ export interface Job {
 export interface JobInsert {
   id?: string;
   org_id: string;
+  run_id?: string | null;
+  run_step_id?: string | null;
   type: string;
   status?: JobStatus;
   payload?: Json;
@@ -177,6 +181,8 @@ export interface JobInsert {
 
 export interface JobUpdate {
   org_id?: string;
+  run_id?: string | null;
+  run_step_id?: string | null;
   type?: string;
   status?: JobStatus;
   payload?: Json;
@@ -247,6 +253,177 @@ export interface ProjectedPayloadUpdate {
   updated_at?: string;
 }
 
+export interface OrgSavedAvatar {
+  id: string;
+  org_id: string;
+  label: string | null;
+  image_url: string;
+  metadata: Json;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrgSavedAvatarInsert {
+  id?: string;
+  org_id: string;
+  label?: string | null;
+  image_url: string;
+  metadata?: Json;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface OrgSavedAvatarUpdate {
+  label?: string | null;
+  image_url?: string;
+  metadata?: Json;
+  updated_at?: string;
+}
+
+export type RunStatus = "pending" | "in_progress" | "completed" | "failed" | "cancelled";
+
+export interface Run {
+  id: string;
+  org_id: string;
+  status: RunStatus;
+  steps: Json;
+  metadata: Json | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RunInsert {
+  id?: string;
+  org_id: string;
+  status?: RunStatus;
+  steps?: Json;
+  metadata?: Json | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface RunUpdate {
+  org_id?: string;
+  status?: RunStatus;
+  steps?: Json;
+  metadata?: Json | null;
+  updated_at?: string;
+}
+
+export type VoiceSessionStatus = "active" | "completed" | "failed" | "expired";
+
+export interface VoiceAgent {
+  id: string;
+  org_id: string;
+  name: string;
+  language: string;
+  purpose: string | null;
+  instructions: string;
+  questions: Json;
+  behaviors: Json;
+  output_schema: Json;
+  /** Optional JSON Schema subset for constrained post-session extraction. */
+  output_schema_strict?: Json | null;
+  /** Optional Gemini model id for extraction (overrides default orchestrator model). */
+  extraction_model?: string | null;
+  voice_config: Json;
+  system_instruction: string;
+  metadata: Json;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VoiceAgentInsert {
+  id?: string;
+  org_id: string;
+  name: string;
+  language?: string;
+  purpose?: string | null;
+  instructions: string;
+  questions?: Json;
+  behaviors?: Json;
+  output_schema?: Json;
+  output_schema_strict?: Json | null;
+  extraction_model?: string | null;
+  voice_config?: Json;
+  system_instruction: string;
+  metadata?: Json;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface VoiceAgentUpdate {
+  name?: string;
+  language?: string;
+  purpose?: string | null;
+  instructions?: string;
+  questions?: Json;
+  behaviors?: Json;
+  output_schema?: Json;
+  output_schema_strict?: Json | null;
+  extraction_model?: string | null;
+  voice_config?: Json;
+  system_instruction?: string;
+  metadata?: Json;
+  is_active?: boolean;
+  updated_at?: string;
+}
+
+export interface VoiceSession {
+  id: string;
+  org_id: string;
+  agent_id: string;
+  status: VoiceSessionStatus;
+  participant: Json;
+  context: Json;
+  livekit_room_name: string;
+  transcript: Json | null;
+  results: Json | null;
+  duration_seconds: number | null;
+  /** Resolved cap for call length (agent default or per-session override); client should disconnect by this deadline. */
+  max_duration_seconds: number | null;
+  error_log: string | null;
+  metadata: Json;
+  expires_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VoiceSessionInsert {
+  id?: string;
+  org_id: string;
+  agent_id: string;
+  status?: VoiceSessionStatus;
+  participant?: Json;
+  context?: Json;
+  livekit_room_name: string;
+  transcript?: Json | null;
+  results?: Json | null;
+  duration_seconds?: number | null;
+  max_duration_seconds?: number | null;
+  error_log?: string | null;
+  metadata?: Json;
+  expires_at: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface VoiceSessionUpdate {
+  status?: VoiceSessionStatus;
+  participant?: Json;
+  context?: Json;
+  transcript?: Json | null;
+  results?: Json | null;
+  duration_seconds?: number | null;
+  max_duration_seconds?: number | null;
+  error_log?: string | null;
+  metadata?: Json;
+  expires_at?: string;
+  updated_at?: string;
+}
+
 export interface Database {
   public: {
     Enums: {
@@ -280,6 +457,11 @@ export interface Database {
         Insert: JobInsert;
         Update: JobUpdate;
       };
+      runs: {
+        Row: Run;
+        Insert: RunInsert;
+        Update: RunUpdate;
+      };
       webhooks: {
         Row: Webhook;
         Insert: WebhookInsert;
@@ -290,8 +472,63 @@ export interface Database {
         Insert: ProjectedPayloadInsert;
         Update: ProjectedPayloadUpdate;
       };
+      org_saved_avatars: {
+        Row: OrgSavedAvatar;
+        Insert: OrgSavedAvatarInsert;
+        Update: OrgSavedAvatarUpdate;
+      };
+      voice_agents: {
+        Row: VoiceAgent;
+        Insert: VoiceAgentInsert;
+        Update: VoiceAgentUpdate;
+      };
+      voice_sessions: {
+        Row: VoiceSession;
+        Insert: VoiceSessionInsert;
+        Update: VoiceSessionUpdate;
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      match_localized_ad_references: {
+        Args: {
+          query_embedding: string;
+          match_threshold: number;
+          match_count: number;
+          filter_industry?: string | null;
+          filter_culture?: string | null;
+          require_human?: boolean | null;
+        };
+        Returns: Array<{
+          id: string;
+          master_prompt: string;
+          r2_image_url: string;
+          metadata: Json;
+          similarity: number;
+          quality_score: number;
+        }>;
+      };
+      match_localized_ad_references_v2: {
+        Args: {
+          query_embedding: string;
+          match_threshold: number;
+          match_count: number;
+          filter_industry?: string | null;
+          filter_culture?: string | null;
+          require_human?: boolean | null;
+        };
+        Returns: Array<{
+          id: string;
+          master_prompt: string;
+          r2_image_url: string;
+          metadata: Json;
+          similarity: number;
+          quality_score: number;
+          combined_score: number;
+          tier: string;
+          applied_filters: Json;
+        }>;
+      };
+    };
   };
 }

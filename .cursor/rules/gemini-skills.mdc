@@ -1,0 +1,44 @@
+---
+description: Require activating vendored agent skills (Gemini Interactions API) before implementing Gemini-powered, enterprise-grade, OpenAI-compatible APIs.
+globs: src/**/*.{ts,tsx},src/app/api/**/*,docs/**/*.{mdx,md}
+alwaysApply: true
+---
+
+# Gemini skills (piii)
+
+## Mandatory: use skills to close knowledge gaps
+
+This repo vendors Agent Skills under `.agents/skills/`. When working on Gemini-powered features, you MUST load and follow the relevant skill before implementing.
+
+### Gemini Interactions API (required)
+
+When implementing or modifying any of the following:
+- Gemini SDK usage (`@google/genai`, `@ai-sdk/google`)
+- tool/function calling orchestration
+- structured output / schema-guided generation
+- multi-turn chat / stateful flows
+- streaming responses (SSE)
+- background execution / long-running research tasks
+- any Gemini-related API routes or provider wrappers
+
+You MUST read:
+- `.agents/skills/gemini-interactions-api/SKILL.md`
+
+Then follow its guidance, and fetch the official docs it references when exact API details matter:
+- `https://ai.google.dev/gemini-api/docs/interactions.md.txt`
+- `https://ai.google.dev/static/api/interactions.openapi.json`
+
+## Enterprise API constraints (do not regress)
+
+When exposing HTTP endpoints:
+- Preserve **OpenAI-compatible** request/response shapes and auth per `.cursorrules`.
+- Use **Zod** for request/response validation.
+- Use **202 + job state machine** for tasks expected to exceed ~5 seconds (Trigger.dev where appropriate).
+- Do not add new dependencies without checking the existing stack and getting explicit permission if needed.
+
+## Image generation note
+
+If the work involves **native Gemini image generation/editing**, also apply:
+- `.cursor/rules/nano-banana-image-generation.mdc`
+- `docs/integrations/nano-banana-gemini-image.md`
+

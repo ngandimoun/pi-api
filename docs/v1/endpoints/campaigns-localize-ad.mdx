@@ -1,0 +1,86 @@
+---
+title: Campaigns Localize Ad
+description: Localize an existing winning ad into a target culture while preserving exact composition.
+---
+
+# Campaigns Localize Ad
+
+Localize an existing winning ad image for a new market (culture, language, currency) while keeping the **exact same compositional layout**.
+
+This endpoint is **OpenAI-compatible** and runs asynchronously (returns `202` + a job id).
+
+## Endpoint
+
+- `POST /api/v1/campaigns/localize-ad`
+
+## Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## Request body
+
+```json
+{
+  "prompt": "Localize this ad to Kigali, keep layout identical.",
+  "source_job_id": "11111111-2222-3333-4444-555555555555",
+  "target_culture": "East African, Kigali vibe",
+  "target_language": "Kinyarwanda",
+  "target_currency": "RWF",
+  "brand_id": "00000000-0000-0000-0000-000000000000",
+  "reference_images": ["https://..."],
+  "output": {
+    "aspect_ratio": "1:1",
+    "resolution": "1K",
+    "thinking_intensity": "high"
+  },
+  "client_reference_id": "my-localize-req-001",
+  "metadata": {
+    "campaign": "rw-q2"
+  }
+}
+```
+
+### Fields
+
+- **`prompt`**: extra instruction for the localization.
+- **`source_image_url`**: optional when `source_job_id` is not provided.
+- **`source_job_id`**: optional when `source_image_url` is not provided. Must point to a completed `campaign_ad_generation` or `campaign_ad_edit` job.
+- Exactly one of `source_image_url` or `source_job_id` is required.
+- **`target_culture`**: required. The target market/culture vibe.
+- **`target_language`**: optional. Inferred if omitted.
+- **`target_currency`**: optional. Inferred if omitted.
+- **`brand_id`**: optional. Pulls brand DNA to reinforce brand consistency.
+- **`reference_images`**: optional, max 5. Extra style/character references.
+- **`output`**: optional. Output controls (aspect ratio/resolution/thinking).
+- **`client_reference_id`** / **`metadata`**: optional tracing.
+
+## Response (queued)
+
+Returns `202 Accepted`:
+
+```json
+{
+  "id": "req_pi_...",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1760000000,
+  "data": {
+    "job_id": "7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a"
+  }
+}
+```
+
+## Polling for result
+
+Use Job Retrieval:
+
+- `GET /api/v1/jobs/:id?expand=ad`
+
+When completed, the job payload includes `image_url` and `result_url`.
+
+## Idempotency
+
+Supported via `Idempotency-Key` header. Replays the same response for retries; returns `409` if the same key is reused with a different request body.
+

@@ -1,0 +1,40 @@
+---
+title: Idempotency
+description: Prevent duplicate side effects when automation platforms retry POST requests.
+---
+
+# Idempotency
+
+Automation platforms (n8n), agent runners, and network retries can cause the same `POST` request to be sent multiple times.\n\nIdempotency lets you safely retry without creating duplicate jobs or duplicate side effects.
+
+## How it works
+
+Send an `Idempotency-Key` header on supported `POST` endpoints.
+
+```http
+Idempotency-Key: <any-unique-string>
+```
+
+Pi stores the first response for a given `(organization, endpoint_scope, Idempotency-Key)` and may replay it on retries.
+
+## Avatar generation example
+
+`POST /api/v1/avatars/generate` supports `Idempotency-Key`.
+
+### cURL
+
+```bash
+curl -X POST "https://api.example.com/api/v1/avatars/generate" \
+  -H "Authorization: Bearer pi_live_***" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 8e2d3a1d-..." \
+  -d '{"prompt":"professional founder headshot"}'
+```
+
+### Replay behavior
+
+- **Same key + same request body**: Pi may replay the original response.\n  - Replay responses include: `X-Idempotency-Replayed: true`\n- **Same key + different request body**: Pi returns `409 idempotency_key_mismatch`.
+
+## Best practices (n8n / agents)
+
+- Use a unique key per workflow step (e.g. `run_id + node_id + attempt_id`).\n- Keep request bodies stable across retries when reusing a key.\n- Treat `409 idempotency_key_mismatch` as a bug in the caller (don’t auto-retry with the same key).\n

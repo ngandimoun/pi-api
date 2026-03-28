@@ -1,0 +1,180 @@
+---
+title: Voice agents API
+description: Create voice agent configs, start Gemini Live + LiveKit sessions, complete with transcript for structured results.
+---
+
+# Voice agents API
+
+Configure reusable **voice agents**, start **realtime sessions** (LiveKit + Gemini Live ephemeral), then **complete** with a transcript for structured JSON extraction.
+
+- **Auth:** `Authorization: Bearer <api_key>` (Unkey) on all routes below **except** the LiveKit webhook.
+- **Model policy:** Realtime voice uses **`gemini-3.1-flash-live-preview`** only (ephemeral token path). See [Gemini Live API](../../integrations/gemini-live-api.md).
+
+**Conceptual guides:** [Voice sessions and call duration](../guides/voice-sessions) · [Enterprise templates](../guides/voice-templates) (full JSON examples).
+
+## Endpoints (summary)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/v1/voice/agents` | Create agent |
+| `GET` | `/api/v1/voice/agents` | List agents (`limit`, `offset`) |
+| `GET` | `/api/v1/voice/agents/:id` | Get agent |
+| `GET` | `/api/v1/voice/agents/:id/preview` | Compiled `system_instruction` only (no session) |
+| `PATCH` | `/api/v1/voice/agents/:id` | Update agent (rebuilds `system_instruction`) |
+| `DELETE` | `/api/v1/voice/agents/:id` | Soft-delete (`is_active: false`) |
+| `GET` | `/api/v1/voice/voices` | List supported Gemini Live prebuilt voices (`name`, `description`, `default`) |
+| `POST` | `/api/v1/voice/sessions` | Start session (`201`, `status: "active"`) |
+| `GET` | `/api/v1/voice/sessions/:id` | Get session; optional long-poll |
+| `POST` | `/api/v1/voice/sessions/:id/complete` | Submit transcript + get structured `results` |
+| `POST` | `/api/v1/voice/webhooks/livekit` | LiveKit-signed webhook (no Bearer) |
+
+Contracts (Zod): `src/contracts/voice-agent-api.ts`, `src/contracts/voice-session-api.ts`.
+
+---
+
+## Voice agents
+
+### `POST /api/v1/voice/agents`
+
+Creates a row in `voice_agents` and compiles `system_instruction` from `instructions`, `questions`, `behaviors`, `output_schema`, etc.
+
+**Body (high level)**
+
+- `name` (required), `instructions` (required), `language` (default `en-US`)
+- `purpose`, `questions[]`, `behaviors`, `output_schema`, `metadata` (optional)
+- **`voice`** (optional): `{ "name"?: "<prebuilt voice>", "language_code"?: "en-US" }` — `name` must be one of **`GET /api/v1/voice/voices`** (Gemini Live Chirp 3 HD catalog).
+- **`output_schema_strict`** (optional): JSON Schema object (Gemini-supported subset) for **constrained** post-session extraction together with `output_schema` hints in the live prompt.
+- **`extraction_model`** (optional): Gemini model id for the non-live extraction call (defaults to your orchestrator env).
+
+**`behaviors`** may also include: `speaking_pace` (`slow` \| `normal` \| `fast`), `response_length` (`brief` \| `moderate` \| `detailed`), `escalation_phrase`, `follow_up_enabled`, `silence_timeout_seconds` (5–60), `closing_message`, `require_all_questions`.
+
+**`behaviors.max_duration_seconds`** (optional, 60–1800): Default maximum call length for sessions using this agent. Can be overridden per session. See [Voice sessions guide](../guides/voice-sessions).
+
+**Response:** `200`, OpenAI-style envelope, `data.agent_id`, `data.name`, `data.created_at` (unix).
+
+### `GET /api/v1/voice/agents`
+
+Query: `limit` (1–100, default 20), `offset` (default 0).
+
+**Response:** `data.data[]` with `agent_id`, `name`, `language`, `purpose`, `is_active`, timestamps.
+
+### `GET /api/v1/voice/agents/:id`
+
+Returns full agent config including `output_schema_strict` and `extraction_model` when set.
+
+### `GET /api/v1/voice/agents/:id/preview`
+
+Returns `{ "agent_id", "system_instruction" }` — same compilation as stored on the agent, **without** starting LiveKit or Gemini Live.
+
+### `GET /api/v1/voice/voices`
+
+Returns `{ "object": "list", "model": "gemini-3.1-flash-live-preview", "data": [ { "name", "description", "default" } ] }` for all **30** prebuilt voices.
+
+### `PATCH /api/v1/voice/agents/:id`
+
+Partial update; merges into existing row and rebuilds `system_instruction`.
+
+### `DELETE /api/v1/voice/agents/:id`
+
+Sets `is_active: false`. Returns `data.deleted: true`.
+
+---
+
+## Voice sessions
+
+### `POST /api/v1/voice/sessions`
+
+Starts a session: creates a LiveKit room, inserts `voice_sessions`, mints LiveKit user JWT + Gemini Live ephemeral token.
+
+**Body**
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `agent_id` | yes | UUID of an active agent |
+| `participant` | yes | `{ "identity": string, "name"?: string }` |
+| `context` | no | JSON object; serialized length ≤ 16k chars |
+| `ttl_seconds` | no | 60–3600, default **600**. Token/room expiry window. |
+| `max_duration_seconds` | no | 60–1800. Per-session override for call cap. |
+| `voice` | no | Same shape as agent `voice`; overrides agent `voice_config` for this session only. |
+
+**Response `201`** — envelope includes top-level `"status": "active"`. `data` includes:
+
+- `session_id`, `agent_id`
+- `connection.livekit`: `{ url, token }` (use `wss://` URL from client)
+- `connection.gemini_live`: `{ url, token }` (ephemeral WebSocket)
+- `system_instruction` (same text locked into the ephemeral constraints)
+- `expires_at` (unix seconds)
+- `max_duration_seconds` (number or `null`)
+
+**Errors (non-exhaustive):** `voice_agent_not_found` (404), `voice_gemini_ephemeral_failed` (502), `voice_session_ttl_too_short` (400) when `ttl_seconds` is below the effective max duration.
+
+### `GET /api/v1/voice/sessions/:id`
+
+Returns session state: `status`, `transcript`, `results`, `max_duration_seconds`, `expires_at`, etc.
+
+**Query:** `wait_for_completion=true`, `timeout_seconds` (1–120) — polls until terminal status or timeout.
+
+### `POST /api/v1/voice/sessions/:id/complete`
+
+**Body**
+
+- `transcript` (required): array of `{ role: "user" | "agent", text, timestamp? }`, 1–5000 entries
+- `duration_seconds` (optional): 0–86400
+
+**Behavior:** If agent `output_schema` has keys **or** `output_schema_strict` is set, runs a **non-live** Gemini extraction pass (`extraction_model` when configured). Otherwise stores a simple `transcript_summary`. Updates session to `completed` or `failed` (hard fail only on API/parse errors before persistence).
+
+**Response:** Same fields as **`GET /api/v1/voice/sessions/:id`** (`session_id`, `participant`, `context`, `transcript`, `results`, `duration_seconds`, `max_duration_seconds`, `error_log`, `metadata`, `expires_at`, `created_at`, `updated_at`, `status`, `agent_id`) plus top-level **`results`** (aligned with stored session). Optional **`extraction_warnings`** when strict-schema validation finds issues (also mirrored under `metadata.pi_extraction_warnings`).
+
+**Errors:** `voice_session_not_active` (409), `voice_result_extraction_failed` (502), etc.
+
+---
+
+## LiveKit webhook
+
+### `POST /api/v1/voice/webhooks/livekit`
+
+- **Not** authenticated with Pi API keys.
+- LiveKit signs the **raw body**; Pi verifies with `LIVEKIT_WEBHOOK_API_KEY` / `LIVEKIT_WEBHOOK_API_SECRET` (or falls back to main LiveKit API key/secret).
+- On `room_finished`, Pi may merge metadata into the matching `voice_sessions` row. Final completion and structured results still go through **`POST .../complete`**.
+
+Configure this URL in the LiveKit project dashboard.
+
+---
+
+## Environment variables (operators)
+
+Server needs at minimum:
+
+- **LiveKit:** `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`
+- **Gemini (ephemeral + extraction):** `GEMINI_KEY` or `GOOGLE_GENERATIVE_AI_API_KEY`; campaign/orchestrator model vars as used by `extract-session-results` for completion.
+
+See `.env.example` and [LiveKit integration](../../integrations/livekit.md).
+
+---
+
+## Verification (E2E script)
+
+Run against a **live** API (`PI_BASE_URL`, default `http://localhost:3000`) with a valid Pi key:
+
+```bash
+npm run voice:e2e
+```
+
+If `next dev` is on a non-default port, set **`PI_BASE_URL`** (e.g. `PI_BASE_URL=http://localhost:3002 npm run voice:e2e`). If requests **hang** on port 3000, another dev process may be stuck; restart `next dev` or kill the old PID (Next may also pick the next free port).
+
+- **Minted key:** requires `UNKEY_ROOT_KEY`, `UNKEY_API_ID`, and an org id (`VOICE_E2E_ORG_ID` or `PROJECTION_GOLDEN_ORG_ID` in `.env.local`).
+- **Existing key:** `PI_VOICE_API_KEY=pi_... npm run voice:e2e`
+
+The script prints **OK / FAIL / WARN / SKIP** per step, detects **silent structural errors** (e.g. `200` but missing `data.agent_id`, or `201` without both connections), and exits **non-zero** on failure.
+
+- **Agents only (no LiveKit/Gemini):** `VOICE_E2E_SKIP_SESSION=1 npm run voice:e2e`
+- **Skip structured completion:** `VOICE_E2E_SKIP_COMPLETE=1 npm run voice:e2e`
+
+Exact JSON used for the agent create step lives in `scripts/voice-api-e2e.mjs` (`VOICE_AGENT_DEV_PAYLOAD`).
+
+## Related
+
+- [Voice sessions and duration](../guides/voice-sessions)
+- [Voice agent templates (enterprise)](../guides/voice-templates)
+- [LiveKit — internal stack](../../integrations/livekit.md)
+- [Gemini Live API](../../integrations/gemini-live-api.md)

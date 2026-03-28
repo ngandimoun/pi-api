@@ -11,6 +11,7 @@ description: OpenAI-compatible, multi-modal orchestration API for Pi ($\pi$).
 
 - Production: `https://api.example.com` (replace with your deployed host)
 - Versioned routes live under `/v1/…` (implemented in `src/app/api/v1/`).
+- **Production DB = Pii only** (Supabase project ref `ajxgpqoadkqjhirqrdbr`).
 
 ## Local development
 
@@ -156,7 +157,11 @@ Heavy execution runs on **Trigger.dev** workers (see `src/jobs/` and `trigger.co
 
 ## Idempotency
 
-**Roadmap:** `Idempotency-Key` on `POST` requests is specified for OpenAI-style integrations to avoid duplicate side effects and duplicate billing. **It is not yet implemented** on current v1 routes; treat duplicate submits as distinct requests until support ships.
+`Idempotency-Key` on `POST` requests is specified for OpenAI-style integrations to avoid duplicate side effects and duplicate billing.
+
+- If you provide `Idempotency-Key` and retry the same request, Pi may replay the original response.\n- If you reuse the same key with a different request body, Pi returns `409` with `idempotency_key_mismatch`.
+
+Support varies by endpoint/version; consult endpoint docs for details.
 
 ## Deploy Checklist
 
@@ -179,7 +184,7 @@ If `projection:golden-check` fails, inspect `artifacts/projection-golden-check.j
 
 ## Types and validation
 
-Request and response shapes for the Pi API are defined with **Zod** in [`src/contracts/brand-api.ts`](../../src/contracts/brand-api.ts). The typed client [`src/sdk/client.ts`](../../src/sdk/client.ts) parses responses with those contracts.
+Request and response shapes for the Pi API are defined with **Zod** in [`src/contracts/brand-api.ts`](../../src/contracts/brand-api.ts), [`src/contracts/voice-agent-api.ts`](../../src/contracts/voice-agent-api.ts), and [`src/contracts/voice-session-api.ts`](../../src/contracts/voice-session-api.ts). The typed client [`src/sdk/client.ts`](../../src/sdk/client.ts) parses responses with those contracts where wired.
 
 ## Documentation policy
 
@@ -194,3 +199,10 @@ Every new or changed endpoint must be documented under `docs/v1/` (MDX) and in c
 - [List Brands](./endpoints/list-brands)
 - [Get Brand](./endpoints/get-brand)
 - [Brand Projection](./endpoints/brand-project)
+- [Images Generations](./endpoints/images-generations)
+- [Images Campaigns](./endpoints/images-campaigns)
+- [Ads Generate](./endpoints/ads-generate)
+- [Campaigns Generate](./endpoints/campaigns-generate)
+- [Campaigns Localize Ad](./endpoints/campaigns-localize-ad)
+- [Voice agents](./endpoints/voice)
+- [Voice sessions guide](./guides/voice-sessions)

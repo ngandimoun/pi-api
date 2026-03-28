@@ -53,6 +53,16 @@ export const jobRecordContract = z.object({
   error_log: z.string().nullable(),
   created_at: z.number(),
   updated_at: z.number(),
+  avatar: z
+    .object({
+      image_url: z.string().url(),
+    })
+    .optional(),
+  ad: z
+    .object({
+      image_url: z.string().url(),
+    })
+    .optional(),
   expanded: z
     .object({
       brand: brandRecordContract.optional(),
@@ -60,10 +70,11 @@ export const jobRecordContract = z.object({
     .optional(),
   job_result: z
     .object({
-      type: z.literal("brand"),
+      type: z.enum(["brand", "avatar", "ad"]),
       id: z.string().uuid(),
-      url: z.string(),
+      url: z.string().optional(),
       brand: brandRecordContract.optional(),
+      image_url: z.string().url().optional(),
     })
     .optional(),
 });
@@ -89,7 +100,7 @@ export const errorEnvelopeContract = z.object({
     code: z.string(),
     message: z.string(),
     request_id: z.string(),
-  }),
+  }).passthrough(),
 });
 
 export const extractJobQueuedContract = successEnvelopeContract(

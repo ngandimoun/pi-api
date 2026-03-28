@@ -1,0 +1,67 @@
+---
+description: LiveKit stack rules — use internal helpers for tokens, room APIs, and webhooks; keep production-grade patterns.
+globs: src/**/*.{ts,tsx},src/app/api/**/*,docs/**/*.{md,mdx}
+alwaysApply: true
+---
+
+# LiveKit (piii) — realtime sessions for voice agents
+
+## Docs-first (LiveKit changes fast)
+
+- Prefer reading our integration doc first: `docs/integrations/livekit.md`.
+- When implementing new LiveKit features, consult LiveKit docs (CLI/MCP/llms.txt) before writing code.
+ - For transport-level concerns (SDK platforms, media/data, E2EE, self-hosting) consult the LiveKit Transport docs (`transport.md`) as well.
+
+## Hosting note
+
+- Keep LiveKit configuration **environment-driven** so we can use LiveKit Cloud or self-hosting without changing application code.
+
+## Use the internal stack (do not re-implement)
+
+Use:
+- `src/lib/livekit/*`
+
+Specifically:
+- Token minting: `src/lib/livekit/tokens.ts`
+- Room service: `src/lib/livekit/room-service.ts`
+- Webhooks: `src/lib/livekit/webhooks.ts`
+
+## Transport SDKs note
+
+- Client apps should use the appropriate LiveKit client SDK (web/mobile/etc). In this repo, web uses `livekit-client`.
+- Server orchestration should use `src/lib/livekit/*` (tokens/room service/webhooks) rather than ad-hoc SDK usage.
+
+## Media note
+
+- Model realtime audio/video as **published/subscribed tracks**.
+- For track-level work, consult LiveKit Media docs (`transport/media.md`) and keep publish/subscribe + permissions explicit.
+
+## Data note
+
+- Prefer **text streams / byte streams / RPC** over raw data packets.
+- Use participant attributes/metadata + room metadata only for **low-frequency** shared state.
+
+## Webhook verification requirement
+
+- Webhook verification MUST use the **raw request body string** (not parsed JSON).
+- Always verify the `Authorization` header signature before trusting webhook payloads.
+
+## Voice-agent architecture note
+
+LiveKit is the transport/session layer; Gemini Live is the model voice layer.
+For Gemini Live voice agents we only allow `gemini-3.1-flash-live-preview` (see `.cursor/rules/gemini-live-api.mdc`).
+
+## Models note
+
+- LiveKit docs cover many STT/LLM/TTS providers and realtime models.
+- In Pi, **realtime voice agents must follow the Gemini Live policy** (don’t introduce selectable realtime models).
+
+## Agents framework concepts (for planning APIs)
+
+When designing voice-agent logic (even if you aren’t using the LiveKit Agents SDK yet), align naming and architecture to:
+- session orchestration (“AgentSession”-like)
+- tasks / task groups for typed multi-step capture
+- workflows for multi-agent handoffs / phase routing
+- deterministic tools for DB/API actions and frontend RPC
+- explicit turn detection + interruption policy
+

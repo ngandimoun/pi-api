@@ -179,7 +179,7 @@ export function withApiAuth<TContext extends AppRouteContext = AppRouteContext>(
       if (!valid) {
         const rawCode = String(data?.code ?? "AUTH_FAILED");
         const mapped = mapUnkeyError(rawCode);
-        return withCommonHeaders(
+        const response = withCommonHeaders(
           apiError(
             `unkey_${rawCode.toLowerCase()}`,
             mapped.message,
@@ -190,6 +190,17 @@ export function withApiAuth<TContext extends AppRouteContext = AppRouteContext>(
           requestId,
           rateHeaders
         );
+
+        if (mapped.statusCode === 429) {
+          const reset = rateHeaders?.["X-RateLimit-Reset"];
+          const resetEpoch = reset ? Number(reset) : Number.NaN;
+          const nowEpoch = Math.floor(Date.now() / 1000);
+          if (!Number.isNaN(resetEpoch) && resetEpoch > nowEpoch) {
+            response.headers.set("Retry-After", String(Math.max(resetEpoch - nowEpoch, 1)));
+          }
+        }
+
+        return response;
       }
 
       const organizationId = resolveOrganizationId(data);

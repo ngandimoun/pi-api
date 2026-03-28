@@ -1,0 +1,27 @@
+---
+title: Images Campaigns
+description: OpenAI-style alias endpoint for campaign-grade static ad generation.
+---
+
+# Images Campaigns API
+
+`POST /api/v1/images/campaigns`
+
+This is an alias route for campaign-grade static ads.
+
+- Alias of: `POST /api/v1/campaigns/generate`
+- Same request schema
+- Same async response (`202` + `job_id`)
+- Same job polling (`GET /api/v1/jobs/:id`)
+
+## Example
+
+```bash
+curl -X POST "https://api.example.com/api/v1/images/campaigns" \
+  -H "Authorization: Bearer pi_live_***" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt":"Generate a premium static ad for a soda brand targeting Gen Z",
+    "output":{"aspect_ratio":"4:5","resolution":"1K"}
+  }'
+```

@@ -15,8 +15,8 @@ Pi runs heavyweight agentic workflows asynchronously. Use this endpoint to poll 
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `expand` | `"brand"` | No | Expands the resolved brand resource when `result_url` points to `brands/{brand_id}`. |
-| `include` | `"brand"` | No | Alias of `expand=brand`. |
+| `expand` | `"brand"` \| `"avatar"` \| `"ad"` \| `"diagnostics"` | No | `brand`: loads the brand row when `result_url` is `brands/{id}`. `avatar`: adds `avatar.image_url` for completed avatar jobs. `ad`: adds `ad.image_url` for completed ads jobs (including `campaign_ad_generation`, `campaign_ad_edit`, and `campaign_ad_localization`). `diagnostics`: includes step diagnostics payload for orchestration debugging. |
+| `include` | `"brand"` \| `"avatar"` \| `"ad"` \| `"diagnostics"` | No | Alias of `expand`. |
 | `wait_for_completion` | `boolean` | No | Long-poll until terminal state (`completed`/`failed`) or timeout. |
 | `timeout_seconds` | `number` | No | Long-poll timeout window. Range: `1` to `30`, default `20`. |
 | `fields` | `csv` | No | Select specific job fields only (e.g. `fields=id,status,result_url`). |
@@ -53,6 +53,26 @@ curl -X GET "https://api.example.com/api/v1/jobs/7b8c9f2f-8d7a-4a39-8d8d-1cd4d11
 curl -X GET "https://api.example.com/api/v1/jobs/7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a?expand=brand" \
   -H "Authorization: Bearer pi_live_***"
 ```
+
+For ads output expansion:
+
+```bash
+curl -X GET "https://api.example.com/api/v1/jobs/7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a?expand=ad" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+For diagnostic expansion (agentic orchestration):
+
+```bash
+curl -X GET "https://api.example.com/api/v1/jobs/7b8c9f2f-8d7a-4a39-8d8d-1cd4d11f8a7a?include=diagnostics" \
+  -H "Authorization: Bearer pi_live_***"
+```
+
+By default, heavy diagnostic internals are minimized. Request diagnostics explicitly when your orchestrator needs deep step traces.
+
+## Diagnostics provenance for ads (include=diagnostics)
+
+For `ad_generation` jobs, `include=diagnostics` exposes internal step artifacts including:\n\n- corpus retrieval tier (`strict` / `broadened` / `broadest`)\n- selected corpus reference id\n- top candidate scores\n- reference provenance (corpus-first ordering + developer refs)\n\nDefault responses omit these fields to keep payloads small.
 
 ## Example cURL with long-poll and projection
 
