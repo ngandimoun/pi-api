@@ -1,0 +1,131 @@
+{
+  "theme": "mint",
+  "name": "Pi (PI Intelligence) API",
+  "description": "OpenAI-compatible, multi-modal orchestration APIs for brand, commerce, voice, health, neuro, surveillance, and robotics.",
+  "colors": {
+    "primary": "#0071E3",
+    "light": "#8EC5FF",
+    "dark": "#0B4AA2"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/"
+    }
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting started",
+        "pages": ["docs/v1/intro", "docs/v1/quickstart"]
+      },
+      {
+        "group": "API reference",
+        "pages": [
+          {
+            "group": "Brand intelligence",
+            "pages": [
+              "docs/v1/endpoints/brand-extraction",
+              "docs/v1/endpoints/list-brands",
+              "docs/v1/endpoints/get-brand",
+              "docs/v1/endpoints/brand-project"
+            ]
+          },
+          {
+            "group": "Visual commerce",
+            "pages": [
+              "docs/v1/endpoints/images-generations",
+              "docs/v1/endpoints/ads-generate",
+              "docs/v1/endpoints/campaigns-generate",
+              "docs/v1/endpoints/campaigns-edit",
+              "docs/v1/endpoints/campaigns-localize-ad",
+              "docs/v1/endpoints/images-campaigns",
+              "docs/v1/endpoints/avatars"
+            ]
+          },
+          {
+            "group": "Voice intelligence",
+            "pages": ["docs/v1/endpoints/voice"]
+          },
+          {
+            "group": "Health intelligence",
+            "pages": [
+              "docs/v1/health-triage",
+              "docs/v1/health-decision-apis",
+              "docs/v1/patient-risk-priority",
+              "docs/v1/adherence-detection",
+              "docs/v1/notes-structure",
+              "docs/v1/clinical-decision-support",
+              "docs/v1/medication-check",
+              "docs/v1/scan-analysis",
+              "docs/v1/research-assist",
+              "docs/v1/cognitive-wellness"
+            ]
+          },
+          {
+            "group": "Neuro / BCI",
+            "pages": ["docs/v1/neuro-decode"]
+          },
+          {
+            "group": "Surveillance",
+            "pages": ["docs/v1/video-surveillance"]
+          },
+          {
+            "group": "Robotics",
+            "pages": ["docs/v1/robotics-api"]
+          },
+          {
+            "group": "Infrastructure",
+            "pages": [
+              "docs/v1/endpoints/jobs",
+              "docs/v1/endpoints/runs",
+              "docs/v1/endpoints/webhooks"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "docs/v1/guides/pipeline-orchestration",
+          "docs/v1/guides/voice-sessions",
+          "docs/v1/guides/voice-templates",
+          "docs/v1/guides/idempotency"
+        ]
+      },
+      {
+        "group": "Integrations",
+        "pages": [
+          "docs/integrations/livekit",
+          "docs/integrations/gemini-live-api",
+          "docs/integrations/nano-banana-gemini-image",
+          "docs/integrations/mastra",
+          "docs/integrations/mastra-agents-tools",
+          "docs/integrations/monai",
+          "docs/integrations/metabci",
+          "docs/integrations/braindecode",
+          "docs/integrations/moabb",
+          "docs/integrations/huatuogpt",
+          "docs/integrations/medgemma",
+          "docs/integrations/txgemma"
+        ]
+      },
+      {
+        "group": "SDK",
+        "pages": ["packages/pi-sdk/README"]
+      },
+      {
+        "group": "Marketing",
+        "pages": ["docs/marketing/product-blurbs"]
+      }
+    ]
+  }
+}
+
