@@ -5,3 +5,7 @@ monai[fire]==1.5.2
 fastapi==0.115.8
 uvicorn[standard]==0.34.0
 pydantic==2.10.6
+
+# Explicitly pin a real CPU wheel version for CI. `torch==2.11.0+cpu` does not
+# exist and causes uv resolution failures on ubuntu-latest.
+torch==2.5.1+cpu

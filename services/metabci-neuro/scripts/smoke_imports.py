@@ -22,8 +22,10 @@ def main() -> None:
     print(f"smoke_imports: metabci distribution {importlib.metadata.version('metabci')}")
     print(f"smoke_imports: braindecode distribution {importlib.metadata.version('braindecode')}")
     print(f"smoke_imports: moabb distribution {importlib.metadata.version('moabb')}")
-    _require("brainda")
-    _require("brainflow")
+    # Upstream docs treat brainda/brainflow/brainstim as MetaBCI modules. In the PyPI
+    # distribution, they live under the metabci namespace.
+    _require("metabci.brainda")
+    _require("metabci.brainflow")
     _require("braindecode")
     _require("moabb")
 
@@ -34,7 +36,7 @@ def main() -> None:
         "yes",
     )
     try:
-        _require("brainstim")
+        _require("metabci.brainstim")
     except SystemExit:
         if strict:
             raise
