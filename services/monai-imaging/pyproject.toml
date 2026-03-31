@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pi-monai-imaging"
+version = "0.1.0"
+description = "Pi medical imaging Python env: MONAI Core + Model Zoo bundle CLI — not installed into the Next.js app."
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "Pi internal; MONAI Apache-2.0 — see docs/integrations/monai.md" }
+dependencies = [
+  "monai[fire]==1.5.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["pi_monai_imaging"]
+
+[tool.hatch.build.targets.sdist]
+include = ["README.md", "scripts", "pi_monai_imaging"]

@@ -1,0 +1,36 @@
+# Surveillance intelligence (piii) — video perception services
+
+## Docs-first
+
+- Keep surveillance model code in **Python microservices** under `services/`.
+- The TypeScript gateway/orchestrator should call Python services via **internal HTTP** or **jobs**.
+
+## Mandatory: Python boundary
+
+- Do **not** embed PyTorch / OpenCV / MMAction2 / Ultralytics imports inside Next.js route handlers.
+- All perception stacks live under:
+  - `services/yolo-detection/`
+  - `services/bytetrack-tracker/`
+  - `services/mmaction-recognition/`
+  - `services/memae-anomaly/`
+  - `services/surveillance-orchestrator/`
+
+## Locks + CI
+
+- Commit Linux-oriented lockfiles (`requirements.lock.txt`, `requirements-ci.lock.txt`).
+- CI should use **CPU torch** wheels when available to reduce runner load.
+
+## Reasoning layer
+
+- Visual reasoning / event narration is handled by **Gemini** (env-driven, e.g. `SURVEILLANCE_GEMINI_MODEL` / `GOOGLE_DEFAULT_MODEL`) in the TypeScript layer.
+- Do not introduce local VLMs as default dependencies for MVP reliability.
+
+## TypeScript API (orchestration)
+
+- Contracts: `src/contracts/surveillance-api.ts` (Zod).
+- Library: `src/lib/surveillance/*` (profiles, policy engine, queue, incidents, Gemini narration, perception HTTP client).
+- Routes: `src/app/api/v1/surveillance/streams`, `policies`, `events` (SSE).
+- Jobs: `src/jobs/surveillance-stream-analyzer.ts` (Trigger.dev).
+- Mastra workflow: `src/mastra/workflows/surveillance-stream/` (registered as `surveillanceStreamWorkflow`).
+- Operators deploy Python services + set `SURVEILLANCE_ORCHESTRATOR_URL`; developers only call Pi HTTP APIs.
+

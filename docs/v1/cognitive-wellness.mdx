@@ -1,0 +1,172 @@
+---
+title: Cognitive health & mental wellness
+description: Async EEG-based wellness coaching with optional game/UI screenshots — non-diagnostic stress and fatigue proxies, recommendations, and optional clinician-oriented copy.
+---
+
+# Cognitive health & mental wellness (`/v1/health/wellness`)
+
+Async API for **wellness and cognitive-health adjacent** product experiences: focus training, burnout-adjacent check-ins, cognitive games, and aging-related **screening-style** apps. Send EEG payloads plus optional free-form `context` (goals, metrics, locale). Optionally attach a **screenshot** (`image_data`) for vision-assisted synthesis when HuatuoGPT is configured.
+
+Pi **does not expose** internal routing (MetaBCI, HuatuoGPT, MedGemma, Gemini) in the default response — only the job envelope and final `output`. Use `output.include_diagnostics: true` for step timings and `routing_fallbacks` in diagnostic `detail` (monitoring only).
+
+## Safety
+
+- Outputs are **not** a medical or psychiatric diagnosis.
+- Stress bands and fatigue estimates are **heuristic labels**, not clinical scales.
+- Encourage users to seek qualified care when appropriate; honor `risk_flags` in your UX.
+
+## Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## Create a wellness job (async)
+
+`POST /api/v1/health/wellness`
+
+### Request body
+
+```json
+{
+  "input": {
+    "type": "eeg",
+    "data": "<base64 payload>",
+    "modality": "cognitive_wellness",
+    "device": "Consumer headset",
+    "channels": 8,
+    "sample_rate": 250,
+    "image_data": "data:image/png;base64,..."
+  },
+  "context": {
+    "locale": "en",
+    "session_goal": "post_work_decompression",
+    "self_reported_stress": 6,
+    "app_id": "focus_coach_v2"
+  },
+  "output": {
+    "format": "json",
+    "include_diagnostics": true,
+    "locale": "en"
+  }
+}
+```
+
+- **`modality`**: optional paradigm hint (`cognitive_wellness`, `focus_task`, `game_screening`, …). If omitted, the server defaults to `cognitive_wellness`.
+- **`image_data`**: optional `data:image/...;base64,...` or `https://` URL for vision-assisted notes (HuatuoGPT when configured). Omitted entirely if you do not need screenshots.
+- **`context`**: arbitrary JSON within the contract size cap (session goals, game metrics, locale, etc.).
+
+### Response (202)
+
+```json
+{
+  "id": "req_pi_<uuid>",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1711700000,
+  "data": { "job_id": "<uuid>" }
+}
+```
+
+Optional header: `Idempotency-Key` (scope: `health_wellness`).
+
+## Poll for results
+
+`GET /api/v1/jobs/:id?wait_for_completion=true&timeout_seconds=30&include=diagnostics`
+
+### Completed job `payload.output` (example)
+
+```json
+{
+  "wellness_summary": "Signals suggest moderate fatigue with workable attention reserves.",
+  "stress_band": "moderate",
+  "fatigue_estimate": 0.62,
+  "coaching_message": "Try a 5-minute breathing reset before the next task block.",
+  "recommendations": [
+    "Short walk or stretch",
+    "Reduce parallel notifications for 20 minutes"
+  ],
+  "clinical_style_summary": "User-reported stress elevated; EEG envelope consistent with non-specific fatigue pattern — not diagnostic.",
+  "risk_flags": [],
+  "seizure_detected": false,
+  "disclaimer": "This output is for wellness...",
+  "metadata": {
+    "paradigm": "cognitive_wellness",
+    "has_image": false,
+    "attention_proxy": 0.55
+  }
+}
+```
+
+## Use cases
+
+### Focus / burnout-adjacent coaching
+
+- **Input**: EEG `data`, `context.session_goal`, optional self-reported stress.
+- **Output**: `coaching_message`, `recommendations`, `stress_band`, `fatigue_estimate`.
+
+### Cognitive game / UI-assisted sessions
+
+- **Input**: EEG plus optional `image_data` (game screen) when HuatuoGPT is available.
+- **Output**: merged wellness narrative and coaching; diagnostics may show vision routing.
+
+## Backend requirements
+
+- **`GEMINI_KEY`**: required for cognitive state inference and synthesis when MedGemma/Huatuo paths are absent or fail.
+- **`METABCI_SERVICE_URL`**: optional; without it, EEG classification uses the existing Gemini metadata fallback (same family as neuro decode).
+- **`HUATUOGPT_*`**: optional; enables screenshot branch when `image_data` is present.
+- **`MEDGEMMA_*`**: optional; preferred for coach + `clinical_style_summary` when configured; falls back to Gemini.
+
+## Client examples
+
+### curl
+
+```bash
+curl -sS -X POST "$BASE/api/v1/health/wellness" \
+  -H "Authorization: Bearer $PI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"input":{"type":"eeg","data":"'"$B64"'"},"output":{"include_diagnostics":true}}'
+```
+
+### JavaScript
+
+```javascript
+const res = await fetch(`${baseUrl}/api/v1/health/wellness`, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    input: { type: "eeg", data: b64 },
+    context: { locale: "en" },
+    output: { include_diagnostics: true },
+  }),
+});
+const { data } = await res.json();
+const jobId = data.job_id;
+```
+
+### Python
+
+```python
+import requests
+
+r = requests.post(
+    f"{base}/api/v1/health/wellness",
+    headers={"Authorization": f"Bearer {api_key}"},
+    json={"input": {"type": "eeg", "data": b64}, "output": {"include_diagnostics": True}},
+    timeout=60,
+)
+job_id = r.json()["data"]["job_id"]
+```
+
+## E2E script
+
+From the repo root (dev server + Trigger worker + `GEMINI_KEY`):
+
+```bash
+node scripts/cognitive-wellness-e2e.mjs
+```
+
+Optional: with `HUATUOGPT_ENDPOINT` set, the script runs a second request with a tiny PNG to exercise the vision branch.

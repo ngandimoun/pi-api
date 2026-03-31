@@ -1,0 +1,176 @@
+---
+title: Neural-Mobility & ALS Assist (BCI decode)
+description: OpenAI-compatible async EEG/BCI intent decoding for accessibility — motor imagery, P300, SSVEP, with predictive text.
+---
+
+# Neural-Mobility & ALS Assist (`/v1/neuro/decode`)
+
+Async API for developers building **thought-to-action** and **mind-to-speech** experiences. Send raw EEG payloads from consumer or clinical headsets; Pi returns a structured **decoded intent**, optional **predictive text**, and **diagnostics** (when enabled).
+
+Pi **does not expose** internal stacks (MetaBCI, Braindecode, MOABB, Gemini) in the public response — only the job envelope and final `output`.
+
+## Safety
+
+- Outputs are **probabilistic** and **not** a medical diagnosis.
+- Use **human oversight** and **hardware/software interlocks** for wheelchairs, doors, or medication workflows.
+- Treat EEG and context as **sensitive health-adjacent** data.
+
+## Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## Create a decode job (async)
+
+`POST /api/v1/neuro/decode`
+
+### Request body
+
+```json
+{
+  "input": {
+    "type": "eeg",
+    "data": "<base64 or JSON-stringified buffer metadata>",
+    "paradigm": "motor_imagery",
+    "device": "OpenBCI Cyton",
+    "channels": 8,
+    "sample_rate": 250
+  },
+  "context": {
+    "locale": "en",
+    "session_history": ["move_left", "rest", "move_right"],
+    "ui_mode": "wheelchair_nav"
+  },
+  "output": {
+    "format": "json",
+    "include_diagnostics": true
+  }
+}
+```
+
+- **`paradigm`**: free-form string (`motor_imagery`, `p300`, `ssvep`, `erp`, …). Unknown values are still accepted; the server adapts prompts.
+- **`context.session_history`**: optional prior intents or letters for multi-turn spelling / sentence completion.
+
+### Response (202)
+
+```json
+{
+  "id": "req_pi_<uuid>",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1711700000,
+  "data": { "job_id": "<uuid>" }
+}
+```
+
+Optional header: `Idempotency-Key` (same semantics as other Pi async APIs).
+
+## Poll for results
+
+`GET /api/v1/jobs/:id?wait_for_completion=true&timeout_seconds=30`
+
+Add `include=diagnostics` (or `expand=diagnostics`) when debugging.
+
+### Completed job payload (example)
+
+```json
+{
+  "decoded_intent": "move_left",
+  "confidence": 0.82,
+  "paradigm_detected": "motor_imagery",
+  "predicted_text": "Turn left toward the door",
+  "alternatives": [
+    { "intent": "rest", "confidence": 0.12 },
+    { "intent": "move_right", "confidence": 0.06 }
+  ],
+  "session_context": "User navigating; last intents favor left corridor.",
+  "seizure_detected": false,
+  "red_flags": [],
+  "disclaimer": "BCI outputs are probabilistic..."
+}
+```
+
+## Use cases
+
+### Thought-to-action (smart home / wheelchair)
+
+- **Input**: `paradigm: "motor_imagery"`, EEG `data`, device metadata in `context`.
+- **Output**: `decoded_intent` mapped to your action layer (MQTT, ROS, smart home scene).
+
+### Mind-to-spelling / P300
+
+- **Input**: `paradigm: "p300"`, `context.session_history` with selected letters.
+- **Output**: `decoded_intent` for the selected row/column or symbol; `predicted_text` for phrase acceleration.
+
+### SSVEP target selection
+
+- **Input**: `paradigm: "ssvep"`.
+- **Output**: `decoded_intent` as target id or frequency label; use `alternatives` for UI highlighting.
+
+## Backend requirements
+
+- **Minimum**: `GEMINI_KEY` — when `METABCI_SERVICE_URL` is unset or errors, decode and interpretation use Gemini on **metadata + context** (not raw waveform ML).
+- **Better**: `METABCI_SERVICE_URL` pointing at the Pi MetaBCI sidecar (`POST /v1/eeg/classify`) for deterministic seizure/class flags before orchestration.
+
+Model selection follows `HEALTH_GEMINI_MODEL` / `GOOGLE_DEFAULT_MODEL` / `GOOGLE_CAMPAIGN_ORCHESTRATOR_MODEL`, with the same NOT_FOUND retry behavior as health triage.
+
+## Error codes (common)
+
+| Code | Meaning |
+|------|---------|
+| `neuro_decode_disabled` | `NEURO_DECODE_ENABLED=false` |
+| `invalid_request_body` | Zod validation failed |
+| `job_create_failed` | Database insert failed |
+| `job_trigger_failed` | Trigger.dev enqueue failed |
+
+## Minimal client examples
+
+### cURL
+
+```bash
+curl -sS -X POST "$BASE/api/v1/neuro/decode" \
+  -H "Authorization: Bearer $PI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"input":{"type":"eeg","data":"dGVzdA==","paradigm":"motor_imagery"},"output":{"include_diagnostics":true}}'
+```
+
+### JavaScript (fetch)
+
+```javascript
+const res = await fetch("/api/v1/neuro/decode", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${process.env.PI_API_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    input: { type: "eeg", data: bufferB64, paradigm: "p300" },
+    context: { session_history: ["H", "E"] },
+    output: { include_diagnostics: true },
+  }),
+});
+const { data } = await res.json();
+const jobId = data.job_id;
+```
+
+### Python
+
+```python
+import os, requests
+r = requests.post(
+    f"{os.environ['PI_BASE_URL']}/api/v1/neuro/decode",
+    headers={"Authorization": f"Bearer {os.environ['PI_API_KEY']}"},
+    json={
+        "input": {"type": "eeg", "data": b64_payload, "paradigm": "ssvep"},
+        "output": {"include_diagnostics": True},
+    },
+    timeout=60,
+)
+r.raise_for_status()
+job_id = r.json()["data"]["job_id"]
+```
+
+## Diagnostics
+
+When `output.include_diagnostics` is true, the job payload includes a `diagnostics` array with per-step `status`, `duration_ms`, and `detail` (e.g. `routing_fallbacks`, `used_gemini_fallback`). Use this for **monitoring** and support — not for end-user UI by default.

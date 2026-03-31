@@ -1,0 +1,30 @@
+---
+description: HuatuoGPT / FreedomIntelligence medical LLMs — optional self-hosted backends, safety, env-driven routing, Pi API boundaries.
+globs: docs/integrations/huatuogpt.md,src/app/api/**/health/**,src/lib/**/health/**
+alwaysApply: false
+---
+
+# HuatuoGPT (medical LLMs) and Pi
+
+## Docs-first
+
+- Read `docs/integrations/huatuogpt.md` before adding health-facing routes or env knobs that reference FreedomIntelligence / HuatuoGPT checkpoints.
+
+## Mandatory constraints
+
+- **No hardcoding:** Model IDs (e.g. `FreedomIntelligence/HuatuoGPT-o1-8B`) and base URLs for self-hosted inference must come from **environment or database config**, not literals in business logic.
+- **Optional path:** HuatuoGPT does **not** replace the default Pi provider stack unless product explicitly enables it. Keep routing **provider-agnostic** (Vercel AI SDK / OpenAI-compatible gateways where used).
+- **Pi API:** Bearer auth, **Zod**, OpenAI-style envelopes where applicable; **202 + job machine** for inference that exceeds ~5 seconds.
+- **Safety:** Never present model output as **diagnosis or prescribed therapy**. State limitations; align with privacy and regional health rules.
+- **Licenses:** Hugging Face model cards may impose **Llama / Qwen / other** license conditions — verify before shipping.
+
+## Output format (o1 family)
+
+- Many checkpoints emit **`## Thinking`** / **`## Final Response`**. If exposing to end users, decide explicitly whether to strip reasoning, show it, or log it server-side only.
+
+## Related rules
+
+- General model routing: `.cursorrules` (dynamic configuration).
+- Gemini text/image: `.cursor/rules/gemini-skills.mdc`, nano-banana rule as applicable.
+- Google MedGemma / TxGemma: `google-health-ai-gemma.mdc`.
+- Neuro / imaging Python: `metabci-health-neuro.mdc`, `monai-health-imaging.mdc`.

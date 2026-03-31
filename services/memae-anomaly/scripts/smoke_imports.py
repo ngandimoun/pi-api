@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+"""Verify MemAE anomaly stack import after install (CI / deploy smoke)."""
+
+from __future__ import annotations
+
+import importlib.metadata
+import importlib.util
+import sys
+
+
+def _require(name: str) -> None:
+    if importlib.util.find_spec(name) is None:
+        print(f"smoke_imports: missing package {name!r}", file=sys.stderr)
+        raise SystemExit(1)
+    importlib.import_module(name)
+    print(f"smoke_imports: ok {name}")
+
+
+def main() -> None:
+    print(f"smoke_imports: torch distribution {importlib.metadata.version('torch')}")
+    _require("torch")
+    _require("torchvision")
+    _require("fastapi")
+    print("smoke_imports: all required imports passed")
+
+
+if __name__ == "__main__":
+    main()
+

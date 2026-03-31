@@ -1,4 +1,4 @@
-import { google } from "@ai-sdk/google";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateObject, generateText } from "ai";
 import { task } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
@@ -7,15 +7,21 @@ import {
   brandExtractionInputSchema,
   parseBase64Asset,
   type BrandExtractionInput,
-} from "@/lib/brand-extraction";
-import { scrapeBrandingProfile } from "@/lib/firecrawl";
-import { uploadAsset } from "@/lib/storage";
-import { getServiceSupabaseClient } from "@/lib/supabase";
+} from "../lib/brand-extraction";
+import { scrapeBrandingProfile } from "../lib/firecrawl";
+import { uploadAsset } from "../lib/storage";
+import { getServiceSupabaseClient } from "../lib/supabase";
 
 const triggerPayloadSchema = z.object({
   jobId: z.string().min(1),
   organizationId: z.string().min(1),
   input: brandExtractionInputSchema,
+  providerKeys: z
+    .object({
+      gemini: z.string().min(1).optional(),
+      firecrawl: z.string().min(1).optional(),
+    })
+    .optional(),
 });
 
 const hexRegex = /^#[0-9A-Fa-f]{6}$/;
@@ -66,7 +72,8 @@ async function updateJobPhase(
 async function normalizeAssets(
   organizationId: string,
   jobId: string,
-  input: BrandExtractionInput
+  input: BrandExtractionInput,
+  providerKeys?: { firecrawl?: string }
 ) {
   const assets: NormalizedAsset[] = [];
   let markdown = "";
@@ -93,6 +100,7 @@ async function normalizeAssets(
   if (input.url) {
     const firecrawlResult = await scrapeBrandingProfile(input.url, {
       location: input.location,
+      apiKeyOverride: providerKeys?.firecrawl,
     });
     markdown = firecrawlResult.markdown;
     branding = firecrawlResult.branding;
@@ -331,6 +339,9 @@ export const omnivorousBrandExtractor = task({
   run: async (payload) => {
     const parsedPayload = triggerPayloadSchema.parse(payload);
     const { jobId, organizationId, input } = parsedPayload;
+    const googleProvider = createGoogleGenerativeAI({
+      apiKey: parsedPayload.providerKeys?.gemini,
+    });
 
     const supabase = getServiceSupabaseClient();
 
@@ -343,7 +354,12 @@ export const omnivorousBrandExtractor = task({
       await updateJobPhase(jobId, "processing", "phase_a_normalization");
 
       console.info("[omnivorous-brand-extractor] phase_a_start", { jobId });
-      const normalized = await normalizeAssets(organizationId, jobId, input);
+      const normalized = await normalizeAssets(
+        organizationId,
+        jobId,
+        input,
+        parsedPayload.providerKeys
+      );
       console.info("[omnivorous-brand-extractor] phase_a_end", {
         jobId,
         assetCount: normalized.assets.length,
@@ -385,7 +401,7 @@ export const omnivorousBrandExtractor = task({
         `Thinking level preference: ${thinkingLevel}.`,
       ].join("\n");
       const visionResponse = await generateText({
-        model: google(visionModelId),
+        model: googleProvider(visionModelId),
         maxOutputTokens: visionMaxOutputTokens,
         messages: [
           {
@@ -458,7 +474,7 @@ export const omnivorousBrandExtractor = task({
       let finalBrandDna: z.infer<typeof brandDnaSchema>;
       try {
         const structured = await generateObject({
-          model: google(structuringModelId),
+          model: googleProvider(structuringModelId),
           schema: brandDnaSchema,
           maxOutputTokens: structuringMaxOutputTokens,
           system:
@@ -472,7 +488,7 @@ export const omnivorousBrandExtractor = task({
           error: primaryError,
         });
         const fallbackResponse = await generateText({
-          model: google(structuringModelId),
+          model: googleProvider(structuringModelId),
           maxOutputTokens: structuringMaxOutputTokens,
           system:
             "Return one JSON object only. No markdown, no prose, no code fences.",

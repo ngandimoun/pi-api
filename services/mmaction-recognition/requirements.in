@@ -1,0 +1,23 @@
+# Linux/Docker runtime lock for MMAction2 stack.
+# Compile for Linux prod / Docker:
+#   uv pip compile requirements.in -o requirements.lock.txt --python-version 3.11 --python-platform linux
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+pydantic==2.10.6
+
+# OpenMMLab / MMAction2
+openmim==0.3.9
+mmengine==0.10.7
+
+# NOTE:
+# - mmcv and mmaction2 versions are sensitive to torch/cuda/python.
+# - We intentionally keep these in lockfiles only (Linux) to avoid breaking native Windows installs.
+mmaction2==1.2.0
+mmcv==2.1.0
+
+# Core ML deps
+torch==2.5.1
+torchvision==0.20.1
+
+numpy==2.1.1
+opencv-python-headless==4.11.0.86

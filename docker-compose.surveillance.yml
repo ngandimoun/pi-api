@@ -1,0 +1,64 @@
+services:
+  yolo-detection:
+    build:
+      context: .
+      dockerfile: services/yolo-detection/Dockerfile
+      args:
+        YOLO_LOCK: requirements-ci.lock.txt
+    ports:
+      - "8081:8081"
+
+  bytetrack-tracker:
+    build:
+      context: .
+      dockerfile: services/bytetrack-tracker/Dockerfile
+      args:
+        TRACKER_LOCK: requirements-ci.lock.txt
+    ports:
+      - "8082:8082"
+
+  mmaction-recognition:
+    build:
+      context: .
+      dockerfile: services/mmaction-recognition/Dockerfile
+      args:
+        MMACTION_LOCK: requirements-ci.lock.txt
+    ports:
+      - "8083:8083"
+
+  memae-anomaly:
+    build:
+      context: .
+      dockerfile: services/memae-anomaly/Dockerfile
+      args:
+        MEMAE_LOCK: requirements-ci.lock.txt
+    ports:
+      - "8084:8084"
+
+  surveillance-orchestrator:
+    build:
+      context: .
+      dockerfile: services/surveillance-orchestrator/Dockerfile
+      args:
+        ORCH_LOCK: requirements-ci.lock.txt
+    environment:
+      YOLO_SERVICE_URL: http://yolo-detection:8081
+      BYTETRACK_SERVICE_URL: http://bytetrack-tracker:8082
+      MMACTION_SERVICE_URL: http://mmaction-recognition:8083
+      MEMAE_SERVICE_URL: http://memae-anomaly:8084
+    ports:
+      - "18080:8080"
+    depends_on:
+      - yolo-detection
+      - bytetrack-tracker
+      - mmaction-recognition
+      - memae-anomaly
+
+  ros2-bridge:
+    build:
+      context: .
+      dockerfile: services/ros2-bridge/Dockerfile
+      args:
+        ROS2_LOCK: requirements-ci.lock.txt
+    ports:
+      - "8085:8085"

@@ -24,6 +24,8 @@
     "docs/v1/guides/voice-sessions.mdx",
     "docs/v1/guides/voice-templates.mdx",
     "docs/v1/endpoints/voice.mdx",
-    "docs/marketing/product-blurbs.md"
+    "docs/marketing/product-blurbs.md",
+    "docs/v1/video-surveillance.mdx",
+    "docs/v1/robotics-api.mdx"
   ]
 }

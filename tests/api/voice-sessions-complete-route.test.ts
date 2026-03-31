@@ -60,7 +60,9 @@ describe("POST /api/v1/voice/sessions/:id/complete", () => {
       params: Promise.resolve({ id: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }),
     });
     expect(res.status).toBe(200);
-    const json = (await res.json()) as { data: { results: { issue: string } } };
+    const json = (await res.json()) as {
+      data: { results: { issue: string }; session_id: string; participant: unknown; expires_at: unknown };
+    };
     expect(json.data.results.issue).toBe("billing");
     expect(json.data.session_id).toBe("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
     expect(json.data).toHaveProperty("participant");

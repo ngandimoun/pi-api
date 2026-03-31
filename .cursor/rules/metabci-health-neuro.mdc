@@ -1,0 +1,43 @@
+---
+description: MetaBCI / Braindecode / MOABB / neuro-health APIs — Python service boundary, Pi HTTP conventions, Mastra vs agents, safety and compliance.
+globs: services/metabci-neuro/**,src/app/api/**/health/**,src/app/api/**/neuro/**,src/lib/neuro/**,src/mastra/workflows/neuro-decode/**,docs/integrations/metabci.md,docs/integrations/braindecode.md,docs/integrations/moabb.md,docs/v1/neuro-decode.mdx
+alwaysApply: false
+---
+
+# MetaBCI, Braindecode, MOABB, and health / neuro intelligence (piii)
+
+## Docs-first
+
+- Read `docs/integrations/metabci.md`, `docs/integrations/braindecode.md`, and `docs/integrations/moabb.md` before changing the neuro stack or health-facing routes.
+- Implementation detail and install paths: `services/metabci-neuro/README.md`.
+
+## Mandatory: Python boundary
+
+- **Do not** embed MetaBCI, **Braindecode**, or **MOABB** (`import moabb`, benchmarks, etc.) inside Next.js Route Handlers or `src/lib` TypeScript. The stack is **Python-only** and lives under `services/metabci-neuro/`.
+- The gateway should call a **separate process** (container, VM, or worker) via **internal HTTP**, **queue**, or **Trigger.dev** with typed payloads — not `child_process` from hot request paths without a clear design.
+- **Pin runtime dependencies** with committed locks: prefer **`services/metabci-neuro/requirements-api.lock.txt`** (`metabci[brainda,brainflow]`, no PsychoPy) for **decode / online API** images; use **`requirements.lock.txt`** (`metabci[all]`) only when you need **brainstim**. Regenerate with `uv` when bumping MetaBCI (`requirements-api.in` / `requirements.in`).
+- **Locks are Linux-oriented.** Do not assume **`requirements*.lock.txt`** installs on **native Windows**; use **WSL2** or **`pip install -e ".[dev]"`** locally. CI smoke uses **`requirements-api.lock.txt`** on **`ubuntu-latest`** (see workflow + `docs/integrations/metabci.md`).
+
+## Pi API rules (do not regress)
+
+- Validate HTTP I/O with **Zod**; preserve **OpenAI-compatible** shapes and auth patterns per `.cursorrules`.
+- Use **202 + job state machine** for work expected to exceed ~5 seconds (Trigger.dev where appropriate).
+- Document new public routes in `docs/v1/` and keep `docs/README.md` / manifest in sync with repo rules.
+
+## Mastra vs agents
+
+- Prefer **Mastra workflows** for deterministic neuro pipelines (ingest → preprocess → decode → format).
+- Prefer **Mastra agents** only for open-ended reasoning (e.g. developer-facing explanations), not for silent clinical decisions on raw EEG-derived outputs.
+
+## Gemini (orthogonal)
+
+- If a step uses Gemini (reports, structured summaries), follow `.cursor/rules/gemini-skills.mdc` and `.agents/skills/gemini-interactions-api/SKILL.md`. Gemini does **not** replace MetaBCI for signal decoding.
+
+## Safety and compliance copy
+
+- Decoder outputs are **not** clinical diagnoses by default. API responses and agent prompts must state **limitations** and avoid claiming FDA/CE clearance unless the product has it.
+- Treat EEG and related metadata as **sensitive**; align with encryption, retention, and regional health-privacy requirements.
+
+## Licensing
+
+- MetaBCI is **GPL-2.0**. Braindecode and MOABB are **BSD-3-Clause** (Braindecode has optional **CC BY-NC** pieces upstream). Combined Docker images need **license review**; document choices in integration docs.

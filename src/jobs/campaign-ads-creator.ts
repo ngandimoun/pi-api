@@ -1,9 +1,9 @@
 import { task, tasks } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 
-import { campaignAdGenerationInputSchema } from "@/contracts/campaign-ads-api";
-import { mastra } from "@/mastra";
-import { getServiceSupabaseClient } from "@/lib/supabase";
+import { campaignAdGenerationInputSchema } from "../contracts/campaign-ads-api";
+import { mastra } from "../mastra";
+import { getServiceSupabaseClient } from "../lib/supabase";
 
 const triggerPayloadSchema = z.object({
   jobId: z.string().uuid(),

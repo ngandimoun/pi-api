@@ -1,0 +1,72 @@
+{
+  "name": "@pi-api/sdk",
+  "version": "0.0.1",
+  "description": "The agentic intelligence layer for the physical world -- voice, vision, robotics, health, and neuro APIs in a single SDK.",
+  "keywords": [
+    "pi",
+    "api",
+    "sdk",
+    "ai",
+    "agentic",
+    "robotics",
+    "surveillance",
+    "voice",
+    "health",
+    "intelligence-infrastructure"
+  ],
+  "homepage": "https://github.com/ngandimoun/pi-api",
+  "bugs": {
+    "url": "https://github.com/ngandimoun/pi-api/issues"
+  },
+  "author": "Chris NGANDIMOUN <nchrisdonson@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ngandimoun/pi-api.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "vitest",
+    "test": "vitest run -c vitest.config.ts",
+    "check-format": "prettier --check .",
+    "format": "prettier --write .",
+    "ci": "npm run build && npm run check-format && npm run test",
+    "prepublishOnly": "npm run ci",
+    "local-release": "changeset version && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.28.1",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.1"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

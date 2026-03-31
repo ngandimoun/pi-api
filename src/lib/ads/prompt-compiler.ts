@@ -1,4 +1,4 @@
-import type { AdDirectiveV1 } from "@/contracts/ads-api";
+import type { AdDirectiveV1 } from "../../contracts/ads-api";
 
 /**
  * Deterministic final prompt emission from AdDirectiveV1.

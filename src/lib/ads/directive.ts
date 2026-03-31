@@ -1,6 +1,6 @@
-import type { AdDirectiveV1 } from "@/contracts/ads-api";
-import { adDirectiveSchema, type AdGenerationInput } from "@/contracts/ads-api";
-import type { AdCorpusReference } from "@/lib/ads/retrieve-reference";
+import type { AdDirectiveV1 } from "../../contracts/ads-api";
+import { adDirectiveSchema, type AdGenerationInput } from "../../contracts/ads-api";
+import type { AdCorpusReference } from "./retrieve-reference";
 
 export function buildInitialDirective(params: {
   input: AdGenerationInput;

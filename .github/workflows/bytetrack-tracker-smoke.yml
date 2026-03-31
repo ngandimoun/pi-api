@@ -1,0 +1,43 @@
+name: ByteTrack tracker smoke
+
+on:
+  push:
+    paths:
+      - "services/bytetrack-tracker/**"
+      - ".github/workflows/bytetrack-tracker-smoke.yml"
+  pull_request:
+    paths:
+      - "services/bytetrack-tracker/**"
+      - ".github/workflows/bytetrack-tracker-smoke.yml"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: services/bytetrack-tracker
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+          cache-suffix: bytetrack-ci
+          cache-dependency-glob: |
+            services/bytetrack-tracker/requirements-ci.lock.txt
+            services/bytetrack-tracker/requirements-ci.in
+
+      - name: Sync environment (CI lock)
+        run: uv venv && uv pip install -r requirements-ci.lock.txt
+
+      - name: Smoke imports
+        run: ./.venv/bin/python scripts/smoke_imports.py

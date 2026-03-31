@@ -1,0 +1,44 @@
+name: Surveillance orchestrator smoke
+
+on:
+  push:
+    paths:
+      - "services/surveillance-orchestrator/**"
+      - ".github/workflows/surveillance-orchestrator-smoke.yml"
+  pull_request:
+    paths:
+      - "services/surveillance-orchestrator/**"
+      - ".github/workflows/surveillance-orchestrator-smoke.yml"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: services/surveillance-orchestrator
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+          cache-suffix: surveillance-orch
+          cache-dependency-glob: |
+            services/surveillance-orchestrator/requirements-ci.lock.txt
+            services/surveillance-orchestrator/requirements-ci.in
+
+      - name: Sync environment (CI lock)
+        run: uv venv && uv pip install -r requirements-ci.lock.txt
+
+      - name: Smoke imports
+        run: ./.venv/bin/python scripts/smoke_imports.py
+

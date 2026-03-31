@@ -1,0 +1,17 @@
+# CI lock: CPU-only torch wheels. Compile for Linux CI:
+#   uv pip compile requirements-ci.in -o requirements-ci.lock.txt --python-version 3.11 --python-platform linux \
+#     --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+pydantic==2.10.6
+
+openmim==0.3.9
+mmengine==0.10.7
+mmaction2==1.2.0
+mmcv==2.1.0
+
+torch==2.5.1
+torchvision==0.20.1
+
+numpy==2.1.1
+opencv-python-headless==4.11.0.86

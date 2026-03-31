@@ -1,7 +1,7 @@
 import { task } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 
-import { getServiceSupabaseClient } from "@/lib/supabase";
+import { getServiceSupabaseClient } from "../lib/supabase";
 
 const payloadSchema = z.object({
   dryRun: z.boolean().optional(),

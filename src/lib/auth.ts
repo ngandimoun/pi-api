@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { apiError, type StripeErrorType } from "@/lib/api-response";
+import { readProviderKeysFromRequest } from "@/lib/provider-keys";
 import { verifyUnkeyApiKey } from "@/lib/unkey";
 import type { AppRouteContext, AuthenticatedRequest } from "@/types/api";
 
@@ -222,6 +223,7 @@ export function withApiAuth<TContext extends AppRouteContext = AppRouteContext>(
       authenticatedRequest.organizationId = organizationId;
       authenticatedRequest.requestId = requestId;
       authenticatedRequest.developerId = resolveDeveloperId(data, organizationId);
+      authenticatedRequest.providerKeys = readProviderKeysFromRequest(request);
 
       const handlerResponse = await handler(authenticatedRequest, context);
       const response = new NextResponse(handlerResponse.body, {

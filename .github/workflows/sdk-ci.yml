@@ -1,0 +1,35 @@
+name: SDK CI
+
+on:
+  pull_request:
+    paths:
+      - "packages/pi-sdk/**"
+      - ".github/workflows/sdk-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/pi-sdk/**"
+      - ".github/workflows/sdk-ci.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run SDK CI
+        run: npm -w packages/pi-sdk run ci
+

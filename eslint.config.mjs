@@ -8,7 +8,12 @@ const nextConfig = require("eslint-config-next");
 const config = [
   ...nextConfig,
   {
-    ignores: [".trigger/**"],
+    ignores: [
+      ".trigger/**",
+      "services/**/.venv/**",
+      "services/**/venv/**",
+      "services/**/__pycache__/**",
+    ],
   },
 ];
 

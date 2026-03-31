@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-import { getServiceSupabaseClient } from "@/lib/supabase";
+import { getServiceSupabaseClient } from "../supabase";
 
 type CacheEntry<T> = {
   value: T;

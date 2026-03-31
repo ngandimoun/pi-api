@@ -1,5 +1,5 @@
-import type { AdGenerationInput } from "@/contracts/ads-api";
-import { FLASH_ASPECT_RATIOS, type FlashAspectRatio, type AllowedResolution } from "@/lib/avatar/image-config";
+import type { AdGenerationInput } from "../../contracts/ads-api";
+import { FLASH_ASPECT_RATIOS, type FlashAspectRatio, type AllowedResolution } from "../avatar/image-config";
 
 const aspectRatioSet = new Set<string>(FLASH_ASPECT_RATIOS);
 

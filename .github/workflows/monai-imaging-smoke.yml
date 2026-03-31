@@ -1,0 +1,53 @@
+name: MONAI imaging smoke
+
+on:
+  push:
+    paths:
+      - "services/monai-imaging/**"
+      - ".github/workflows/monai-imaging-smoke.yml"
+  pull_request:
+    paths:
+      - "services/monai-imaging/**"
+      - ".github/workflows/monai-imaging-smoke.yml"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: services/monai-imaging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc || true
+          sudo docker system prune -af || true
+          df -h
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+          cache-suffix: monai-ci
+          cache-dependency-glob: |
+            services/monai-imaging/requirements-ci.lock.txt
+            services/monai-imaging/requirements-ci.in
+
+      - name: Sync environment (CPU lock — PyTorch +cpu wheels)
+        run: |
+          uv venv
+          uv pip install -r requirements-ci.lock.txt \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            --index-strategy unsafe-best-match
+
+      - name: Smoke imports
+        run: ./.venv/bin/python scripts/smoke_imports.py

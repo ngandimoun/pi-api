@@ -1,17 +1,17 @@
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
 
-import type { FlashAspectRatio, AllowedResolution } from "@/lib/avatar/image-config";
-import { FLASH_ASPECT_RATIOS } from "@/lib/avatar/image-config";
-import { normalizeReferenceImages } from "@/lib/ads/reference-inputs";
-import { generateCampaignImage } from "@/lib/campaigns/generate-campaign-image";
-import { getCampaignImageModelId } from "@/lib/campaigns/gemini-client";
-import { buildPublicAssetUrl, uploadAsset } from "@/lib/storage";
-import { runDeterministicQualityGate } from "@/lib/ads/workers";
+import type { FlashAspectRatio, AllowedResolution } from "../../../../lib/avatar/image-config";
+import { FLASH_ASPECT_RATIOS } from "../../../../lib/avatar/image-config";
+import { normalizeReferenceImages } from "../../../../lib/ads/reference-inputs";
+import { generateCampaignImage } from "../../../../lib/campaigns/generate-campaign-image";
+import { getCampaignImageModelId } from "../../../../lib/campaigns/gemini-client";
+import { buildPublicAssetUrl, uploadAsset } from "../../../../lib/storage";
+import { runDeterministicQualityGate } from "../../../../lib/ads/workers";
 import {
   campaignWorkflowOutputSchema,
   step6OutputSchema,
-} from "@/mastra/workflows/campaign-ads/schemas";
+} from "../schemas";
 
 const aspectRatioSet = new Set<string>(FLASH_ASPECT_RATIOS);
 

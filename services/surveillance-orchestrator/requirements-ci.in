@@ -1,0 +1,6 @@
+# CI lock: same as runtime. Compile for Linux CI:
+#   uv pip compile requirements-ci.in -o requirements-ci.lock.txt --python-version 3.11 --python-platform linux
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+pydantic==2.10.6
+httpx==0.28.1

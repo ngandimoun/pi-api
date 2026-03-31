@@ -16,5 +16,10 @@ describe("mastra smoke", () => {
     const agent = mastra.getAgent("demoAgent");
     expect(agent.id).toBe("demo-agent");
   });
+
+  it("registers surveillanceStreamWorkflow", () => {
+    const wf = mastra.getWorkflow("surveillanceStreamWorkflow");
+    expect(wf).toBeDefined();
+  });
 });
 

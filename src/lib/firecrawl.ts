@@ -39,9 +39,9 @@ function readNumberEnv(name: string, defaultValue: number): number {
  */
 export async function scrapeBrandingProfile(
   url: string,
-  options?: Pick<BrandExtractionInput, "location">
+  options?: Pick<BrandExtractionInput, "location"> & { apiKeyOverride?: string }
 ): Promise<FirecrawlBrandingResult> {
-  const apiKey = process.env.FIRECRAWL_API_KEY;
+  const apiKey = options?.apiKeyOverride ?? process.env.FIRECRAWL_API_KEY;
   if (!apiKey?.trim()) {
     throw new Error("Missing FIRECRAWL_API_KEY");
   }

@@ -1,0 +1,65 @@
+---
+title: Health decision APIs
+description: Seven async OpenAI-style job APIs for triage-style decisions — risk, adherence, notes structuring, decision support, medications, imaging, and research assistance.
+---
+
+# Health decision APIs (seven endpoints)
+
+All endpoints follow the same pattern as [`health-triage`](./health-triage.mdx):
+
+1. `POST` with `Authorization: Bearer <api_key>` and JSON body.
+2. Response **202** with `{ object: "job", data: { job_id } }`.
+3. Poll `GET /api/v1/jobs/:id?wait_for_completion=true&include=diagnostics` for `payload.output` and optional diagnostics.
+
+Internal routing (MedGemma, HuatuoGPT-Vision, MONAI, Gemini) is **not** exposed in the default response; use `output.include_diagnostics: true` for step timings and `routing_fallbacks`.
+
+## Endpoints
+
+| Path | Purpose | Doc |
+|------|---------|-----|
+| `/api/v1/health/risk-priority` | Vitals/history JSON → `risk_level`, `next_action`, `recommended_actions` | [patient-risk-priority.mdx](./patient-risk-priority.mdx) |
+| `/api/v1/health/adherence` | Timeline JSON → `adherence_risk`, `next_action`, `missed_items` | [adherence-detection.mdx](./adherence-detection.mdx) |
+| `/api/v1/health/notes-structure` | Free-text notes → symptoms, conditions, meds, timeline, coding hints | [notes-structure.mdx](./notes-structure.mdx) |
+| `/api/v1/health/decision-support` | Clinical situation JSON → `recommended_action`, `reasoning`, safety fields | [clinical-decision-support.mdx](./clinical-decision-support.mdx) |
+| `/api/v1/health/medication-check` | Med list JSON → interactions, contraindications, `next_action` | [medication-check.mdx](./medication-check.mdx) |
+| `/api/v1/health/scan-analysis` | Image + `modality` → structured findings + patient-friendly explanation | [scan-analysis.mdx](./scan-analysis.mdx) |
+| `/api/v1/health/research-assist` | Research JSON (+ optional dataset attachment) → analysis, methods review, next steps | [research-assist.mdx](./research-assist.mdx) |
+
+## Feature flags (`.env`)
+
+- `PATIENT_RISK_PRIORITY_ENABLED`
+- `ADHERENCE_DETECTION_ENABLED`
+- `NOTES_STRUCTURING_ENABLED`
+- `CLINICAL_DECISION_ENABLED`
+- `MEDICATION_CHECK_ENABLED`
+- `SCAN_ANALYSIS_ENABLED`
+- `RESEARCH_ASSIST_ENABLED`
+
+Set any to `false` to return **403** for that route.
+
+## Backend requirements
+
+- **Minimum:** `GEMINI_KEY` (and optional `HEALTH_GEMINI_MODEL`).
+- **Better:** `MEDGEMMA_ENDPOINT` (+ optional API key/model) for OpenAI-compatible JSON completions before Gemini fallback.
+- **Scan analysis:** `MONAI_SERVICE_URL` for segmentation overlay when the sidecar is running; vision interpretation uses the same HuatuoGPT / MedGemma / Gemini chain as triage.
+- **Risk priority optional attachment:** `HUATUOGPT_*` when sending `input.image_data`.
+
+## Example (risk priority)
+
+```bash
+curl -sS -X POST "$BASE/api/v1/health/risk-priority" \
+  -H "Authorization: Bearer $PI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"input":{"type":"patient_data","data":"{\"vitals\":{\"hr\":110},\"complaint\":\"chest pain\"}"},"output":{"include_diagnostics":true}}'
+```
+
+Contracts live under `src/contracts/*-api.ts`; Mastra workflows under `src/mastra/workflows/*/`.
+
+## E2E scripts
+
+- All seven: `node scripts/health-decision-apis-e2e.mjs`
+- Per API: `node scripts/patient-risk-priority-e2e.mjs`, `adherence-detection-e2e.mjs`, `notes-structure-e2e.mjs`, `clinical-decision-support-e2e.mjs`, `medication-check-e2e.mjs`, `scan-analysis-e2e.mjs`, `research-assist-e2e.mjs` (shared logic in `scripts/health-decision-apis-e2e-lib.mjs`)
+
+## Safety
+
+Outputs are **decision-support and workflow assistance only**, not a substitute for licensed clinical judgment, radiology reads, or pharmacy verification.

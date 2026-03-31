@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { ALLOWED_RESOLUTIONS, FLASH_ASPECT_RATIOS } from "@/lib/avatar/image-config";
+import { ALLOWED_RESOLUTIONS, FLASH_ASPECT_RATIOS } from "../lib/avatar/image-config";
 
 export const adFailureCodeSchema = z.enum([
   "retrieval_failed",

@@ -1,17 +1,17 @@
 import { task, tasks } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 
-import { campaignAdGenerationInputSchema } from "@/contracts/campaign-ads-api";
-import { campaignAdEditInputSchema } from "@/contracts/campaign-ads-edit-api";
-import { campaignAdLocalizationInputSchema } from "@/contracts/campaign-localize-api";
-import { brandExtractionInputSchema } from "@/lib/brand-extraction";
-import { getServiceSupabaseClient } from "@/lib/supabase";
+import { campaignAdGenerationInputSchema } from "../contracts/campaign-ads-api";
+import { campaignAdEditInputSchema } from "../contracts/campaign-ads-edit-api";
+import { campaignAdLocalizationInputSchema } from "../contracts/campaign-localize-api";
+import { brandExtractionInputSchema } from "../lib/brand-extraction";
+import { getServiceSupabaseClient } from "../lib/supabase";
 import {
   createRunInputSchema,
   runActionSchema,
   runStepDefinitionSchema,
   type RunStepDefinition,
-} from "@/contracts/run-api";
+} from "../contracts/run-api";
 
 const triggerPayloadSchema = z.object({
   runId: z.string().uuid(),

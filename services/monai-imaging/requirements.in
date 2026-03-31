@@ -1,0 +1,7 @@
+# MONAI Core + `fire` for Model Zoo bundle CLI (`python -m monai.bundle download`).
+# Compile for Linux prod / Docker / CI:
+#   uv pip compile requirements.in -o requirements.lock.txt --python-version 3.11 --python-platform linux
+monai[fire]==1.5.2
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+pydantic==2.10.6

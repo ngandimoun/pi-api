@@ -36,6 +36,11 @@ export type CreatePiClientOptions = {
  * Creates a typed Pi API client for server-side integrations.
  */
 export function createPiClient({ apiKey, baseUrl }: CreatePiClientOptions) {
+  // Deprecated: use the publishable SDK package instead.
+  // eslint-disable-next-line no-console
+  console.warn(
+    "[DEPRECATED] `src/sdk/createPiClient` is deprecated. Use `@pi-api/sdk` instead."
+  );
   const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
 
   async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {

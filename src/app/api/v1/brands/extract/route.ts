@@ -13,6 +13,10 @@ type BrandExtractorTriggerPayload = {
   jobId: string;
   organizationId: string;
   input: BrandExtractionInput;
+  providerKeys?: {
+    gemini?: string;
+    firecrawl?: string;
+  };
 };
 
 /**
@@ -71,6 +75,9 @@ export const POST = withApiAuth(async (request) => {
     jobId: job.id,
     organizationId: request.organizationId,
     input: parsed.data,
+    providerKeys: request.providerKeys
+      ? { gemini: request.providerKeys.gemini, firecrawl: request.providerKeys.firecrawl }
+      : undefined,
   };
 
   try {

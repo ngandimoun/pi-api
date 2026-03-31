@@ -3,10 +3,10 @@ import crypto from "crypto";
 import { tasks } from "@trigger.dev/sdk/v3";
 import { NextResponse } from "next/server";
 
-import { adGenerationInputSchema, type AdGenerationInput } from "@/contracts/ads-api";
-import { apiError, apiZodError } from "@/lib/api-response";
-import { getServiceSupabaseClient } from "@/lib/supabase";
-import type { AuthenticatedRequest } from "@/types/api";
+import { adGenerationInputSchema, type AdGenerationInput } from "../../contracts/ads-api";
+import { apiError, apiZodError } from "../api-response";
+import { getServiceSupabaseClient } from "../supabase";
+import type { AuthenticatedRequest } from "../../types/api";
 
 function stableStringify(value: unknown): string {
   if (value === null || value === undefined) return String(value);

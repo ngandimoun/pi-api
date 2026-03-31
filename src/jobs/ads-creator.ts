@@ -2,16 +2,16 @@ import { task, tasks } from "@trigger.dev/sdk/v3";
 import crypto from "crypto";
 import { z } from "zod";
 
-import { adGenerationInputSchema, type AdGenerationInput } from "@/contracts/ads-api";
-import { buildArtifactCacheKey, getArtifactCache, setArtifactCache } from "@/lib/ads/artifact-cache";
-import { resolveBrandConditioning } from "@/lib/ads/brand-conditioning";
-import { buildInitialDirective, pushDirectiveStep } from "@/lib/ads/directive";
-import { AdImageGenerationError, generateAdImage } from "@/lib/ads/image-generate";
-import { resolveAdImageOutput } from "@/lib/ads/image-output";
-import { enforceDirectivePolicies } from "@/lib/ads/policy-engine";
-import { compileAdPrompt } from "@/lib/ads/prompt-compiler";
-import { normalizeReferenceImages } from "@/lib/ads/reference-inputs";
-import { CorpusReferenceNotFoundError, retrieveAdCorpusReference } from "@/lib/ads/retrieve-reference";
+import { adGenerationInputSchema, type AdGenerationInput } from "../contracts/ads-api";
+import { buildArtifactCacheKey, getArtifactCache, setArtifactCache } from "../lib/ads/artifact-cache";
+import { resolveBrandConditioning } from "../lib/ads/brand-conditioning";
+import { buildInitialDirective, pushDirectiveStep } from "../lib/ads/directive";
+import { AdImageGenerationError, generateAdImage } from "../lib/ads/image-generate";
+import { resolveAdImageOutput } from "../lib/ads/image-output";
+import { enforceDirectivePolicies } from "../lib/ads/policy-engine";
+import { compileAdPrompt } from "../lib/ads/prompt-compiler";
+import { normalizeReferenceImages } from "../lib/ads/reference-inputs";
+import { CorpusReferenceNotFoundError, retrieveAdCorpusReference } from "../lib/ads/retrieve-reference";
 import {
   evaluateGeneratedAd,
   classifyDifficulty,
@@ -21,9 +21,9 @@ import {
   runPromptUnderstanding,
   summarizeImages,
   validateCopySlots,
-} from "@/lib/ads/workers";
-import { uploadAsset } from "@/lib/storage";
-import { getServiceSupabaseClient } from "@/lib/supabase";
+} from "../lib/ads/workers";
+import { uploadAsset } from "../lib/storage";
+import { getServiceSupabaseClient } from "../lib/supabase";
 
 const triggerPayloadSchema = z.object({
   jobId: z.string().uuid(),

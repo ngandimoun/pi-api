@@ -4,6 +4,14 @@ export interface AuthenticatedRequest extends NextRequest {
   organizationId: string;
   requestId: string;
   developerId: string;
+  providerKeys?: {
+    gemini?: string;
+    firecrawl?: string;
+    livekit?: {
+      apiKey?: string;
+      apiSecret?: string;
+    };
+  };
 }
 
 export type AppRouteContext = {

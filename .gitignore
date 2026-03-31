@@ -35,3 +35,18 @@ yarn-error.log*
 
 # trigger
 .trigger
+
+# npm package builds
+packages/pi-sdk/dist/
+
+# Python — MetaBCI service (services/metabci-neuro)
+services/metabci-neuro/.venv/
+services/metabci-neuro/.venv-*/
+services/metabci-neuro/**/__pycache__/
+services/metabci-neuro/**/*.pyc
+
+# Python — MONAI imaging service (services/monai-imaging)
+services/monai-imaging/.venv/
+services/monai-imaging/.venv-*/
+services/monai-imaging/**/__pycache__/
+services/monai-imaging/**/*.pyc

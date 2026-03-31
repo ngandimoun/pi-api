@@ -2,18 +2,26 @@
   "name": "pi-api",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev",
+    "dev:trigger:surveillance": "npx trigger.dev@latest dev --config trigger.surveillance.config.ts --env-file .env.local --log-level debug",
+    "dev:trigger:robotics": "npx trigger.dev@latest dev --config trigger.robotics.config.ts --env-file .env.local --log-level debug",
     "build": "next build",
     "start": "next start",
     "predeploy": "npm run firecrawl:check",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:health-e2e": "node scripts/health-e2e-suite.mjs",
     "firecrawl:check": "node scripts/firecrawl-check.mjs",
     "projection:golden-check": "node scripts/projection-golden-check.mjs",
     "voice:e2e": "node scripts/voice-api-e2e.mjs",
     "skills:update": "node scripts/skills-update.mjs",
-    "mastra:skills:update": "node scripts/mastra-skills-update.mjs"
+    "mastra:skills:update": "node scripts/mastra-skills-update.mjs",
+    "sdk:build": "npm -w packages/pi-sdk run build",
+    "sdk:ci": "npm -w packages/pi-sdk run ci"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.0",

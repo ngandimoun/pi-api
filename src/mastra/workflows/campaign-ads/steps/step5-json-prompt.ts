@@ -1,8 +1,8 @@
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
 
-import { getCampaignGeminiClient, getCampaignOrchestratorModelId } from "@/lib/campaigns/gemini-client";
-import { step5OutputSchema } from "@/mastra/workflows/campaign-ads/schemas";
+import { getCampaignGeminiClient, getCampaignOrchestratorModelId } from "../../../../lib/campaigns/gemini-client";
+import { step5OutputSchema } from "../schemas";
 
 const EXACT_CAMPAIGN_JSON_TEMPLATE = `{
   "campaign_prompt_generator": {

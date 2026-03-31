@@ -1,4 +1,4 @@
-import type { AdDirectiveV1 } from "@/contracts/ads-api";
+import type { AdDirectiveV1 } from "../../contracts/ads-api";
 
 const LATIN_SCRIPT_LANGS = new Set([
   "en",

@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
-import type { AdGenerationInput } from "@/contracts/ads-api";
-import { getServiceSupabaseClient } from "@/lib/supabase";
+import type { AdGenerationInput } from "../../contracts/ads-api";
+import { getServiceSupabaseClient } from "../supabase";
 
 function readEnv(name: string, fallback?: string): string {
   const value = process.env[name]?.trim();

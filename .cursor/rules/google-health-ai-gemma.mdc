@@ -1,0 +1,39 @@
+---
+description: MedGemma / TxGemma (Google Health AI Developer Foundations) — HAI-DEF terms, env-driven routing, clinical/therapeutics safety, Pi API boundaries.
+globs: docs/integrations/medgemma.md,docs/integrations/txgemma.md,src/app/api/**/health/**,src/lib/**/health/**
+alwaysApply: false
+---
+
+# MedGemma, TxGemma, and Pi
+
+## Docs-first
+
+- Read `docs/integrations/medgemma.md` and `docs/integrations/txgemma.md` before adding routes, env vars, or workers that call these models (Vertex AI, Hugging Face, vLLM, or custom HAI-DEF containers).
+
+## Terms and compliance
+
+- Usage is governed by **[Health AI Developer Foundations terms of use](https://developers.google.com/health-ai-developer-foundations/terms)**. Do not assume standard Gemma / Gemini terms alone are sufficient — verify current Google legal pages for your deployment.
+- **MedGemma** outputs must not be presented as **clinical diagnosis or treatment** without product-specific validation and governance.
+- **TxGemma** is for **therapeutics R&D** workflows; not validated for regulatory submission or patient-facing decisions without your own evidence.
+
+## Mandatory Pi constraints
+
+- **No hardcoding:** Model IDs (e.g. `google/medgemma-1.5-4b-it`, `google/txgemma-27b-predict`), Vertex endpoints, and feature flags belong in **environment or database** configuration.
+- **API surface:** Bearer auth, **Zod**, OpenAI-compatible envelopes where applicable; **202 + job state machine** for inference &gt; ~5 seconds.
+- **Separation:** These models are **optional** backends. Default Pi text/vision routing remains **env-driven** (Gemini, OpenAI, etc.) unless product config selects HAI-DEF models.
+
+## MedGemma-specific
+
+- Large **CT/MRI/WSI** inputs require **preprocessing** per Google’s notebooks — do not treat raw DICOM/WSI as a single PIL image without that pipeline.
+- For **non-generative** medical vision (classification, retrieval), consider **MedSigLIP** per Google’s guidance (see `medgemma.md`).
+
+## TxGemma-specific
+
+- Use **TDC prompt templates** for `*-predict` models; use **chat templates** for `*-chat` variants (see official model card).
+- **Agentic** patterns that call Gemini + TxGemma must keep secrets and model config out of client code.
+
+## Related rules
+
+- Gemini APIs: `.cursor/rules/gemini-skills.mdc`, `.agents/skills/gemini-interactions-api/SKILL.md`.
+- Other medical LLM reference: `huatuogpt-medical-llm.mdc`.
+- Medical imaging Python: `monai-health-imaging.mdc`.

@@ -4,24 +4,24 @@ import { z } from "zod";
 import {
   avatarGenerationInputSchema,
   type AvatarGenerationInput,
-} from "@/contracts/avatar-api";
+} from "../contracts/avatar-api";
 import {
   generateAvatarImage,
   ImageGenerationError,
   type ReferencePart,
-} from "@/lib/avatar/image-generate";
+} from "../lib/avatar/image-generate";
 import {
   resolveImageOutput,
   thinkingLevelToPublic,
-} from "@/lib/avatar/image-output";
-import { buildAvatarImagePrompt } from "@/lib/avatar/prompt-orchestrator";
+} from "../lib/avatar/image-output";
+import { buildAvatarImagePrompt } from "../lib/avatar/prompt-orchestrator";
 import {
   MAX_MODEL_REFERENCE_IMAGES,
   normalizeReferenceImages,
-} from "@/lib/avatar/reference-inputs";
-import { retrieveCorpusReference } from "@/lib/avatar/retrieve-reference";
-import { uploadAsset } from "@/lib/storage";
-import { getServiceSupabaseClient } from "@/lib/supabase";
+} from "../lib/avatar/reference-inputs";
+import { retrieveCorpusReference } from "../lib/avatar/retrieve-reference";
+import { uploadAsset } from "../lib/storage";
+import { getServiceSupabaseClient } from "../lib/supabase";
 
 const triggerPayloadSchema = z.object({
   jobId: z.string().uuid(),

@@ -3,9 +3,9 @@ import { google } from "@ai-sdk/google";
 import { imageSize } from "image-size";
 import { z } from "zod";
 
-import type { AdDirectiveV1, AdGenerationInput } from "@/contracts/ads-api";
-import type { AdCorpusReference } from "@/lib/ads/retrieve-reference";
-import type { NormalizedReferenceImage } from "@/lib/ads/reference-inputs";
+import type { AdDirectiveV1, AdGenerationInput } from "../../contracts/ads-api";
+import type { AdCorpusReference } from "./retrieve-reference";
+import type { NormalizedReferenceImage } from "./reference-inputs";
 
 function getOrchestratorModelId(): string {
   const modelId =

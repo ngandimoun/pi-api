@@ -1,5 +1,5 @@
-import { generateDynamicProjection } from "@/lib/dynamic-projection";
-import { getServiceSupabaseClient } from "@/lib/supabase";
+import { generateDynamicProjection } from "../dynamic-projection";
+import { getServiceSupabaseClient } from "../supabase";
 
 export type BrandConditioningResult = {
   active: boolean;

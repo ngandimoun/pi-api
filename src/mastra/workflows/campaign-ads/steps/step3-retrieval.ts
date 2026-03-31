@@ -1,8 +1,8 @@
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
 
-import { retrieveCampaignCorpusReference } from "@/lib/campaigns/retrieve-campaign-reference";
-import { step3OutputSchema } from "@/mastra/workflows/campaign-ads/schemas";
+import { retrieveCampaignCorpusReference } from "../../../../lib/campaigns/retrieve-campaign-reference";
+import { step3OutputSchema } from "../schemas";
 
 export const step3Retrieval = createStep({
   id: "campaign-step3-retrieval",

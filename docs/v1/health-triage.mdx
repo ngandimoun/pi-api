@@ -1,0 +1,138 @@
+---
+title: Point-of-Care Triage
+description: OpenAI-compatible async triage for medical images and EEG in low-resource clinics.
+---
+
+# Point-of-Care Triage (`/v1/health/analyze`)
+
+This endpoint provides **point-of-care triage support** for rural clinics. A developer sends **either**:
+
+- A medical **image** (X-ray photo, ultrasound screenshot, skin lesion photo), or
+- Raw **EEG** data from a portable headset,
+
+and Pi returns an async **job**. When complete, the job payload contains a structured triage report.
+
+Pi **hides the internal orchestration** (segmentation + neuro decoding + clinical reasoning). You only call the API and read the result.
+
+## Backend requirements (operators)
+
+What you need on the server depends on how much specialty infrastructure you run:
+
+- **Minimum (LLM triage only):** `GEMINI_KEY` — Gemini (text) can power clinical interpretation and treatment-plan generation when dedicated medical LLM endpoints are not configured. Optional: `HEALTH_GEMINI_MODEL`, or rely on `GOOGLE_DEFAULT_MODEL` / `GOOGLE_CAMPAIGN_ORCHESTRATOR_MODEL`; otherwise the server defaults to `gemini-2.0-flash` for `generateContent`.
+- **Better (imaging + EEG backends):** add `MONAI_SERVICE_URL` for real segmentation overlays, and `METABCI_SERVICE_URL` for EEG classification when those Python sidecars are deployed.
+- **Best (specialty models):** configure `HUATUOGPT_ENDPOINT` for medical vision where available, and `MEDGEMMA_ENDPOINT` for Google Health AI–compatible models; the stack still falls back to Gemini Flash if a service is missing or errors.
+
+Step 2 (segmentation / EEG) uses deterministic ML services, not Gemini — those steps stay degraded until the corresponding service URLs are set.
+
+If `HEALTH_GEMINI_MODEL` or your default Google model id returns **404 / NOT_FOUND** from the Gemini API, the server automatically retries once with `gemini-2.0-flash` for text `generateContent`.
+
+## Safety
+
+- This is **not** a definitive diagnosis.
+- Always verify with clinical guidelines and local referral pathways.
+- If danger signs are present, seek urgent care.
+
+## Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## Create a triage job (async)
+
+`POST /api/v1/health/analyze`
+
+### Request body
+
+```json
+{
+  "input": {
+    "type": "image",
+    "data": "data:image/jpeg;base64,<...> OR https://.../image.jpg",
+    "modality": "xray",
+    "mime_type": "image/jpeg"
+  },
+  "context": {
+    "patient_age": 45,
+    "symptoms": "persistent cough, weight loss",
+    "duration_days": 21,
+    "pregnant": false,
+    "locale": "sw-KE"
+  },
+  "output": {
+    "locale": "sw-KE",
+    "format": "json",
+    "include_diagnostics": false
+  }
+}
+```
+
+### Response (202)
+
+```json
+{
+  "id": "req_pi_<uuid>",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1711700000,
+  "data": { "job_id": "<uuid>" }
+}
+```
+
+## Poll for results
+
+Use the Jobs endpoint:
+
+`GET /api/v1/jobs/:id`
+
+Recommended polling:
+
+- `GET /api/v1/jobs/:id?wait_for_completion=true&timeout_seconds=20`
+- Add `include=diagnostics` when debugging
+
+### Completed job payload (example)
+
+When completed, the job’s `payload.output` contains the triage report:
+
+```json
+{
+  "triage_level": "urgent",
+  "confidence": 0.82,
+  "locale": "sw-KE",
+  "findings": [
+    {
+      "title": "Possible lower respiratory infection",
+      "summary": "Imaging features and symptoms could be consistent with infection; confirm with exam and local guidelines.",
+      "confidence": 0.61,
+      "evidence": ["cough > 14 days", "systemic symptoms"]
+    }
+  ],
+  "segmentation_overlay_url": null,
+  "seizure_detected": null,
+  "treatment_plan": "Supportive care steps, when to refer, and culturally appropriate instructions.",
+  "referral_recommendation": "Refer urgently if severe respiratory distress, altered mental status, or hypoxia is suspected.",
+  "red_flags": ["severe shortness of breath", "confusion", "cyanosis"],
+  "disclaimer": "This tool provides triage support only and is not a medical diagnosis. Seek urgent care if red flags are present."
+}
+```
+
+## Use cases
+
+### Smartphone-to-diagnosis (X-ray / ultrasound / skin)
+
+- **Input**: `type: "image"`, `data: <base64|url>`, `modality: "xray" | "ultrasound" | "skin_lesion" | ...`
+- **Output**: findings + triage level + optional segmentation overlay (when available)
+
+### Low-cost epilepsy screening (EEG)
+
+- **Input**: `type: "eeg"`, `data: <base64|json>`, `modality: "eeg"`
+- **Output**: seizure flag (when available) + care plan for the local health worker
+
+## Error codes (common)
+
+- `missing_authorization_header` (401)
+- `invalid_request_body` (400) — Zod validation failed
+- `health_triage_disabled` (403) — `HEALTH_TRIAGE_ENABLED=false`
+- `job_create_failed` (500)
+- `job_trigger_failed` (502)
+

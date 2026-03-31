@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { campaignAdGenerationInputSchema } from "@/contracts/campaign-ads-api";
+import { campaignAdGenerationInputSchema } from "../../../contracts/campaign-ads-api";
 
 export const campaignDiagnosticsStepSchema = z.object({
   step: z.string().min(1),

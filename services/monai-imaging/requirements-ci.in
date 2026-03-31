@@ -1,0 +1,7 @@
+# Same pins as requirements.in; compile with PyTorch CPU index for CI / CPU-only images:
+#   uv pip compile requirements-ci.in -o requirements-ci.lock.txt --python-version 3.11 --python-platform linux \
+#     --extra-index-url https://download.pytorch.org/whl/cpu --index-strategy unsafe-best-match
+monai[fire]==1.5.2
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+pydantic==2.10.6

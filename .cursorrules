@@ -21,6 +21,10 @@ Before suggesting or installing ANY new dependency, you MUST check this list. If
 - **Gemini native image generation (Nano Banana 2):** `gemini-3.1-flash-image-preview` — see `docs/integrations/nano-banana-gemini-image.md` for capabilities; Imagen, Nano Banana Pro (`gemini-3-pro-image-preview`), and `gemini-2.5-flash-image` are documented there for reference only unless explicitly requested.
 - **Deterministic Rendering:** Satori (React-to-SVG typography) + Sharp (PNG compositing).
 - **UI & Frontend Docs:** Tailwind CSS + Shadcn UI + Mintlify/MDX.
+- **Neuro / BCI (Python):** MetaBCI, **Braindecode** (PyTorch EEG/MEG DL), **MOABB** (BCI benchmarks), and related EEG tooling run in **`services/metabci-neuro/`** as a separate Python service or container — not via `npm` or inlined in Next.js. See `docs/integrations/metabci.md`, `docs/integrations/braindecode.md`, and `docs/integrations/moabb.md`.
+- **Medical imaging (Python):** **MONAI** (Core + Model Zoo bundle CLI via `monai[fire]`) runs in **`services/monai-imaging/`** as a separate Python service or container — not inlined in Next.js. See `docs/integrations/monai.md`.
+- **Medical LLMs (optional, self-hosted):** The **HuatuoGPT** family (**FreedomIntelligence** on Hugging Face: **HuatuoGPT-o1**, **HuatuoGPT-II**, **HuatuoGPT-Vision**) may be used as **optional** reasoning / dialogue / vision backends behind vLLM, SGLang, or similar — **never** as hardcoded defaults; route via env/DB. See `docs/integrations/huatuogpt.md`.
+- **Google Health AI Developer Foundations (optional):** **MedGemma** (medical multimodal Gemma 3, e.g. Hugging Face / Vertex / vLLM) and **TxGemma** (therapeutics / TDC-style tasks on Gemma 2) are governed by **[HAI-DEF terms](https://developers.google.com/health-ai-developer-foundations/terms)** — not drop-in clinical or regulatory paths without validation. Route via env/DB. See `docs/integrations/medgemma.md` and `docs/integrations/txgemma.md`.
 
 ## 3. Dynamic Configuration & Model Routing
 - **NO HARDCODING.** Never hardcode API keys, model names, or region-specific logic. Everything must be driven by Environment Variables (`.env`) or database configurations.

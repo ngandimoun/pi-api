@@ -1,4 +1,4 @@
-import { extensionFromMime, parseBase64Asset } from "@/lib/brand-extraction";
+import { extensionFromMime, parseBase64Asset } from "../brand-extraction";
 
 export const MAX_DEVELOPER_REFERENCE_IMAGES = 6;
 export const MAX_MODEL_REFERENCE_IMAGES = 6;

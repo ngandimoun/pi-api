@@ -1,0 +1,117 @@
+---
+title: "Robotics Intelligence API (v0)"
+description: "Agentic robotics intelligence: behavior + decision engine with OpenAI-compatible job envelopes."
+---
+
+## Overview
+
+The Robotics API lets developers run **programmable robot behaviors** (patrol, observe, follow) using simple HTTP calls.
+
+Under the hood, Pi orchestrates:
+
+- **Perception** (frame → detections/tracks/incidents) using the surveillance perception stack
+- **Behavior evaluation** using a deterministic rules engine
+- **Decision + actions** via a ROS2 bridge sidecar (stub-by-default for local dev)
+
+All heavy operations return an **OpenAI-compatible async job** (HTTP `202` + `job_id`), and can be polled via `GET /api/v1/jobs/:id`.
+
+## Authentication
+
+Every request requires:
+
+- `Authorization: Bearer <api_key>`
+
+## Start a robot run
+
+`POST /api/v1/robots/run`
+
+Queues a robot run job (perception + behaviors + decisions).
+
+### Request
+
+```json
+{
+  "robot_id": "robot_123",
+  "task": "patrol",
+  "profile": "patrol_security",
+  "zones": [
+    { "name": "entrance", "type": "patrol", "frame": "map", "polygon": [[0,0],[10,0],[10,10],[0,10]] }
+  ],
+  "behaviors": [
+    { "type": "intrusion", "zone": "entrance" }
+  ],
+  "actions": [
+    {
+      "on": "intrusion",
+      "do": [
+        { "type": "alert", "severity": "critical" },
+        { "type": "command", "command": { "command": "announce", "message": "Restricted area." } }
+      ]
+    }
+  ],
+  "perception": {
+    "input": { "data": "<base64_or_data_url>", "mime_type": "image/png" },
+    "frame_index": 0,
+    "detect": ["person"]
+  },
+  "outputs": { "delivery": ["sse"] }
+}
+```
+
+### Response (202)
+
+```json
+{
+  "id": "req_pi_...",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1711900000,
+  "data": { "job_id": "uuid" }
+}
+```
+
+## Robot status
+
+`GET /api/v1/robots/:id/status`
+
+Returns robot metadata plus current state from the ROS2 bridge sidecar when available.
+
+## Send a direct robot command
+
+`POST /api/v1/robots/:id/command`
+
+Example:
+
+```json
+{
+  "command": { "command": "move_to", "target": { "frame": "map", "x": 1.2, "y": 3.4 } }
+}
+```
+
+## Subscribe to events (SSE)
+
+`GET /api/v1/robots/events`
+
+This streams incidents in real-time as SSE `incident` events.
+
+Example:
+
+```bash
+curl -N "$PI_BASE_URL/api/v1/robots/events" \
+  -H "Authorization: Bearer $PI_API_KEY"
+```
+
+## Zones / Behaviors / Actions (stored config)
+
+These endpoints store reusable configuration for an org:
+
+- `GET|POST /api/v1/robots/zones`
+- `GET|POST /api/v1/robots/behaviors`
+- `GET|POST /api/v1/robots/actions`
+
+## Monitoring and failure visibility
+
+- All async runs persist to `jobs` with `status: queued|processing|completed|failed`.
+- Failures are captured in `jobs.error_log` and surfaced via `GET /api/v1/jobs/:id`.
+- Diagnostics are returned in the job payload when enabled.
+

@@ -7,6 +7,7 @@ import { defineConfig } from "@trigger.dev/sdk/v3";
 export default defineConfig({
   project: process.env.TRIGGER_PROJECT_REF ?? "replace_with_trigger_project_ref",
   dirs: ["./src/jobs"],
+  tsconfig: "./tsconfig.trigger.json",
   /** Global ceiling for task runs (seconds). Override per-task in Trigger.dev as needed. */
   maxDuration: 3600,
 });

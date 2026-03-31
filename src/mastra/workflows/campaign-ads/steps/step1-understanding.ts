@@ -1,10 +1,10 @@
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
 
-import { getCampaignGeminiClient, getCampaignOrchestratorModelId } from "@/lib/campaigns/gemini-client";
-import { normalizeReferenceImages } from "@/lib/ads/reference-inputs";
-import { resolveBrandConditioning } from "@/lib/ads/brand-conditioning";
-import { campaignWorkflowInputSchema } from "@/mastra/workflows/campaign-ads/schemas";
+import { getCampaignGeminiClient, getCampaignOrchestratorModelId } from "../../../../lib/campaigns/gemini-client";
+import { normalizeReferenceImages } from "../../../../lib/ads/reference-inputs";
+import { resolveBrandConditioning } from "../../../../lib/ads/brand-conditioning";
+import { campaignWorkflowInputSchema } from "../schemas";
 
 function parseJsonObject(text: string): Record<string, unknown> {
   const trimmed = text.trim();

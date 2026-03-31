@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-import type { campaignDiagnosticsStepSchema } from "@/mastra/workflows/campaign-ads/schemas";
+import type { campaignDiagnosticsStepSchema } from "./schemas";
 
 export function startTimer(): number {
   return Date.now();

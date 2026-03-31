@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pi-mmaction-recognition"
+version = "0.1.0"
+description = "Pi video surveillance action recognition service (Python): MMAction2 — not installed into the Next.js app."
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "Pi internal; OpenMMLab (MMAction2) Apache-2.0; review upstream licenses." }
+dependencies = [
+  "fastapi==0.115.8",
+  "uvicorn[standard]==0.34.0",
+  "pydantic==2.10.6",
+  # Keep runtime minimal; heavier ML deps are installed via lockfiles for Linux/Docker.
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "httpx>=0.27.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["pi_mmaction_recognition"]
+
+[tool.hatch.build.targets.sdist]
+include = ["README.md", "scripts", "pi_mmaction_recognition", "tests"]

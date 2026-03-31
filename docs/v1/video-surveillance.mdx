@@ -1,0 +1,316 @@
+---
+title: Video surveillance intelligence
+description: Programmable video intelligence API — detection, tracking, policies, alerts, and narration. OpenAI-style jobs + SSE.
+---
+
+# Video surveillance intelligence
+
+Pi exposes **one developer-facing surface** for video intelligence: you configure **what to watch for**, **which behaviors matter**, **how you want alerts delivered**, and **what level of detail** you need in outputs. Internal perception services and narration are **not** part of the public contract.
+
+Contract (Zod): `src/contracts/surveillance-api.ts`
+
+## Operator requirements
+
+- **Python perception stack (recommended):** deploy `docker-compose.surveillance.yml` and set `SURVEILLANCE_ORCHESTRATOR_URL` (and child service URLs) in the Pi server environment.
+- **Narration:** requires `GEMINI_KEY` (or `GOOGLE_GENERATIVE_AI_API_KEY`) for incident summaries. Optional: `SURVEILLANCE_GEMINI_MODEL` or rely on `GOOGLE_DEFAULT_MODEL`.
+- **Database:** policies and incident history use Supabase tables `surveillance_policies` and `surveillance_incidents` (see migration `0015_surveillance_policies_incidents.sql`).
+
+## Authentication
+
+```http
+Authorization: Bearer <your_api_key>
+```
+
+## Quick start (Node.js)
+
+```javascript
+const base = process.env.PI_BASE_URL || "http://localhost:3000";
+const res = await fetch(`${base}/api/v1/surveillance/streams`, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${process.env.PI_API_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    source: { url: "https://example.com/camera-preview", type: "http" },
+    detect: ["person", "car"],
+    behaviors: [{ type: "crowd_growth", zone: "entrance", count: 8, window_sec: 60 }],
+    input: { data: "data:image/png;base64,...", mime_type: "image/png" },
+    profile: "retail_security",
+  }),
+});
+const { data } = await res.json();
+// Poll GET /api/v1/jobs/:id?wait_for_completion=true
+```
+
+## Endpoints
+
+### `POST /api/v1/surveillance/streams`
+
+Creates an async **job** (`202 Accepted`) that runs perception (when `input.data` is present), evaluates **inline behaviors** and stored **policies**, optionally narrates incidents with Gemini, and persists incidents for SSE subscribers.
+
+**Request (trimmed)**
+
+```json
+{
+  "stream_id": "cam-entrance-1",
+  "source": { "url": "rtsp://camera.local/stream", "type": "rtsp", "fps_cap": 15 },
+  "profile": "warehouse_safety",
+  "detect": ["person", "forklift"],
+  "behaviors": [
+    { "type": "loitering", "zone": "loading_dock", "seconds": 90 },
+    { "type": "intrusion", "zone": "restricted", "classes": ["person"] }
+  ],
+  "anomaly": { "enabled": true, "sensitivity": 0.72 },
+  "outputs": { "delivery": ["sse", "webhook"], "format": "detailed", "webhook_url": "https://hooks.example.com/alerts" },
+  "alerts": { "min_severity": "warning", "cooldown_seconds": 45, "group_by": "zone" },
+  "context": {
+    "site": "Warehouse 7",
+    "zones": {
+      "loading_dock": { "xyxy": [0.1, 0.2, 0.5, 0.9] },
+      "restricted": { "xyxy": [0.55, 0.1, 0.95, 0.5] }
+    }
+  },
+  "input": { "data": "<base64 or data: URL>", "mime_type": "image/jpeg" },
+  "frame_index": 0,
+  "output": { "locale": "en", "include_diagnostics": false, "format": "json" }
+}
+```
+
+**Response (`202`)**
+
+```json
+{
+  "id": "req_pi_<uuid>",
+  "object": "job",
+  "status": "queued",
+  "created_at": 1711700000,
+  "data": { "job_id": "<uuid>" }
+}
+```
+
+Poll **`GET /api/v1/jobs/:id`** (see [Jobs](./endpoints/jobs.mdx)) with `wait_for_completion=true`. Completed payload includes `payload.output` with `stream_id`, `perception`, and `incidents`.
+
+### `POST /api/v1/surveillance/policies`
+
+Creates or updates a reusable policy (scoped by `stream_id` or global when `stream_id` is empty).
+
+**Request**
+
+```json
+{
+  "stream_id": "cam-entrance-1",
+  "name": "night_perimeter",
+  "type": "intrusion",
+  "condition": { "zone": "yard" },
+  "action": { "severity": "critical", "cooldown_seconds": 120 },
+  "enabled": true
+}
+```
+
+### `GET /api/v1/surveillance/policies?stream_id=cam-entrance-1`
+
+Lists policies for your organization. When `stream_id` is set, includes **global** policies (`stream_id` empty) and policies for that stream.
+
+### `GET /api/v1/surveillance/events?stream_id=cam-entrance-1`
+
+**Server-Sent Events** (`text/event-stream`). Emits `incident` events (JSON body) and `: heartbeat` comments every 15s. Optional: `severity=warning`.
+
+## Customization (no model swapping)
+
+| Area | What you control |
+|------|------------------|
+| **Detection interests** | `detect[]` — labels you care about (e.g. person, car, backpack). |
+| **Behaviors** | `behaviors[]` — loitering, intrusion, crowd growth, object-left proxy, perimeter breach, speed, wrong direction; each with zone + thresholds. |
+| **Outputs** | `outputs.delivery` (sse / webhook / email), `outputs.format` (summary / detailed / raw). |
+| **Alerts** | `alerts.min_severity`, cooldown, grouping. |
+| **Zones** | `context.zones` maps zone ids to axis-aligned `xyxy` boxes in **the same coordinate space as model boxes** (typically normalized 0–1 or pixel coords — keep consistent per deployment). |
+| **Presets** | `profile` — one of eight built-in presets (see below). |
+
+## Built-in profiles
+
+| Profile | Typical use |
+|---------|----------------|
+| `retail_security` | Shop floor loitering, checkout crowding, unattended object proxy |
+| `warehouse_safety` | Forklift speed, one-way lanes, restricted storage |
+| `smart_city` | Crosswalk crowding, arterial speed, bus lane direction |
+| `residential_perimeter` | Night intrusion, driveway loitering |
+| `construction_site` | Hazard zone breach, scaffold crowding |
+| `parking_lot` | Row loitering, after-hours intrusion, lot speed |
+| `school_campus` | Cafeteria crowding, parking loitering, staff-only intrusion |
+| `healthcare_facility` | Patient wing dwell time, ER crowding, pharmacy perimeter |
+
+Profiles **merge** under your explicit fields: if you pass non-empty `behaviors`, your list wins; otherwise the preset fills defaults.
+
+## Industry use cases (worked examples)
+
+### 1. Retail security
+
+**Goal:** shrink + safety — loitering in aisles, checkout lines backing up.
+
+```json
+{
+  "source": { "url": "rtsp://store/cam1", "type": "rtsp" },
+  "profile": "retail_security",
+  "behaviors": [
+    { "type": "loitering", "zone": "electronics", "seconds": 180 },
+    { "type": "crowd_growth", "zone": "checkout", "count": 12, "window_sec": 120 }
+  ],
+  "outputs": { "delivery": ["sse"], "format": "summary" },
+  "input": { "data": "<frame>", "mime_type": "image/jpeg" }
+}
+```
+
+**Outcome:** Jobs emit `crowd_growth` / `loitering` incidents with operator narration when Gemini is configured.
+
+### 2. Warehouse safety
+
+**Goal:** forklift speed and restricted zones.
+
+```json
+{
+  "profile": "warehouse_safety",
+  "behaviors": [
+    { "type": "speed_violation", "zone": "loading_dock", "max_speed_mps": 2.5 },
+    { "type": "perimeter_breach", "zone": "restricted_storage", "boundary": "inside" }
+  ],
+  "input": { "data": "<frame>", "mime_type": "image/jpeg" }
+}
+```
+
+### 3. Smart city traffic
+
+**Goal:** crowd surge at crosswalks, wrong-way traffic in bus lane.
+
+```json
+{
+  "profile": "smart_city",
+  "behaviors": [
+    { "type": "crowd_growth", "zone": "crosswalk_A", "count": 25, "window_sec": 90 },
+    { "type": "wrong_direction", "zone": "bus_lane", "allowed_heading_deg": 0, "tolerance_deg": 35 }
+  ],
+  "input": { "data": "<frame>", "mime_type": "image/jpeg" }
+}
+```
+
+### 4. Residential perimeter
+
+**Goal:** after-hours intrusion and long dwell on driveway.
+
+```json
+{
+  "profile": "residential_perimeter",
+  "behaviors": [
+    { "type": "intrusion", "zone": "yard", "classes": ["person"] },
+    { "type": "loitering", "zone": "driveway", "seconds": 400 }
+  ],
+  "input": { "data": "<frame>", "mime_type": "image/jpeg" }
+}
+```
+
+### 5. Construction site
+
+**Goal:** hazard zone entry, group size near scaffold.
+
+```json
+{
+  "profile": "construction_site",
+  "behaviors": [
+    { "type": "perimeter_breach", "zone": "crane_swing", "boundary": "inside" },
+    { "type": "crowd_growth", "zone": "scaffold_base", "count": 12, "window_sec": 60 }
+  ],
+  "input": { "data": "<frame>", "mime_type": "image/jpeg" }
+}
+```
+
+### 6. Parking lot
+
+**Goal:** suspicious dwell and speed inside lot.
+
+```json
+{
+  "profile": "parking_lot",
+  "behaviors": [
+    { "type": "loitering", "zone": "vehicle_rows", "seconds": 480 },
+    { "type": "speed_violation", "zone": "lot_drive", "max_speed_mps": 6 }
+  ],
+  "input": { "data": "<frame>", "mime_type": "image/jpeg" }
+}
+```
+
+### 7. School campus
+
+**Goal:** cafeteria surge, staff-only areas.
+
+```json
+{
+  "profile": "school_campus",
+  "behaviors": [
+    { "type": "crowd_growth", "zone": "cafeteria", "count": 80, "window_sec": 240 },
+    { "type": "intrusion", "zone": "staff_only", "classes": ["person"] }
+  ],
+  "input": { "data": "<frame>", "mime_type": "image/jpeg" }
+}
+```
+
+### 8. Healthcare facility
+
+**Goal:** ER waiting crowding, pharmacy boundary.
+
+```json
+{
+  "profile": "healthcare_facility",
+  "behaviors": [
+    { "type": "crowd_growth", "zone": "er_waiting", "count": 35, "window_sec": 300 },
+    { "type": "perimeter_breach", "zone": "pharmacy", "boundary": "inside" }
+  ],
+  "input": { "data": "<frame>", "mime_type": "image/jpeg" }
+}
+```
+
+## SDK-style snippets
+
+### cURL — create job
+
+```bash
+curl -sS "$PI_BASE_URL/api/v1/surveillance/streams" \
+  -H "Authorization: Bearer $PI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"source":{"url":"http://example.com","type":"http"},"detect":["person"],"behaviors":[{"type":"crowd_growth","zone":"gate","count":5,"window_sec":60}],"input":{"data":"'"$B64"'","mime_type":"image/png"}}'
+```
+
+### Python — poll job
+
+```python
+import os, time, requests
+
+base = os.environ.get("PI_BASE_URL", "http://localhost:3000")
+headers = {"Authorization": f"Bearer {os.environ['PI_API_KEY']}"}
+r = requests.post(f"{base}/api/v1/surveillance/streams", json=payload, headers=headers, timeout=60)
+r.raise_for_status()
+job_id = r.json()["data"]["job_id"]
+for _ in range(30):
+    j = requests.get(f"{base}/api/v1/jobs/{job_id}", headers=headers, timeout=60)
+    st = j.json()["data"]["status"]
+    if st in ("completed", "failed"):
+        break
+    time.sleep(1)
+```
+
+## Error codes (common)
+
+| Code | HTTP | Meaning |
+|------|------|--------|
+| `surveillance_disabled` | 403 | `SURVEILLANCE_ENABLED=false` |
+| `invalid_request_body` | 400 | Zod validation failed |
+| `job_create_failed` | 500 | Database insert failed |
+| `job_trigger_failed` | 502 | Trigger.dev worker not reachable |
+
+## Safety & privacy
+
+- Treat streams as **sensitive PII**; use TLS, least-privilege keys, and data retention policies.
+- Narration is **assistive** — verify alerts with operational procedures and local law.
+
+## Feature flag
+
+Set `SURVEILLANCE_ENABLED=false` to disable surveillance routes in a given environment.

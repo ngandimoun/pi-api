@@ -2,13 +2,13 @@ import { task, tasks } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 import { imageSize } from "image-size";
 
-import { campaignAdEditInputSchema, type CampaignAdEditInput } from "@/contracts/campaign-ads-edit-api";
-import { editCampaignImage } from "@/lib/campaigns/edit-campaign-image";
-import { getServiceSupabaseClient } from "@/lib/supabase";
-import { buildPublicAssetUrl, uploadAsset } from "@/lib/storage";
-import { runDeterministicQualityGate } from "@/lib/ads/workers";
-import { normalizeReferenceImages, type NormalizedReferenceImage } from "@/lib/ads/reference-inputs";
-import { FLASH_ASPECT_RATIOS, type FlashAspectRatio } from "@/lib/avatar/image-config";
+import { campaignAdEditInputSchema, type CampaignAdEditInput } from "../contracts/campaign-ads-edit-api";
+import { editCampaignImage } from "../lib/campaigns/edit-campaign-image";
+import { getServiceSupabaseClient } from "../lib/supabase";
+import { buildPublicAssetUrl, uploadAsset } from "../lib/storage";
+import { runDeterministicQualityGate } from "../lib/ads/workers";
+import { normalizeReferenceImages, type NormalizedReferenceImage } from "../lib/ads/reference-inputs";
+import { FLASH_ASPECT_RATIOS, type FlashAspectRatio } from "../lib/avatar/image-config";
 
 const triggerPayloadSchema = z.object({
   jobId: z.string().uuid(),

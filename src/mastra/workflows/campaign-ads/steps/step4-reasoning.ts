@@ -1,8 +1,8 @@
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
 
-import { getCampaignGeminiClient, getCampaignOrchestratorModelId } from "@/lib/campaigns/gemini-client";
-import { step4OutputSchema } from "@/mastra/workflows/campaign-ads/schemas";
+import { getCampaignGeminiClient, getCampaignOrchestratorModelId } from "../../../../lib/campaigns/gemini-client";
+import { step4OutputSchema } from "../schemas";
 
 function parseJsonObject(text: string): Record<string, unknown> {
   const trimmed = text.trim();
