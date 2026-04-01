@@ -132,9 +132,5 @@ Docs:
 - `npm run dev`
 - Configure env via `.env.local` and restart `next dev` after changes (details in [`docs/v1/intro.mdx`](docs/v1/intro.mdx)).
 
-## Mintlify note (connecting this GitHub repo)
 
-If Mintlify asks for “additional instructions”, paste:
-
-> The documentation root is `docs/`. The `mint.json` at repo root defines navigation. MDX pages live under `docs/v1/` (intro, quickstart, endpoints, guides, health, neuro, surveillance, robotics) and `docs/integrations/`. The API follows OpenAI-compatible patterns with Bearer auth, 202 async jobs, and Zod-validated contracts. The SDK package is at `packages/pi-sdk/`.
 
