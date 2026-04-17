@@ -130,7 +130,22 @@ function renderServerHealthBlock(health: PiCliHealthReport): void {
     }
     if (pgDiag?.deferred_during_next_build) return "deferred during Next build (unexpected in prod)";
     if (!pgDiag?.env_value_present) return "no PI_CLI_DATABASE_URL or DATABASE_URL on this Vercel env";
-    if (!pgDiag.normalized_ok) return "URL failed validation (placeholder, too short, or malformed)";
+    const src = pgDiag.env_source ? ` (${pgDiag.env_source})` : "";
+    const f = pgDiag.flags;
+    if (!pgDiag.normalized_ok && f) {
+      if (!f.trimmed_nonempty)
+        return `empty after trim/sanitize${src} — re-paste the connection string in Vercel`;
+      if (f.angle_template) return `angle-bracket placeholder not replaced${src}`;
+      if (f.has_placeholder) return `still contains [YOUR-PASSWORD] or <DB_PASSWORD>${src}`;
+      if (!f.scheme_ok)
+        return `does not start with postgres:// — remove "export VAR=" prefix or stray quotes${src}`;
+      if (!f.length_ok) return `looks truncated (<24 chars)${src}`;
+      if (f.hostname_is_base) return `literal "base" hostname (unfilled template)${src}`;
+      if (!f.whatwg_url_ok && !f.pg_parse_ok && !f.regex_fallback_ok)
+        return `unparseable — percent-encode @ : / ? # [ ] % in the password${src}`;
+      return `URL failed validation${src}`;
+    }
+    if (!pgDiag.normalized_ok) return `URL failed validation (placeholder, too short, or malformed)${src}`;
     if (!pgDiag.canonical_parse_ok) return "URL did not parse for Postgres (encode special chars in password)";
     if (pgDiag.store_init_error)
       return `store init: ${pgDiag.store_init_error}`;

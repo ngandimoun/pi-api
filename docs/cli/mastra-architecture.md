@@ -87,6 +87,18 @@ Returns `200` when `ok: true` (all critical checks green), otherwise `503` with 
 
 `ok === true` iff `default_model.configured && postgres.reachable && workflow_mode.enabled && gemini.configured`.
 
+When Postgres is not reachable, `checks.postgres.diagnostics` includes:
+
+- `env_source`: `"PI_CLI_DATABASE_URL"` \| `"DATABASE_URL"` \| `"none"` (which variable was read; never the value).
+- `flags`: secret-safe booleans (`scheme_ok`, `length_ok`, `whatwg_url_ok`, `pg_parse_ok`, `regex_fallback_ok`, `has_placeholder`, `angle_template`, `hostname_is_base`, etc.) so you can see why `normalized_ok` is false without opening Vercel logs.
+
+**Vercel paste checklist for `PI_CLI_DATABASE_URL`**
+
+- Paste the URI only — no `export PI_CLI_DATABASE_URL=`, no surrounding `"` / `'`.
+- Percent-encode reserved characters in the password: `@ : / ? # [ ] %`.
+- Prefer the Supabase **transaction** pooler (`:6543`) and `?sslmode=require` (often added automatically by our canonicalizer for `*.pooler.supabase.com`).
+- Save env vars for the correct scope (Production vs Preview), then **redeploy**.
+
 ### Strict (fail-closed) mode
 
 By default in production (`PI_CLI_FAIL_CLOSED=true`), every Pi CLI route that can take the Mastra path treats workflow availability as a hard contract. When a workflow is requested but Mastra or Trigger.dev cannot fulfil it, routes respond with:

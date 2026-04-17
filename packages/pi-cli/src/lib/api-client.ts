@@ -44,10 +44,23 @@ export type PiCliHealthReport = {
       error?: string;
       diagnostics?: {
         env_value_present: boolean;
+        env_source?: "PI_CLI_DATABASE_URL" | "DATABASE_URL" | "none";
         normalized_ok: boolean;
         canonical_parse_ok: boolean;
         deferred_during_next_build: boolean;
         store_init_error?: string;
+        flags?: {
+          raw_length: number;
+          trimmed_nonempty: boolean;
+          has_placeholder: boolean;
+          angle_template: boolean;
+          scheme_ok: boolean;
+          length_ok: boolean;
+          whatwg_url_ok: boolean;
+          pg_parse_ok: boolean;
+          regex_fallback_ok: boolean;
+          hostname_is_base: boolean;
+        };
       };
     };
     workflow_mode: { enabled: boolean };
