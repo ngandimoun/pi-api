@@ -132,6 +132,8 @@ function renderServerHealthBlock(health: PiCliHealthReport): void {
     if (!pgDiag?.env_value_present) return "no PI_CLI_DATABASE_URL or DATABASE_URL on this Vercel env";
     if (!pgDiag.normalized_ok) return "URL failed validation (placeholder, too short, or malformed)";
     if (!pgDiag.canonical_parse_ok) return "URL did not parse for Postgres (encode special chars in password)";
+    if (pgDiag.store_init_error)
+      return `store init: ${pgDiag.store_init_error}`;
     return "store not created — check Vercel logs for [mastra-storage]";
   })();
   line("Postgres (Mastra schema)", c.postgres.reachable && c.postgres.configured, postgresDetail);

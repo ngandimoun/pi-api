@@ -67,9 +67,10 @@ function hasGeminiKey(): boolean {
  */
 export async function GET() {
   const defaultModelConfigured = Boolean(process.env.PI_MASTRA_DEFAULT_MODEL?.trim());
-  const pgDiag = getMastraPostgresConnectionDiagnostics();
+  // Ping first so PostgresStore init runs before diagnostics include `store_init_error`.
   const pgPing = await pingPostgres();
   const store = getMastraPostgresStore();
+  const pgDiag = getMastraPostgresConnectionDiagnostics();
   const vector = getMastraPgVector();
   const workflowEnabled = isPiCliWorkflowModeEnabled();
   const memoryEnabled = isCliMemoryEnabled();

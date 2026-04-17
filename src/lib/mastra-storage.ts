@@ -4,6 +4,9 @@ import { parse } from "pg-connection-string";
 let postgresStore: PostgresStore | null | undefined;
 let pgVector: PgVector | null | undefined;
 
+/** Set when PostgresStore init fails; safe to surface in /api/cli/health (no secrets). */
+let lastPostgresStoreInitError: string | undefined;
+
 /** Vercel/dashboard paste often wraps the value in quotes — that breaks URL parsing downstream. */
 function stripEnvValueQuotes(raw: string): string {
   let s = raw.trim();
@@ -45,11 +48,16 @@ function isNextCompilerBuild(): boolean {
 /**
  * Booleans only — for `/api/cli/health` when Postgres is down (never log the URL or password).
  */
+export function getLastPostgresStoreInitError(): string | undefined {
+  return lastPostgresStoreInitError;
+}
+
 export function getMastraPostgresConnectionDiagnostics(): {
   env_value_present: boolean;
   normalized_ok: boolean;
   canonical_parse_ok: boolean;
   deferred_during_next_build: boolean;
+  store_init_error?: string;
 } {
   const raw = getPiCliDatabaseUrl();
   const normalized = raw ? normalizePostgresConnectionUrl(raw) : undefined;
@@ -62,6 +70,7 @@ export function getMastraPostgresConnectionDiagnostics(): {
       canonicalParseOk = false;
     }
   }
+  const initErr = getLastPostgresStoreInitError();
   return {
     env_value_present: Boolean(
       process.env.PI_CLI_DATABASE_URL?.trim() || process.env.DATABASE_URL?.trim(),
@@ -69,6 +78,7 @@ export function getMastraPostgresConnectionDiagnostics(): {
     normalized_ok: Boolean(normalized),
     canonical_parse_ok: canonicalParseOk,
     deferred_during_next_build: isNextCompilerBuild(),
+    ...(initErr ? { store_init_error: initErr.slice(0, 240) } : {}),
   };
 }
 
@@ -92,7 +102,14 @@ export function normalizePostgresConnectionUrl(raw: string): string | undefined 
     if (u.hostname === "base") return undefined;
     return t;
   } catch {
-    // Passwords may contain reserved URL characters unencoded — allow libpq-style user:pass@host:port/db
+    // WHATWG URL rejects many valid libpq URIs (e.g. certain password characters). If `pg` can parse it, accept.
+    try {
+      const p = parse(t);
+      if (p.host?.trim() && p.user) return t;
+    } catch {
+      /* fall through */
+    }
+    // Last-resort heuristic for unencoded user:pass@host
     if (/^postgres(?:ql)?:\/\/[^/?\s]+@[^/?\s]+(\/|\?)/i.test(t)) return t;
     return undefined;
   }
@@ -152,9 +169,11 @@ export function getMastraPostgresStore(): PostgresStore | null {
   if (isNextCompilerBuild()) return null;
 
   if (postgresStore === undefined) {
+    lastPostgresStoreInitError = undefined;
     try {
       const built = toCanonicalPgConnectionString(url);
       if (!built) {
+        lastPostgresStoreInitError = "toCanonical_failed";
         postgresStore = null;
       } else {
         postgresStore = new PostgresStore({
@@ -164,6 +183,8 @@ export function getMastraPostgresStore(): PostgresStore | null {
         });
       }
     } catch (e) {
+      const msg = e instanceof Error ? e.message : "PostgresStore_constructor_failed";
+      lastPostgresStoreInitError = msg;
       console.warn("[mastra-storage] PostgresStore constructor failed:", e);
       postgresStore = null;
     }

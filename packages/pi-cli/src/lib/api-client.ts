@@ -47,6 +47,7 @@ export type PiCliHealthReport = {
         normalized_ok: boolean;
         canonical_parse_ok: boolean;
         deferred_during_next_build: boolean;
+        store_init_error?: string;
       };
     };
     workflow_mode: { enabled: boolean };
