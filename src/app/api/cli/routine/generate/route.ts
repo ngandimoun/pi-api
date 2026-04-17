@@ -5,6 +5,7 @@ import { withApiAuth } from "@/lib/auth";
 import { buildCliThreadId } from "@/lib/pi-cli-thread";
 import { parsePiCliAsyncFlag } from "@/lib/pi-cli-async";
 import { getMastraPostgresStore } from "@/lib/mastra-storage";
+import { isPiCliFailClosed } from "@/lib/pi-cli-fail-closed";
 import { isPiCliRoutineHitlEnabled } from "@/lib/pi-cli-workflows";
 import { scrapeBrandingProfile } from "@/lib/firecrawl";
 import { gatherRoutineContext, routineContextPayloadSchema } from "@/lib/pi-cli-routine-context";
@@ -72,12 +73,22 @@ export const POST = withApiAuth(async (request) => {
 
   const formats = (parsed.data.format ?? []) as RoutineFormatId[];
 
-  if (
-    isPiCliRoutineHitlEnabled() &&
-    getMastraPostgresStore() &&
-    requireApproval &&
-    parsePiCliAsyncFlag(request)
-  ) {
+  const hitlEnabled = isPiCliRoutineHitlEnabled() && Boolean(getMastraPostgresStore());
+  const asyncRequested = parsePiCliAsyncFlag(request);
+  const strict = isPiCliFailClosed(request);
+
+  if (requireApproval && strict && !hitlEnabled) {
+    return apiError(
+      "workflow_disabled",
+      "Pi CLI routine HITL suspend/resume is not enabled on this server. Set PI_CLI_ROUTINE_HITL=true and configure PI_CLI_DATABASE_URL, or retry with X-Pi-Fail-Closed: false.",
+      503,
+      requestId,
+      "api_error",
+      { workflow_key: "cliRoutineWorkflow", phase: requireApproval && asyncRequested ? "async" : "sync" },
+    );
+  }
+
+  if (hitlEnabled && requireApproval && asyncRequested) {
     try {
       const wf = mastra.getWorkflow("cliRoutineWorkflow");
       const run = await wf.createRun({ resourceId: request.organizationId });
@@ -106,10 +117,24 @@ export const POST = withApiAuth(async (request) => {
       return res;
     } catch (e) {
       console.warn("[pi-cli/routine] async_trigger_failed", e);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          "Async routine workflow dispatch failed. Retry later or disable strict mode via X-Pi-Fail-Closed: false.",
+          503,
+          requestId,
+          "api_error",
+          {
+            workflow_key: "cliRoutineWorkflow",
+            phase: "async",
+            reason: e instanceof Error ? e.message : "trigger_failed",
+          },
+        );
+      }
     }
   }
 
-  if (isPiCliRoutineHitlEnabled() && getMastraPostgresStore() && requireApproval) {
+  if (hitlEnabled && requireApproval) {
     try {
       const wf = mastra.getWorkflow("cliRoutineWorkflow");
       const run = await wf.createRun({ resourceId: request.organizationId });
@@ -171,8 +196,32 @@ export const POST = withApiAuth(async (request) => {
       }
 
       console.warn("[pi-cli/routine] workflow_non_success", result.status);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          `Pi CLI routine workflow terminated with status "${result.status}" instead of "success".`,
+          503,
+          requestId,
+          "api_error",
+          { workflow_key: "cliRoutineWorkflow", phase: "sync", status: result.status },
+        );
+      }
     } catch (e) {
       console.warn("[pi-cli/routine] workflow_failed_fallback", e);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          "Pi CLI routine workflow execution failed.",
+          503,
+          requestId,
+          "api_error",
+          {
+            workflow_key: "cliRoutineWorkflow",
+            phase: "sync",
+            reason: e instanceof Error ? e.message : "workflow_failed",
+          },
+        );
+      }
     }
   }
 

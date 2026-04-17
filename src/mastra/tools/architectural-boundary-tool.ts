@@ -2,7 +2,7 @@ import { createTool } from "@mastra/core/tools";
 import { Project, SyntaxKind } from "ts-morph";
 import { z } from "zod";
 
-function analyzeBoundary(filePath: string, excerpt: string) {
+export function analyzeBoundary(filePath: string, excerpt: string) {
   const project = new Project({ useInMemoryFileSystem: true });
   const sf = project.createSourceFile(filePath, excerpt, { overwrite: true });
 

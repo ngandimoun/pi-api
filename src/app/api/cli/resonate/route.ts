@@ -16,6 +16,7 @@ import { gatherRoutineContext, routineContextPayloadSchema } from "@/lib/pi-cli-
 import type { GatheredRoutineContext } from "@/lib/pi-cli-routine-context";
 import { buildCliResourceId, buildCliThreadId } from "@/lib/pi-cli-thread";
 import { isPiCliWorkflowModeEnabled } from "@/lib/pi-cli-workflows";
+import { isPiCliFailClosed } from "@/lib/pi-cli-fail-closed";
 import { mastra } from "@/mastra";
 import { readPersonaFromHeaders, withPersonaPreamble } from "@/mastra/agents/_persona";
 
@@ -375,8 +376,21 @@ export const POST = withApiAuth(async (request) => {
   // ---------- Workflow mode (Socratic Loop state machine) ----------
   const url = new URL(request.url);
   const workflowRequested = url.searchParams.get("workflow") === "true";
+  const workflowEnabled = isPiCliWorkflowModeEnabled();
+  const strict = isPiCliFailClosed(request);
 
-  if (workflowRequested && isPiCliWorkflowModeEnabled()) {
+  if (workflowRequested && strict && !workflowEnabled) {
+    return apiError(
+      "workflow_disabled",
+      "Pi CLI resonate workflow mode is not enabled on this server. Set PI_CLI_USE_WORKFLOWS=true and configure PI_CLI_DATABASE_URL, or retry with X-Pi-Fail-Closed: false.",
+      503,
+      requestId,
+      "api_error",
+      { workflow_key: "cliResonateWorkflow", phase: "sync" },
+    );
+  }
+
+  if (workflowRequested && workflowEnabled) {
     try {
       const wf = mastra.getWorkflow("cliResonateWorkflow");
       const run = await wf.createRun({ resourceId: request.organizationId });
@@ -439,8 +453,32 @@ export const POST = withApiAuth(async (request) => {
       }
 
       console.warn("[pi-cli/resonate] workflow_non_terminal", result.status);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          `Pi CLI resonate workflow terminated with status "${result.status}" instead of "success" or "suspended".`,
+          503,
+          requestId,
+          "api_error",
+          { workflow_key: "cliResonateWorkflow", phase: "sync", status: result.status },
+        );
+      }
     } catch (e) {
       console.warn("[pi-cli/resonate] workflow_failed_fallback_to_agent", e);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          "Pi CLI resonate workflow execution failed.",
+          503,
+          requestId,
+          "api_error",
+          {
+            workflow_key: "cliResonateWorkflow",
+            phase: "sync",
+            reason: e instanceof Error ? e.message : "workflow_failed",
+          },
+        );
+      }
     }
   }
 

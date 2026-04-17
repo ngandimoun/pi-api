@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { getSupabaseBrowser } from "@/lib/supabase-browser-client";
 import {
   Key,
   Plus,
@@ -14,11 +14,6 @@ import {
   CheckCircle,
   ArrowLeft,
 } from "lucide-react";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 interface ApiKey {
   id: string;
@@ -41,6 +36,7 @@ export default function ApiKeysPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const supabase = getSupabaseBrowser();
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -68,6 +64,7 @@ export default function ApiKeysPage() {
   }, [router]);
 
   const fetchApiKeys = async (currentUser: User) => {
+    const supabase = getSupabaseBrowser();
     const { data: session } = await supabase.auth.getSession();
     if (!session.session?.access_token) return;
 
@@ -93,6 +90,7 @@ export default function ApiKeysPage() {
 
     setCreateKeyError(null);
     setCreateLoading(true);
+    const supabase = getSupabaseBrowser();
     const { data: session } = await supabase.auth.getSession();
     
     if (!session.session?.access_token) {

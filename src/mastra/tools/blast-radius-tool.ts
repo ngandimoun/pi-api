@@ -7,7 +7,7 @@ export type BlastRadiusOutput = {
   blast_summary: string;
 };
 
-function computeBlastRadius(
+export function computeBlastRadius(
   excerpts: { path: string; excerpt: string }[],
   targetSymbol: string,
   filePath: string

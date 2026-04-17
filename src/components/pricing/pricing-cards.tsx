@@ -2,7 +2,7 @@
 
 import { ArrowRight, Check } from "lucide-react";
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseBrowser } from "@/lib/supabase-browser-client";
 
 const PRICING_TIERS = [
   {
@@ -55,11 +55,6 @@ const PRICING_TIERS = [
   },
 ];
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export function PricingCards() {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
 
@@ -67,6 +62,7 @@ export function PricingCards() {
     setLoadingTier(tier.id);
 
     try {
+      const supabase = getSupabaseBrowser();
       // Check if user is authenticated
       const { data: { user } } = await supabase.auth.getUser();
       

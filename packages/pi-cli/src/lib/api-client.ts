@@ -29,6 +29,29 @@ export type VerifyResult = {
   organization_id: string | null;
 };
 
+/**
+ * Server-side Pi CLI Hokage readiness snapshot.
+ * Mirrors the `GET /api/cli/health` envelope returned by the Next.js backend.
+ */
+export type PiCliHealthReport = {
+  object: "pi_cli_health";
+  ok: boolean;
+  checks: {
+    default_model: { configured: boolean; source: "env" | "default" };
+    postgres: { configured: boolean; reachable: boolean; error?: string };
+    workflow_mode: { enabled: boolean };
+    routine_hitl: { enabled: boolean };
+    memory: { enabled: boolean; semantic_recall: boolean };
+    trigger_dev: { configured: boolean };
+    gemini: { configured: boolean };
+    fail_closed: { enabled: boolean };
+    instrumentation_ok: boolean;
+  };
+  workflows: string[];
+  agents: string[];
+  generated_at: number;
+};
+
 export class PiApiClient {
   constructor(
     private readonly opts: {
@@ -84,15 +107,53 @@ export class PiApiClient {
   private async parseEnvelope<T>(res: Response): Promise<T> {
     const json = (await res.json()) as {
       data?: T;
-      error?: { message?: string; code?: string };
+      error?: { message?: string; code?: string; workflow_key?: string; phase?: string; reason?: string };
     };
     if (!res.ok) {
-      throw new Error(json.error?.message ?? `Request failed (${res.status})`);
+      const code = json.error?.code;
+      const base = json.error?.message ?? `Request failed (${res.status})`;
+      if (code === "workflow_disabled") {
+        const err = new Error(
+          `${base} (Pi CLI Hokage: server has Mastra workflow mode turned off. Retry with PI_CLI_STRICT=false or X-Pi-Fail-Closed: false, or ask admin to set PI_CLI_USE_WORKFLOWS=true + PI_CLI_DATABASE_URL.)`,
+        );
+        (err as Error & { code?: string }).code = code;
+        throw err;
+      }
+      if (code === "workflow_unavailable") {
+        const wf = json.error?.workflow_key ? ` [${json.error.workflow_key}]` : "";
+        const reason = json.error?.reason ? ` — ${json.error.reason}` : "";
+        const err = new Error(
+          `${base}${wf}${reason} (Pi CLI Hokage: workflow run failed in strict mode. Retry later, hit /api/cli/health to inspect readiness, or soften via X-Pi-Fail-Closed: false.)`,
+        );
+        (err as Error & { code?: string }).code = code;
+        throw err;
+      }
+      const err = new Error(base);
+      if (code) (err as Error & { code?: string }).code = code;
+      throw err;
     }
     if (json.data === undefined) {
       throw new Error("Invalid API response: missing data envelope.");
     }
     return json.data;
+  }
+
+  /**
+   * Pi CLI server readiness probe (no auth required).
+   * Maps to `GET /api/cli/health` on the Pi API. Returns `null` on 404 so older
+   * backends don't break `pi doctor`.
+   */
+  async health(): Promise<PiCliHealthReport | null> {
+    try {
+      const res = await this.fetchImpl(`${this.base()}/api/cli/health`, {
+        method: "GET",
+      });
+      if (res.status === 404) return null;
+      const json = (await res.json()) as PiCliHealthReport;
+      return json ?? null;
+    } catch {
+      return null;
+    }
   }
 
   async verify(): Promise<VerifyResult> {

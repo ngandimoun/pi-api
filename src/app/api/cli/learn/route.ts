@@ -12,6 +12,7 @@ import {
   resolvePiCliRole,
 } from "@/lib/pi-cli-governance";
 import { isPiCliWorkflowModeEnabled } from "@/lib/pi-cli-workflows";
+import { isPiCliFailClosed } from "@/lib/pi-cli-fail-closed";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
 import { uploadLatestPiSystemStyle } from "@/lib/pi-cli-r2";
 import { mastra } from "@/mastra";
@@ -90,7 +91,22 @@ export const POST = withApiAuth(async (request) => {
   const allowTeamCloud =
     governanceMode === "disabled" || canPersistTeamSystemStyle(governanceRole);
 
-  if (isPiCliWorkflowModeEnabled() && parsePiCliAsyncFlag(request)) {
+  const workflowEnabled = isPiCliWorkflowModeEnabled();
+  const asyncRequested = parsePiCliAsyncFlag(request);
+  const strict = isPiCliFailClosed(request);
+
+  if (strict && asyncRequested && !workflowEnabled) {
+    return apiError(
+      "workflow_disabled",
+      "Pi CLI workflow mode is not enabled on this server. Set PI_CLI_USE_WORKFLOWS=true and configure PI_CLI_DATABASE_URL, or retry with X-Pi-Fail-Closed: false.",
+      503,
+      requestId,
+      "api_error",
+      { workflow_key: "cliLearnWorkflow", phase: "async" },
+    );
+  }
+
+  if (workflowEnabled && asyncRequested) {
     try {
       const wf = mastra.getWorkflow("cliLearnWorkflow");
       const run = await wf.createRun({ resourceId: request.organizationId });
@@ -116,10 +132,24 @@ export const POST = withApiAuth(async (request) => {
       return res;
     } catch (e) {
       console.warn("[pi-cli/learn] async_trigger_failed", e);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          "Async learn workflow dispatch failed. Retry later or disable strict mode via X-Pi-Fail-Closed: false.",
+          503,
+          requestId,
+          "api_error",
+          {
+            workflow_key: "cliLearnWorkflow",
+            phase: "async",
+            reason: e instanceof Error ? e.message : "trigger_failed",
+          },
+        );
+      }
     }
   }
 
-  if (isPiCliWorkflowModeEnabled()) {
+  if (workflowEnabled) {
     try {
       const wf = mastra.getWorkflow("cliLearnWorkflow");
       const run = await wf.createRun({ resourceId: request.organizationId });
@@ -149,9 +179,42 @@ export const POST = withApiAuth(async (request) => {
         return res;
       }
       console.warn("[pi-cli/learn] workflow_non_success", result.status);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          `Pi CLI learn workflow terminated with status "${result.status}" instead of "success".`,
+          503,
+          requestId,
+          "api_error",
+          { workflow_key: "cliLearnWorkflow", phase: "sync", status: result.status },
+        );
+      }
     } catch (e) {
       console.warn("[pi-cli/learn] workflow_failed_fallback", e);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          "Pi CLI learn workflow execution failed.",
+          503,
+          requestId,
+          "api_error",
+          {
+            workflow_key: "cliLearnWorkflow",
+            phase: "sync",
+            reason: e instanceof Error ? e.message : "workflow_failed",
+          },
+        );
+      }
     }
+  } else if (strict) {
+    return apiError(
+      "workflow_disabled",
+      "Pi CLI workflow mode is not enabled on this server. Set PI_CLI_USE_WORKFLOWS=true and configure PI_CLI_DATABASE_URL.",
+      503,
+      requestId,
+      "api_error",
+      { workflow_key: "cliLearnWorkflow", phase: "sync" },
+    );
   }
 
   try {

@@ -50,3 +50,5 @@ services/monai-imaging/.venv/
 services/monai-imaging/.venv-*/
 services/monai-imaging/**/__pycache__/
 services/monai-imaging/**/*.pyc
+
+.vercel

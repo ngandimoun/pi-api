@@ -451,8 +451,12 @@ export async function runRoutineGenerate(
         session_id: sessionId,
         intent_summary: intent.slice(0, 200),
         status: "resolved",
-        last_user_message: intent,
+        thread_id: `local-routine-${sessionId}`,
         last_pi_message: `Generated routine: ${slug}`,
+        messages: [
+          { role: "user", content: intent },
+          { role: "assistant", content: `Generated routine: ${slug}` },
+        ],
       });
       
       return;
@@ -512,8 +516,12 @@ export async function runRoutineGenerate(
     session_id: sessionId,
     intent_summary: intent.slice(0, 200),
     status: "resolved",
-    last_user_message: intent,
+    thread_id: `local-routine-${sessionId}`,
     last_pi_message: `Generated routine: ${slug}`,
+    messages: [
+      { role: "user", content: intent },
+      { role: "assistant", content: `Generated routine: ${slug}` },
+    ],
   });
 }
 

@@ -14,6 +14,7 @@ import {
   setPiCliValidationCache,
 } from "@/lib/pi-cli-cache";
 import { isPiCliWorkflowModeEnabled } from "@/lib/pi-cli-workflows";
+import { isPiCliFailClosed } from "@/lib/pi-cli-fail-closed";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
 import { mastra } from "@/mastra";
 import { readPersonaFromHeaders, withPersonaPreamble, type PiPersona } from "@/mastra/agents/_persona";
@@ -170,7 +171,22 @@ export const POST = withApiAuth(async (request) => {
     persona,
   };
 
-  if (isPiCliWorkflowModeEnabled() && parsePiCliAsyncFlag(request)) {
+  const workflowEnabled = isPiCliWorkflowModeEnabled();
+  const asyncRequested = parsePiCliAsyncFlag(request);
+  const strict = isPiCliFailClosed(request);
+
+  if (strict && asyncRequested && !workflowEnabled) {
+    return apiError(
+      "workflow_disabled",
+      "Pi CLI workflow mode is not enabled on this server. Set PI_CLI_USE_WORKFLOWS=true and configure PI_CLI_DATABASE_URL, or retry with X-Pi-Fail-Closed: false.",
+      503,
+      requestId,
+      "api_error",
+      { workflow_key: "cliValidateWorkflow", phase: "async" },
+    );
+  }
+
+  if (workflowEnabled && asyncRequested) {
     try {
       const wf = mastra.getWorkflow("cliValidateWorkflow");
       const run = await wf.createRun({ resourceId: organizationId });
@@ -197,10 +213,24 @@ export const POST = withApiAuth(async (request) => {
       return res;
     } catch (e) {
       console.warn("[pi-cli/validate] async_trigger_failed", e);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          "Async workflow dispatch failed. Retry later or disable strict mode via X-Pi-Fail-Closed: false.",
+          503,
+          requestId,
+          "api_error",
+          {
+            workflow_key: "cliValidateWorkflow",
+            phase: "async",
+            reason: e instanceof Error ? e.message : "trigger_failed",
+          },
+        );
+      }
     }
   }
 
-  if (isPiCliWorkflowModeEnabled()) {
+  if (workflowEnabled) {
     try {
       const wf = mastra.getWorkflow("cliValidateWorkflow");
       const run = await wf.createRun({ resourceId: organizationId });
@@ -235,9 +265,42 @@ export const POST = withApiAuth(async (request) => {
       }
 
       console.warn("[pi-cli/validate] workflow_non_success", result.status);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          `Pi CLI validate workflow terminated with status "${result.status}" instead of "success".`,
+          503,
+          requestId,
+          "api_error",
+          { workflow_key: "cliValidateWorkflow", phase: "sync", status: result.status },
+        );
+      }
     } catch (e) {
       console.warn("[pi-cli/validate] workflow_failed_fallback", e);
+      if (strict) {
+        return apiError(
+          "workflow_unavailable",
+          "Pi CLI validate workflow execution failed.",
+          503,
+          requestId,
+          "api_error",
+          {
+            workflow_key: "cliValidateWorkflow",
+            phase: "sync",
+            reason: e instanceof Error ? e.message : "workflow_failed",
+          },
+        );
+      }
     }
+  } else if (strict) {
+    return apiError(
+      "workflow_disabled",
+      "Pi CLI workflow mode is not enabled on this server. Set PI_CLI_USE_WORKFLOWS=true and configure PI_CLI_DATABASE_URL.",
+      503,
+      requestId,
+      "api_error",
+      { workflow_key: "cliValidateWorkflow", phase: "sync" },
+    );
   }
 
   let semantic: z.infer<typeof semanticResponseSchema> = { semantic_violations: [] };

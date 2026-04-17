@@ -2,10 +2,10 @@ import simpleGit from "simple-git";
 
 import { getChangedFilesSince, getChangedFilesWorkingTree } from "../../git/diff.js";
 import { getChangedHunks } from "../../git/hunk.js";
-import type { FileHunk, HunkMode, VcsAdapter, VcsCapabilities } from "../types.js";
+import type { FileHunk, HunkMode, VcsAdapter, VcsCapabilities, VcsType } from "../types.js";
 
 export class GitAdapter implements VcsAdapter {
-  readonly name = "git";
+  readonly name: VcsType = "git";
   readonly capabilities: VcsCapabilities = {
     hasStaging: true,
     hasNamedBranches: true,

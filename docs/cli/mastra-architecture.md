@@ -15,9 +15,107 @@ This document describes how Pi CLI uses Mastra workflows, memory, and agents to 
 - `PI_CLI_ENABLE_MEMORY=true`: enables Mastra memory integration when Postgres is configured.
 - `PI_CLI_DATABASE_URL` (or `DATABASE_URL`): required for Postgres-backed workflow/memory storage.
 - `PI_MASTRA_DEFAULT_MODEL`: default Mastra model identifier.
+- `PI_CLI_FAIL_CLOSED=true`: strict-mode default — when a workflow is requested but unavailable or failing, routes return `503 workflow_unavailable` / `503 workflow_disabled` instead of silently falling back to the legacy Gemini path. See the **Strict (fail-closed) mode** section below for per-request overrides.
 - `PI_CLI_ASYNC=true` (CLI process env): `packages/pi-cli` sends `?async=true` on learn/validate/routine unless overridden per call.
 - `PI_CLI_UPSTASH_REDIS_REST_URL` / `PI_CLI_UPSTASH_REDIS_REST_TOKEN` (or standard `UPSTASH_*`): optional L3 cache for validate responses.
 - `R2_PI_GRAPHS_BUCKET`: optional; defaults to `R2_BUCKET_NAME` for dependency graph JSON in R2.
+
+## Production readiness (Hokage edition)
+
+The server-side Mastra stack is fully production-ready when every box below is ticked.
+
+### Vercel environment (Production scope)
+
+Set these on the `piii` project (Vercel → Settings → Environment Variables → **Production**). Preview/Dev may keep workflow mode off for soft bring-up.
+
+| Variable | Value | Why |
+| --- | --- | --- |
+| `PI_MASTRA_DEFAULT_MODEL` | `google/gemini-3.1-pro-preview-customtools` | Unblocks `register()` in `src/instrumentation.ts`; used by all Mastra agents |
+| `PI_CLI_DATABASE_URL` | `postgres://postgres.<ref>:<DB_PASSWORD>@aws-0-<region>.pooler.supabase.com:6543/postgres?schema=mastra` | Mastra `PostgresStore` + `PgVector`; use the **Supabase transaction pooler** (short-lived Vercel functions) |
+| `PI_CLI_USE_WORKFLOWS` | `true` | Turns on workflow paths in validate/learn/routine/resonate |
+| `PI_CLI_ROUTINE_HITL` | `true` | Enables suspend/resume approval for `pi routine --approval` |
+| `PI_CLI_ENABLE_MEMORY` | `true` | Thread-scoped memory + (optional) semantic recall |
+| `PI_CLI_FAIL_CLOSED` | `true` | Return 503 instead of silent fallback when workflow unavailable |
+
+Already present and kept as-is: `GOOGLE_GENERATIVE_AI_API_KEY` (Gemini + embeddings), `TRIGGER_SECRET_KEY` / `TRIGGER_PROJECT_REF` (async workflow runner), Supabase, Stripe, Unkey.
+
+### Supabase one-time setup
+
+Run once in the Supabase SQL editor for project `ajxgpqoadkqjhirqrdbr`:
+
+```sql
+create schema if not exists mastra;
+create extension if not exists vector;                     -- for PgVector memory
+grant usage on schema mastra to postgres, service_role;
+grant all privileges on schema mastra to postgres, service_role;
+alter default privileges in schema mastra grant all on tables to postgres, service_role;
+alter default privileges in schema mastra grant all on sequences to postgres, service_role;
+alter default privileges in schema mastra grant all on functions to postgres, service_role;
+```
+
+`@mastra/pg`'s `PostgresStore` and `PgVector` auto-create their tables in the `mastra` schema on first request. No application-side migrations needed.
+
+### Health probe — `GET /api/cli/health`
+
+Unauthenticated readiness endpoint (no secrets leaked — returns only booleans). Used by uptime monitors, `pi doctor`, and CI preflight.
+
+```bash
+curl https://piii-black.vercel.app/api/cli/health
+```
+
+Returns `200` when `ok: true` (all critical checks green), otherwise `503` with the failing checks listed. Shape:
+
+```json
+{
+  "object": "pi_cli_health",
+  "ok": true,
+  "checks": {
+    "default_model":  { "configured": true, "source": "env" },
+    "postgres":       { "configured": true, "reachable": true },
+    "workflow_mode":  { "enabled": true },
+    "routine_hitl":   { "enabled": true },
+    "memory":         { "enabled": true, "semantic_recall": true },
+    "trigger_dev":    { "configured": true },
+    "gemini":         { "configured": true },
+    "fail_closed":    { "enabled": true },
+    "instrumentation_ok": true
+  },
+  "workflows": ["cliValidateWorkflow", "cliRoutineWorkflow", "cliLearnWorkflow", ...],
+  "agents":    ["cliEnforcerAgent", "cliResonateAgent", "cliArchitectAgent"]
+}
+```
+
+`ok === true` iff `default_model.configured && postgres.reachable && workflow_mode.enabled && gemini.configured`.
+
+### Strict (fail-closed) mode
+
+By default in production (`PI_CLI_FAIL_CLOSED=true`), every Pi CLI route that can take the Mastra path treats workflow availability as a hard contract. When a workflow is requested but Mastra or Trigger.dev cannot fulfil it, routes respond with:
+
+| HTTP | code | When |
+| --- | --- | --- |
+| `503` | `workflow_disabled` | workflow mode is off (`PI_CLI_USE_WORKFLOWS !== "true"` or Postgres missing) but the caller requested async or `?workflow=true` |
+| `503` | `workflow_unavailable` | workflow was dispatched but execution failed (Trigger error, Mastra non-success, exception in workflow step) |
+
+Both include `{ workflow_key, phase: "async" \| "sync", reason?, status? }` under `error.*` for structured handling.
+
+**Per-request override precedence (highest wins):**
+
+1. Header `X-Pi-Fail-Closed: true \| false`
+2. Query `?strict=true \| false`
+3. Env `PI_CLI_FAIL_CLOSED === "true"` (server default)
+4. Otherwise `false` (legacy silent fallback)
+
+This lets integrations opt into soft-fallback for a specific call (e.g. legacy CI) without weakening the production default. Routes affected: `/api/cli/validate`, `/api/cli/learn`, `/api/cli/routine/generate`, `/api/cli/resonate`.
+
+### Verification checklist
+
+After the env flip, confirm production is hot:
+
+1. `curl https://piii-black.vercel.app/api/cli/health` → `200` + `ok: true`.
+2. `pi doctor` (with an API key configured) → new `Server readiness` block all green.
+3. Soft call: `POST /api/cli/validate` with `X-Pi-Fail-Closed: false` + intentionally invalid workflow input → `200` with legacy semantic result.
+4. Strict call: same with `X-Pi-Fail-Closed: true` → `503 workflow_unavailable`.
+5. HITL: `pi routine "…" --approval --async` → `202 accepted` + suspended run visible via `POST /api/cli/workflow/poll`.
 
 ## Storage and Memory
 

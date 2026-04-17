@@ -39,7 +39,7 @@ const FEATURE_PREREQUISITE_MAP: Record<string, { check: string; label: string }[
   ],
 };
 
-function scanForPrerequisites(
+export function scanForPrerequisites(
   excerpts: { path: string; excerpt: string }[],
   featureIntent: string,
   packageJsonDeps?: Record<string, string>

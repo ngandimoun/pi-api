@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
 
@@ -8,6 +9,9 @@ import { gatherRoutineContext, routineContextPayloadSchema } from "@/lib/pi-cli-
 import type { GatheredRoutineContext } from "@/lib/pi-cli-routine-context";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
 import { PI_PERSONA_IDS, withPersonaPreamble } from "@/mastra/agents/_persona";
+import { analyzeBoundary } from "@/mastra/tools/architectural-boundary-tool";
+import { computeBlastRadius } from "@/mastra/tools/blast-radius-tool";
+import { scanForPrerequisites } from "@/mastra/tools/prerequisite-scanner-tool";
 import { generateObject } from "ai";
 
 // ---------------------------------------------------------------------------
@@ -171,12 +175,11 @@ const astAnalysisStep = createStep({
     if (excerpts.length > 0) {
       // Prerequisite scan
       try {
-        const { prerequisiteScannerTool } = await import("@/mastra/tools/prerequisite-scanner-tool");
-        const prereqResult = await prerequisiteScannerTool.execute({
-          feature_intent: inputData.intent,
-          file_excerpts: excerpts,
-          package_json_deps: (deps as Record<string, string>) ?? undefined,
-        });
+        const prereqResult = scanForPrerequisites(
+          excerpts,
+          inputData.intent,
+          (deps as Record<string, string>) ?? undefined
+        );
         missingPrereqs = prereqResult.missing_prerequisites;
         prereqSeverity = prereqResult.severity;
       } catch {
@@ -185,13 +188,9 @@ const astAnalysisStep = createStep({
 
       // Boundary checks on layout/page files
       try {
-        const { architecturalBoundaryTool } = await import("@/mastra/tools/architectural-boundary-tool");
         for (const ex of excerpts.slice(0, 10)) {
           if (/\.(tsx|jsx)$/.test(ex.path)) {
-            const result = await architecturalBoundaryTool.execute({
-              file_path: ex.path,
-              excerpt: ex.excerpt,
-            });
+            const result = analyzeBoundary(ex.path, ex.excerpt);
             allBoundaryViolations.push(...result.boundary_violations);
           }
         }
@@ -201,7 +200,6 @@ const astAnalysisStep = createStep({
 
       // Blast radius for key symbols mentioned in the intent
       try {
-        const { blastRadiusTool } = await import("@/mastra/tools/blast-radius-tool");
         const intentWords = inputData.intent
           .split(/\s+/)
           .filter((w) => /^[A-Z][a-zA-Z]+$/.test(w))
@@ -211,11 +209,7 @@ const astAnalysisStep = createStep({
             (e) => e.excerpt.includes(`export`) && e.excerpt.includes(symbol)
           );
           if (matchingExcerpt) {
-            const result = await blastRadiusTool.execute({
-              target_symbol: symbol,
-              file_path: matchingExcerpt.path,
-              file_excerpts: excerpts,
-            });
+            const result = computeBlastRadius(excerpts, symbol, matchingExcerpt.path);
             if (result.impacted_files.length > 0) {
               blastSummaries.push(result.blast_summary);
             }
@@ -482,11 +476,16 @@ const commitMemoryStep = createStep({
         };
 
         await mem.saveMessages({
-          threadId: inputData.thread_id,
           messages: [
             {
-              role: "assistant" as const,
-              content: `[ADR] ${JSON.stringify(adrPayload)}`,
+              id: randomUUID(),
+              role: "assistant",
+              createdAt: new Date(),
+              threadId: inputData.thread_id,
+              content: {
+                format: 2,
+                parts: [{ type: "text", text: `[ADR] ${JSON.stringify(adrPayload)}` }],
+              },
             },
           ],
         });

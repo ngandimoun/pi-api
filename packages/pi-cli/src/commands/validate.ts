@@ -540,8 +540,15 @@ export async function runValidate(
     session_id: sessionId,
     intent_summary: sessionIntent,
     status: "resolved",
-    last_user_message: sessionIntent,
+    thread_id: `local-validate-${sessionId}`,
     last_pi_message: `Validated ${files.length} files. Found ${all.length} violations.`,
+    messages: [
+      { role: "user", content: sessionIntent },
+      {
+        role: "assistant",
+        content: `Validated ${files.length} files. Found ${all.length} violations.`,
+      },
+    ],
   });
 
   // Auto-write validation results for downstream consumption by resonate/fix

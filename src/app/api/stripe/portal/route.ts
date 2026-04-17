@@ -1,17 +1,14 @@
 import { NextRequest } from "next/server";
-import Stripe from "stripe";
 import { apiError, apiSuccessEnvelope } from "@/lib/api-response";
 import { ensureUserProfileRow } from "@/lib/ensure-user-profile";
+import { getStripeServer } from "@/lib/stripe-server";
 import { createSupabaseForBearer } from "@/lib/supabase-route-user";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia",
-});
 
 export async function POST(req: NextRequest) {
   const requestId = `req_portal_${crypto.randomUUID()}`;
 
   try {
+    const stripe = getStripeServer();
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return apiError(

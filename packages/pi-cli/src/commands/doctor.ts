@@ -3,7 +3,7 @@ import path from "node:path";
 import chalk from "chalk";
 
 import { getApiKey, getBaseUrl } from "../lib/config.js";
-import { PiApiClient } from "../lib/api-client.js";
+import { PiApiClient, type PiCliHealthReport } from "../lib/api-client.js";
 import {
   PI_CONSTITUTION_FILE,
   PI_DIR,
@@ -93,6 +93,75 @@ async function checkApiReachable(baseUrl: string, hasKey: boolean): Promise<{ re
   } catch (e) {
     return { reachable: false, error: e instanceof Error ? e.message : "unknown error" };
   }
+}
+
+/**
+ * Server readiness snapshot from `GET /api/cli/health`.
+ * Returns null when the backend doesn't expose the route (older deploy).
+ */
+async function fetchServerHealth(): Promise<PiCliHealthReport | null> {
+  try {
+    const client = new PiApiClient();
+    return await client.health();
+  } catch {
+    return null;
+  }
+}
+
+function renderServerHealthBlock(health: PiCliHealthReport): void {
+  const line = (label: string, ok: boolean, detail?: string) => {
+    const head = ok ? chalk.green(`  ✓ ${label}`) : chalk.yellow(`  ✗ ${label}`);
+    console.log(detail ? `${head}  ${chalk.dim(detail)}` : head);
+  };
+
+  console.log(chalk.bold("\nServer readiness  (Pi CLI Hokage / Mastra)"));
+  const c = health.checks;
+  line(
+    "Default model",
+    c.default_model.configured,
+    c.default_model.configured ? "PI_MASTRA_DEFAULT_MODEL set" : "PI_MASTRA_DEFAULT_MODEL missing",
+  );
+  line(
+    "Postgres (Mastra schema)",
+    c.postgres.reachable,
+    c.postgres.configured
+      ? c.postgres.reachable
+        ? "reachable"
+        : `unreachable${c.postgres.error ? ` — ${c.postgres.error}` : ""}`
+      : "PI_CLI_DATABASE_URL missing",
+  );
+  line(
+    "Workflow mode",
+    c.workflow_mode.enabled,
+    c.workflow_mode.enabled ? "PI_CLI_USE_WORKFLOWS=true" : "disabled",
+  );
+  line(
+    "Routine HITL",
+    c.routine_hitl.enabled,
+    c.routine_hitl.enabled ? "suspend/resume available" : "PI_CLI_ROUTINE_HITL off",
+  );
+  line(
+    "Memory",
+    c.memory.enabled,
+    c.memory.semantic_recall
+      ? "semantic recall on"
+      : c.memory.enabled
+        ? "thread history only"
+        : "PI_CLI_ENABLE_MEMORY off / no Postgres",
+  );
+  line("Trigger.dev", c.trigger_dev.configured, c.trigger_dev.configured ? "async workflows" : "no TRIGGER_SECRET_KEY");
+  line("Gemini", c.gemini.configured, c.gemini.configured ? "GOOGLE_GENERATIVE_AI_API_KEY set" : "missing");
+  console.log(
+    `  ${chalk.dim("·")} Fail-closed:    ${
+      c.fail_closed.enabled ? chalk.green("on (strict)") : chalk.yellow("off (silent fallback)")
+    }`,
+  );
+  console.log(
+    `  ${chalk.dim("·")} Workflows:      ${chalk.cyan(String(health.workflows.length))}  agents: ${chalk.cyan(String(health.agents.length))}`,
+  );
+  console.log(
+    `  ${chalk.dim("·")} Overall:        ${health.ok ? chalk.green("production-ready") : chalk.yellow("degraded — see flags above")}`,
+  );
 }
 
 async function analyzeSystemStyle(cwd: string): Promise<{
@@ -186,7 +255,7 @@ export async function runDoctor(cwd: string, opts?: DoctorOpts): Promise<void> {
   console.log(chalk.bold.cyan("\n  Pi Doctor — Readiness Check\n"));
 
   let score = 0;
-  const maxScore = 10;
+  const maxScore = 12;
 
   console.log(chalk.bold("Authentication"));
   console.log(`  Base URL       ${chalk.cyan(baseUrl)}`);
@@ -196,6 +265,15 @@ export async function runDoctor(cwd: string, opts?: DoctorOpts): Promise<void> {
   const apiCheck = await checkApiReachable(baseUrl, hasKey);
   console.log(`  API reachable  ${formatStatus(apiCheck.reachable, "yes", apiCheck.error ?? "no")}`);
   if (apiCheck.reachable) score += 1;
+
+  let serverHealth: PiCliHealthReport | null = null;
+  if (apiCheck.reachable) {
+    serverHealth = await fetchServerHealth();
+    if (serverHealth) {
+      renderServerHealthBlock(serverHealth);
+      if (serverHealth.ok) score += 2;
+    }
+  }
 
   console.log(chalk.bold("\nProject Structure"));
   const piDirExists = await pathExists(path.join(cwd, PI_DIR));
@@ -498,6 +576,16 @@ export async function runDoctor(cwd: string, opts?: DoctorOpts): Promise<void> {
         console.log(chalk.cyan("  • Run pi-hokage to configure API key"));
       } else if (!apiCheck.reachable) {
         console.log(chalk.cyan("  • Check PI_CLI_BASE_URL and network connectivity"));
+      }
+      if (serverHealth && !serverHealth.ok) {
+        if (!serverHealth.checks.default_model.configured)
+          console.log(chalk.cyan("  • Server: set PI_MASTRA_DEFAULT_MODEL on Vercel"));
+        if (!serverHealth.checks.postgres.reachable)
+          console.log(chalk.cyan("  • Server: configure PI_CLI_DATABASE_URL (Supabase pooler, ?schema=mastra)"));
+        if (!serverHealth.checks.workflow_mode.enabled)
+          console.log(chalk.cyan("  • Server: set PI_CLI_USE_WORKFLOWS=true"));
+        if (!serverHealth.checks.gemini.configured)
+          console.log(chalk.cyan("  • Server: set GOOGLE_GENERATIVE_AI_API_KEY"));
       }
       if (!piDirExists) {
         console.log(chalk.cyan("  • Run pi init to create .pi/ directory"));

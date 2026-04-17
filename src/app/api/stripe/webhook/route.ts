@@ -1,25 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import Stripe from "stripe";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { PI_CLI_DEFAULT_PRICE_IDS } from "@/lib/pi-cli-stripe-prices";
+import { getStripeServer } from "@/lib/stripe-server";
 import { syncUnkeyKeysForUser } from "@/lib/unkey-user-sync";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia",
-});
+let supabaseAdmin: SupabaseClient | null = null;
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+function getSupabaseAdmin(): SupabaseClient {
+  if (!supabaseAdmin) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+    if (!url || !key) {
+      throw new Error("Supabase service credentials are not configured");
+    }
+    supabaseAdmin = createClient(url, key);
+  }
+  return supabaseAdmin;
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  const headersList = headers();
-  const sig = headersList.get("stripe-signature")!;
+  const sig = req.headers.get("stripe-signature")!;
+
+  const stripe = getStripeServer();
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
+  if (!endpointSecret) {
+    console.error("STRIPE_WEBHOOK_SECRET is not configured");
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 503 });
+  }
+
+  const supabase = getSupabaseAdmin();
 
   let event: Stripe.Event;
 

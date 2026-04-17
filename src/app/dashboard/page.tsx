@@ -3,17 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { Key, Terminal, BarChart3, Settings, LogOut, Copy, CheckCircle } from "lucide-react";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { isPaidSubscriptionStatus } from "@/lib/subscription";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getSupabaseBrowser } from "@/lib/supabase-browser-client";
 
 interface UserProfile {
   id: string;
@@ -59,6 +54,7 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    const supabase = getSupabaseBrowser();
     const getUser = async () => {
       const {
         data: { user: u },
@@ -128,6 +124,7 @@ export default function Dashboard() {
   }, [router, fetchMe]);
 
   const handleSignOut = async () => {
+    const supabase = getSupabaseBrowser();
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error("Error signing out:", error);

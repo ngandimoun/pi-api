@@ -64,7 +64,7 @@ export class PerforceAdapter implements VcsAdapter {
   async getLastCommitMessage(): Promise<string | undefined> {
     const ch = await p4(this.cwd, ["changes", "-m1", "-s", "submitted", "-l"]);
     if (ch.exitCode !== 0) return undefined;
-    const desc = /^Change \d+ on .+\n\n(.+)/ms.exec(ch.stdout);
+    const desc = /^Change \d+ on .+\n\n([\s\S]+)/m.exec(ch.stdout);
     return desc?.[1]?.split("\n")[0]?.trim();
   }
 }

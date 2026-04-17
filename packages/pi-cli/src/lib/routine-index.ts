@@ -62,6 +62,7 @@ export function buildRoutineSpecForDriftFromMarkdown(markdown: string, idFallbac
       {
         id: "drift-placeholder",
         title: "Imported",
+        depends_on_phases: [],
         steps: [
           {
             id: "s1",
@@ -69,6 +70,7 @@ export function buildRoutineSpecForDriftFromMarkdown(markdown: string, idFallbac
             description: "Placeholder for drift detection from markdown manifest",
             critical_rules: [],
             validation_checks: [],
+            depends_on_steps: [],
           },
         ],
       },

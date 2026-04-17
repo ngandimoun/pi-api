@@ -2,17 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, BarChart3 } from "lucide-react";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { monthlyLimitForTier } from "@/lib/pi-cli-plan-limits";
 import { isPaidSubscriptionStatus } from "@/lib/subscription";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getSupabaseBrowser } from "@/lib/supabase-browser-client";
 
 function startOfMonthIso(): string {
   const d = new Date();
@@ -35,6 +30,7 @@ export default function UsagePage() {
 
   useEffect(() => {
     (async () => {
+      const supabase = getSupabaseBrowser();
       const {
         data: { user },
       } = await supabase.auth.getUser();

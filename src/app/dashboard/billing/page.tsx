@@ -2,17 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CreditCard, Loader2 } from "lucide-react";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { monthlyLimitForTier } from "@/lib/pi-cli-plan-limits";
 import { isPaidSubscriptionStatus } from "@/lib/subscription";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getSupabaseBrowser } from "@/lib/supabase-browser-client";
 
 const TIERS = [
   { id: "starter" as const, name: "Starter", price: "$5" },
@@ -36,6 +31,7 @@ export default function BillingPage() {
 
   useEffect(() => {
     (async () => {
+      const supabase = getSupabaseBrowser();
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -62,6 +58,7 @@ export default function BillingPage() {
   }, [router]);
 
   async function getToken(): Promise<string | null> {
+    const supabase = getSupabaseBrowser();
     const { data: sessionData } = await supabase.auth.getSession();
     return sessionData.session?.access_token ?? null;
   }

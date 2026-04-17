@@ -400,7 +400,7 @@ export function ruleNoSqlInjectionPattern(sf: SourceFile): RuleViolation[] {
       column,
     });
   });
-  if (/\$\{[^}]+\}/s.test(text) && /\bprisma\.\$queryRaw\s*\(/.test(text)) {
+  if (/\$\{[^}]+\}/.test(text) && /\bprisma\.\$queryRaw\s*\(/.test(text)) {
     const { line, column } = lc(sf, 0);
     out.push({
       rule: "no-sql-injection-pattern",
