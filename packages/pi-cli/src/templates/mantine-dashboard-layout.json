@@ -1,0 +1,54 @@
+{
+  "id": "mantine-dashboard-layout",
+  "name": "Mantine AppShell dashboard",
+  "description": "AppShell with navbar, aside, and main content using Mantine v7 patterns.",
+  "category": "ui",
+  "stack": ["react", "mantine", "next.js"],
+  "routine_spec": {
+    "metadata": {
+      "id": "mantine-dashboard-layout",
+      "version": 1,
+      "intent": "Scaffold dashboard shell with Mantine AppShell",
+      "tags": ["ui", "mantine", "layout"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js or React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@mantine/core", "AppShell", "MantineProvider"],
+        "must_not": [],
+        "conventions": ["Single MantineProvider at app root"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/components/layout/DashboardLayout.tsx",
+        "purpose": "AppShell layout",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "mantine-shell",
+        "title": "Dashboard layout",
+        "steps": [
+          {
+            "id": "layout-file",
+            "action": "create_file",
+            "description": "Implement DashboardLayout with AppShell, header, and nav slots",
+            "file_path": "src/components/layout/DashboardLayout.tsx",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/components/layout/DashboardLayout.tsx"],
+      "required_exports": ["DashboardLayout"],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

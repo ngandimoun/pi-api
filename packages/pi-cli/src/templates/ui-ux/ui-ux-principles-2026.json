@@ -1,0 +1,43 @@
+{
+  "id": "ui-ux-principles-2026",
+  "name": "7 UX principles (2026 refresh)",
+  "description": "User-centricity, consistency, hierarchy, context, user control, accessibility, usability — with AI-era notes and practical application.",
+  "category": "ui",
+  "stack": ["ux", "product"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ui-ux-principles-2026",
+      "version": 1,
+      "intent": "Apply foundational UX principles (including accessibility and user control) to modern products",
+      "tags": ["ux", "principles", "accessibility", "usability", "context"],
+      "references": ["ui-ux-metrics-for-pms"]
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["User control with undo/escape hatches", "Accessibility as baseline (not a feature)"],
+        "must_not": ["Ship AI/automation that removes user understanding and control"],
+        "conventions": ["Use hierarchy to prevent AI-generated content overload."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "principles",
+        "title": "The 7 UX principles (compressed)",
+        "steps": [
+          { "id": "user-centricity", "action": "verify", "description": "User-centricity: prioritize real user needs over internal assumptions; validate with research/testing.", "critical_rules": [], "validation_checks": [] },
+          { "id": "consistency", "action": "verify", "description": "Consistency: predictable components and behaviors reduce cognitive load; respect platform conventions where relevant.", "critical_rules": [], "validation_checks": [] },
+          { "id": "hierarchy", "action": "verify", "description": "Hierarchy: IA + visual hierarchy; show what matters most first; progressively reveal detail.", "critical_rules": [], "validation_checks": [] },
+          { "id": "context", "action": "verify", "description": "Context: design for device + environment + user emotional state; simplify when users are mobile/stressed/distracted.", "critical_rules": [], "validation_checks": [] },
+          { "id": "user-control", "action": "verify", "description": "User control: undo/redo, cancel, back navigation, safe exits; critical for automation and AI suggestions.", "critical_rules": [], "validation_checks": [] },
+          { "id": "accessibility", "action": "verify", "description": "Accessibility: contrast, semantics, keyboard, screen readers, motion safety; design for disabilities and situational constraints.", "critical_rules": [], "validation_checks": ["pi validate (a11y + semantic checks)"] },
+          { "id": "usability", "action": "verify", "description": "Usability: learnability, efficiency, memorability, error recovery, satisfaction; measure via task success + time on task + sentiment.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

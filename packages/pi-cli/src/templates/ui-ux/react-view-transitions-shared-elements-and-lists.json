@@ -1,0 +1,62 @@
+{
+  "id": "react-view-transitions-shared-elements-and-lists",
+  "name": "View Transitions — shared elements & lists",
+  "description": "Shared morph: matching `name` on unmount+mount in same transition; `share` wins over `enter`/`exit` — provide fallbacks for paths where no pair forms. Names globally unique (`photo-${id}`). Reusable components: avoid one `name` mounted in modal+page simultaneously — conditional `name` or lift VT to consumer. List reorder: per-item `<ViewTransition key={id}>` inside `startTransition`; avoid extra wrapper `<div>` between list and VT. Compose list identity (outer VT keyed by item) + shared image (inner named VT) as two layers — missing either layer silences an animation.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-view-transitions-shared-elements-and-lists",
+      "version": 1,
+      "intent": "Implement shared element morphs and list reorder without subtle silent failures",
+      "tags": ["react", "view-transitions", "shared-element", "list", "morph"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Unique `name` per concurrently mounted morph target", "Two-layer VT when list items also morph"],
+        "must_not": ["Fade-out page exit when a morph share is active on that path (prefer directional slide)"],
+        "conventions": ["List-side shared VTs: `default=\"none\"` to avoid cross-fade on every filter keystroke."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "shared",
+        "title": "Shared elements",
+        "steps": [
+          {
+            "id": "pairing",
+            "action": "verify",
+            "description": "Enumerate each route pair: does a `name` pair exist? If not, ensure `enter`/`exit` still read well alone.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "reuse-safety",
+            "action": "verify",
+            "description": "Audit reusable cards/images: only one named VT instance with the same `name` may be mounted at once.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "lists",
+        "title": "Lists",
+        "steps": [
+          {
+            "id": "nested-layers",
+            "action": "verify",
+            "description": "For list→detail thumbnails, use outer `<ViewTransition key={item.id}>` and inner `<ViewTransition name={...} share=\"morph\">` around the image.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

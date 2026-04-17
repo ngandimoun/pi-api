@@ -1,0 +1,45 @@
+{
+  "id": "react-view-transitions-implementation-workflow",
+  "name": "View Transitions — implementation workflow",
+  "description": "Ordered steps: (1) Audit every Link/router.push, Suspense boundary, page, persistent chrome, shared visuals, skeleton/content control twins → navigation map. (2) Paste global CSS recipes (+ reduced motion). (3) Isolate persistent elements with `viewTransitionName` + group CSS `animation: none`. (4) Page-level directional VT + `addTransitionType`/`transitionTypes`. (5) Suspense reveal VTs (strings). (6) Shared `name`+`share` pairs + list nesting. (7) Walk every map row: pair formed? fallbacks? defaults correct? chrome static?",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-view-transitions-implementation-workflow",
+      "version": 1,
+      "intent": "Roll out view transitions systematically without missing a navigation path",
+      "tags": ["react", "view-transitions", "workflow", "checklist"],
+      "references": [
+        "react-view-transitions-css-recipes",
+        "react-view-transitions-common-mistakes"
+      ]
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Navigation map before code", "Copy shared recipe CSS verbatim then tune durations only"],
+        "must_not": ["Skip audit and sprinkle VT wrappers randomly"],
+        "conventions": ["Re-verify after each major navigation class: hierarchical, lateral, suspense, same-route."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "steps",
+        "title": "Steps",
+        "steps": [
+          { "id": "s1-audit", "action": "verify", "description": "Step 1 — Build the navigation + suspense map (routes, direction, VT pattern per hop).", "critical_rules": [], "validation_checks": [] },
+          { "id": "s2-css", "action": "verify", "description": "Step 2 — Add global recipes from `react-view-transitions-css-recipes` (includes prefers-reduced-motion).", "critical_rules": [], "validation_checks": [] },
+          { "id": "s3-persist", "action": "verify", "description": "Step 3 — Assign `viewTransitionName` to sticky headers/nav and silence their group animations.", "critical_rules": [], "validation_checks": [] },
+          { "id": "s4-directional", "action": "verify", "description": "Step 4 — Page-level directional transitions + transition types at navigation sources.", "critical_rules": [], "validation_checks": [] },
+          { "id": "s5-suspense", "action": "verify", "description": "Step 5 — Suspense skeleton/content VT pairs (string classes, `default=\"none\"` on content).", "critical_rules": [], "validation_checks": [] },
+          { "id": "s6-share", "action": "verify", "description": "Step 6 — Shared morph names + nested list identity where needed.", "critical_rules": [], "validation_checks": [] },
+          { "id": "s7-verify", "action": "verify", "description": "Step 7 — Walk each map path checking pair fallbacks, chrome isolation, and accidental auto cross-fades.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "id": "react-native-list-performance",
+  "name": "React Native — list performance (HIGH)",
+  "description": "Virtualize any scrollable list (LegendList / FlashList / FlatList); avoid inline objects/styles in `renderItem`; hoist stable callbacks; keep rows lightweight (no per-row queries); stable `data` references; pass primitives for `memo`; compressed thumbnails; `getItemType` for heterogeneous lists.",
+  "category": "ui",
+  "stack": ["react-native", "expo", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-list-performance",
+      "version": 1,
+      "intent": "Optimize virtualized lists for scroll performance and predictable memoization",
+      "tags": ["react-native", "flatlist", "flashlist", "legend-list", "virtualization", "memo", "performance"],
+      "references": []
+    },
+    "context": {
+      "framework": "React Native",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Virtualizer for long feeds", "Stable references for `data` item objects where possible"],
+        "must_not": ["Map/filter to new object array on every keystroke for list `data` when virtualization depends on stability"],
+        "conventions": ["Move fetching & heavy compute to parent; rows are thin render functions."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "List rules",
+        "steps": [
+          {
+            "id": "virtualize",
+            "action": "verify",
+            "description": "Replace `ScrollView` + `.map` for non-trivial lists with LegendList/FlashList/FlatList + sensible `estimatedItemSize` / keys.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "no-inline-props",
+            "action": "verify",
+            "description": "Avoid new object literals in `renderItem` (props/style). Pass `item` or primitives; hoist static style objects to module scope.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "hoist-callbacks",
+            "action": "verify",
+            "description": "Pass stable press handlers (root `useCallback` + id param, or handler inside memoized row keyed by id) — avoid fresh inline `() =>` per row when it breaks memoization.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "light-rows",
+            "action": "verify",
+            "description": "Remove `useQuery`/heavy hooks from row components; prefer store selectors with narrow subscriptions vs broad context.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "primitives-memo",
+            "action": "verify",
+            "description": "When using `memo`, prefer primitive props so shallow compare matches user intent.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "images",
+            "action": "verify",
+            "description": "Use CDN resize / ~2x display size thumbnails in lists; prefer optimized image components (see `react-native-ui-patterns`).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "heterogeneous",
+            "action": "verify",
+            "description": "For mixed row types, tag items with `type` and use `getItemType` (+ per-type size estimates) so recycling pools stay correct.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

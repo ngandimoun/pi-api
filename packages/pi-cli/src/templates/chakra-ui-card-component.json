@@ -1,0 +1,54 @@
+{
+  "id": "chakra-ui-card-component",
+  "name": "Chakra UI Card scaffold",
+  "description": "Card with Header, Body, Footer using Chakra composition and semantic tokens.",
+  "category": "ui",
+  "stack": ["react", "chakra-ui"],
+  "routine_spec": {
+    "metadata": {
+      "id": "chakra-ui-card-component",
+      "version": 1,
+      "intent": "Add a reusable Card primitive with Chakra UI",
+      "tags": ["ui", "chakra", "card"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@chakra-ui/react", "Card", "CardHeader", "CardBody"],
+        "must_not": [],
+        "conventions": ["Use theme tokens for spacing and colors"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/components/FeatureCard.tsx",
+        "purpose": "Chakra Card compound component",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "chakra-card",
+        "title": "Card component",
+        "steps": [
+          {
+            "id": "card-file",
+            "action": "create_file",
+            "description": "Implement FeatureCard with Chakra Card primitives and semantic tokens",
+            "file_path": "src/components/FeatureCard.tsx",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/components/FeatureCard.tsx"],
+      "required_exports": ["FeatureCard"],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

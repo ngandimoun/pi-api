@@ -1,0 +1,45 @@
+{
+  "id": "react-best-practices-rendering-performance",
+  "name": "Rendering performance (React/Next.js)",
+  "description": "MEDIUM: reduce paint/layout/hydration issues. Includes: content-visibility, animate SVG wrapper, hoist static JSX, SVG precision, hydration mismatch patterns, conditional rendering gotchas, script loading strategy, resource hints.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-best-practices-rendering-performance",
+      "version": 1,
+      "intent": "Improve rendering performance and avoid hydration issues in React + Next.js",
+      "tags": ["react", "nextjs", "performance", "rendering", "hydration", "content-visibility", "resource-hints"],
+      "references": []
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Prefer CSS and browser primitives over JS work where possible"],
+        "must_not": ["Hide real hydration bugs by suppressing warnings broadly"],
+        "conventions": ["Use targeted fixes: suspense boundaries, stable markup, expected mismatch suppression only when intentional."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Rendering rules",
+        "steps": [
+          { "id": "animate-svg-wrapper", "action": "verify", "description": "Animate a wrapper element (div) instead of the SVG element for better GPU acceleration support.", "critical_rules": [], "validation_checks": [] },
+          { "id": "content-visibility", "action": "verify", "description": "Use `content-visibility: auto` with `contain-intrinsic-size` for long lists to skip offscreen layout/paint.", "critical_rules": [], "validation_checks": [] },
+          { "id": "hoist-static-jsx", "action": "verify", "description": "Hoist static JSX (large SVG nodes, skeletons) outside components to avoid recreating elements each render.", "critical_rules": [], "validation_checks": [] },
+          { "id": "svg-precision", "action": "verify", "description": "Reduce SVG coordinate precision (SVGO) to shrink assets without visible degradation.", "critical_rules": [], "validation_checks": [] },
+          { "id": "hydration-no-flicker", "action": "verify", "description": "For client-only values (theme/localStorage), avoid SSR breakage + flicker using pre-hydration DOM initialization (targeted inline script).", "critical_rules": [], "validation_checks": [] },
+          { "id": "suppress-expected-mismatch", "action": "verify", "description": "Use `suppressHydrationWarning` only for known intentional mismatches (dates/locale), not to hide bugs.", "critical_rules": [], "validation_checks": [] },
+          { "id": "scripts", "action": "verify", "description": "Avoid render-blocking scripts; use Next.js `next/script` strategies or `defer/async` appropriately.", "critical_rules": [], "validation_checks": [] },
+          { "id": "conditional-rendering", "action": "verify", "description": "Avoid `count && <Badge/>` when count can be 0; prefer explicit ternary to prevent rendering `0`.", "critical_rules": [], "validation_checks": [] },
+          { "id": "resource-hints", "action": "verify", "description": "Use React DOM resource hints (prefetchDNS/preconnect/preload/preinit) for critical domains/fonts/modules.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

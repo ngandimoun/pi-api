@@ -1,0 +1,122 @@
+{
+  "id": "react-native-skills-playbook",
+  "name": "React Native skills (hub)",
+  "description": "Engineering (Jan 2026). Token-safe hub for React Native + Expo: rendering safety, list virtualization, Reanimated/gestures, scroll perf, native navigation, state patterns, compiler + shared values, UI primitives, monorepo native deps.",
+  "category": "ui",
+  "stack": ["react-native", "expo", "typescript", "mobile"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-skills-playbook",
+      "version": 1,
+      "intent": "Apply React Native performance and correctness patterns without loading a giant doc",
+      "tags": [
+        "react-native",
+        "expo",
+        "mobile",
+        "performance",
+        "reanimated",
+        "gesture-handler",
+        "flatlist",
+        "flashlist",
+        "token-safe"
+      ],
+      "references": [
+        "react-native-core-rendering",
+        "react-native-list-performance",
+        "react-native-animation-gestures-scroll",
+        "react-native-navigation",
+        "react-native-state-patterns",
+        "react-native-compiler-reanimated",
+        "react-native-ui-patterns",
+        "react-native-monorepo-imports",
+        "react-native-js-fonts-intl"
+      ]
+    },
+    "context": {
+      "framework": "React Native / Expo",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": [
+          "Open only the leaf module(s) matching the symptom (crash vs jank vs nav vs monorepo)."
+        ],
+        "must_not": ["Bulk-load unrelated RN ecosystem docs into one agent context"],
+        "conventions": [
+          "Prefer native primitives (Modal, native nav, native menus) over heavy JS-only sheets when possible."
+        ]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "route",
+        "title": "Route by symptom",
+        "steps": [
+          {
+            "id": "crash-text",
+            "action": "verify",
+            "description": "Crashes / `Text strings must be rendered within a Text` / falsy `&&` → `react-native-core-rendering`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "list-jank",
+            "action": "verify",
+            "description": "Scroll jank, FlatList/FlashList/LegendList, images in lists, heterogeneous rows → `react-native-list-performance`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "anim-scroll",
+            "action": "verify",
+            "description": "Reanimated jank, press feedback, scroll position updates → `react-native-animation-gestures-scroll`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "nav",
+            "action": "verify",
+            "description": "Stack/tabs feel non-native or slow transitions → `react-native-navigation`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "state",
+            "action": "verify",
+            "description": "Redundant state, stale updates, shared-value as visual instead of truth → `react-native-state-patterns`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "compiler-reanimated",
+            "action": "verify",
+            "description": "React Compiler + Reanimated shared values → `react-native-compiler-reanimated`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "ui",
+            "action": "verify",
+            "description": "Images, menus, modals, safe area, styling, compound button APIs → `react-native-ui-patterns`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "monorepo",
+            "action": "verify",
+            "description": "Autolinking / native modules in monorepo / design-system re-exports → `react-native-monorepo-imports`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "js-fonts",
+            "action": "verify",
+            "description": "Intl formatters in hot paths, font loading strategy → `react-native-js-fonts-intl`.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

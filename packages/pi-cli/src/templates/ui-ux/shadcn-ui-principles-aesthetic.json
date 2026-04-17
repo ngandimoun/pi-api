@@ -1,0 +1,99 @@
+{
+  "id": "shadcn-ui-principles-aesthetic",
+  "name": "shadcn/ui principles & aesthetic",
+  "description": "Minimalism, consistent defaults, strategic depth, accessibility-first, composition/modularity, responsive patterns, subtle motion, business-grade clarity.",
+  "category": "ui",
+  "stack": ["shadcn", "radix", "tailwind"],
+  "routine_spec": {
+    "metadata": {
+      "id": "shadcn-ui-principles-aesthetic",
+      "version": 1,
+      "intent": "Use shadcn/ui’s design philosophy to keep interfaces clean, accessible, and composable",
+      "tags": ["shadcn", "ui", "aesthetics", "minimalism", "accessibility", "composition"],
+      "references": ["ui-ux-ui-principles-7", "ui-ux-visual-design-principles-12"]
+    },
+    "context": {
+      "framework": "shadcn/ui",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Whitespace and hierarchy over ornamentation", "Purposeful shadows for depth", "Keyboard + screen reader support"],
+        "must_not": ["Decorative complexity that hides core tasks", "Over-shadowing that competes with content"],
+        "conventions": ["Defaults should look professional out-of-the-box; customization stays in your repo."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "principles",
+        "title": "Core principles (compressed checklist)",
+        "steps": [
+          {
+            "id": "minimalism",
+            "action": "verify",
+            "description": "Minimalism: remove non-essential ornamentation; use whitespace, clean lines, and typography to focus attention on content and tasks.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "depth",
+            "action": "verify",
+            "description": "Strategic depth: use shadows sparingly to establish hierarchy and affordance; interactive elevation changes should feel subtle and intentional.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "beautiful-defaults",
+            "action": "verify",
+            "description": "Beautiful defaults & consistency: components should fit together without additional styling; prefer a small set of variants and a consistent token layer.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "accessibility",
+            "action": "verify",
+            "description": "Accessibility-first: don’t remove focus styles; preserve Radix semantics; ensure keyboard navigation and screen reader labels remain correct.",
+            "critical_rules": [],
+            "validation_checks": ["pi validate (a11y + UX semantic checks)"]
+          },
+          {
+            "id": "customization-ownership",
+            "action": "verify",
+            "description": "Customization & flexibility: treat shadcn components as source code you own—copy, adapt, and extend within your repo; avoid creating wrapper abstraction layers too early.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "composition-modularity",
+            "action": "verify",
+            "description": "Composition & modularity: compose predictable primitives into blocks; import only what you need; keep bundle lightweight by avoiding global mega-components.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "responsive",
+            "action": "verify",
+            "description": "Adaptive design: build mobile-first and ensure components behave well across breakpoints; test interactive targets and layout density on small screens.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "motion",
+            "action": "verify",
+            "description": "Fluid animations: micro-interactions should clarify state changes (open/close, success/error) and never block task completion; honor reduced-motion preferences.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "business-grade",
+            "action": "verify",
+            "description": "Business-oriented clarity: default to professionalism for internal tools and serious apps—clear hierarchy, readable density, consistent data presentation.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

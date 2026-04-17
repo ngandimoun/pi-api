@@ -1,0 +1,78 @@
+{
+  "id": "frontend-design-distinctive-ui-skill",
+  "name": "Distinctive frontend design (anti-generic)",
+  "description": "A reusable, paste-friendly checklist for producing distinctive, production-grade frontend UI (typography, tokens, motion, backgrounds) and avoiding generic AI aesthetics.",
+  "category": "ui",
+  "stack": ["frontend", "ui", "design"],
+  "routine_spec": {
+    "metadata": {
+      "id": "frontend-design-distinctive-ui-skill",
+      "version": 1,
+      "intent": "Guide frontend UI generation toward distinctive, cohesive aesthetics while preserving usability and accessibility",
+      "tags": ["frontend", "ui", "aesthetics", "typography", "motion", "tokens"],
+      "references": ["ui-ux-ui-principles-7", "ui-ux-color-theory-basics"]
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["CSS variables / design tokens", "A single clear aesthetic direction", "Accessible interactions (focus, keyboard, contrast)"],
+        "must_not": ["Generic fonts (Inter/Roboto/system) by default", "Clichéd purple gradients on white", "Cookie-cutter layout patterns without context"],
+        "conventions": ["Match implementation complexity to the aesthetic vision; minimalism needs precision, maximalism needs intentional structure."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "direction",
+        "title": "Commit to an aesthetic direction before coding",
+        "steps": [
+          {
+            "id": "purpose-and-tone",
+            "action": "verify",
+            "description": "State purpose + audience + tone. Pick a bold direction: brutalist, editorial, retro-futurist, luxury, playful, industrial, organic, etc. Define what makes it unforgettable (one memorable hook).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "typography",
+            "action": "verify",
+            "description": "Typography: pick distinctive fonts and use them decisively (display + body). Use high-contrast pairings (serif+geo sans, display+mono). Avoid converging on the same default fonts across builds.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "color-and-tokens",
+            "action": "verify",
+            "description": "Color & theme: commit to a cohesive palette; implement tokens (CSS vars) for backgrounds, surfaces, borders, text, accents. Dominant base + sharp accents beats timid even distribution.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "motion",
+            "action": "verify",
+            "description": "Motion: prefer one high-impact orchestrated moment (page load / staggered reveals) over scattered micro-animations. Respect reduced-motion; avoid motion that blocks task completion.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "backgrounds-depth",
+            "action": "verify",
+            "description": "Backgrounds: add depth/atmosphere (layered gradients, subtle texture/noise, patterns) instead of flat solid color defaults. Keep readability high and contrast safe.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "anti-generic-check",
+            "action": "verify",
+            "description": "Anti-generic checks: reject (1) Inter/Roboto defaults, (2) clichéd purple gradients, (3) predictable hero+3-cards layout, (4) generic shadcn clone without brand tone. Replace with intentional, context-specific design choices.",
+            "critical_rules": [],
+            "validation_checks": ["pi validate (for a11y + UX semantic checks)"]
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

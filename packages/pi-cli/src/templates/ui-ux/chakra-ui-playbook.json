@@ -1,0 +1,82 @@
+{
+  "id": "chakra-ui-playbook",
+  "name": "Chakra UI playbook (hub)",
+  "description": "Token-safe hub for Chakra UI principles, comparisons (Tailwind/MUI/Ant/Theme UI), theming/dark mode, and runtime tradeoffs.",
+  "category": "ui",
+  "stack": ["react", "chakra", "emotion", "styled-system"],
+  "routine_spec": {
+    "metadata": {
+      "id": "chakra-ui-playbook",
+      "version": 1,
+      "intent": "Use Chakra UI effectively (and decide when not to) without loading long docs",
+      "tags": ["chakra", "ui", "playbook", "comparison", "a11y", "theming", "token-safe"],
+      "references": [
+        "chakra-ui-principles",
+        "chakra-ui-vs-tailwind",
+        "chakra-ui-vs-mui",
+        "chakra-ui-vs-ant-design",
+        "chakra-ui-vs-theme-ui",
+        "chakra-ui-runtime-tradeoffs",
+        "chakra-ui-best-practices"
+      ]
+    },
+    "context": {
+      "framework": "Chakra UI",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Style props for overrides", "Composition patterns", "Accessible defaults + focus management"],
+        "must_not": ["Duplicate existing Pi templates/rules (reuse them)", "Ignore Chakra's runtime cost for highly dynamic UIs"],
+        "conventions": [
+          "Keep routing token-safe: install hub + only needed leaf modules.",
+          "Prefer `pi validate` for a11y/tokens checks before inventing new UI heuristics."
+        ]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "route",
+        "title": "Pick the right Chakra module",
+        "steps": [
+          {
+            "id": "principles",
+            "action": "verify",
+            "description": "If you need Chakra’s core design principles (style props, simplicity, composition, accessibility, dark mode, naming props), open `chakra-ui-principles`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "comparison-tailwind",
+            "action": "verify",
+            "description": "If you're deciding between Chakra and Tailwind, open `chakra-ui-vs-tailwind` (learning curve, responsive styles, overrides, a11y responsibilities, dark mode).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "comparison-mui-ant-themeui",
+            "action": "verify",
+            "description": "If you're deciding vs Material UI / Ant Design / Theme UI, open `chakra-ui-vs-mui`, `chakra-ui-vs-ant-design`, and/or `chakra-ui-vs-theme-ui`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "runtime-tradeoff",
+            "action": "verify",
+            "description": "If performance is a concern (high-frequency updates, huge tables), open `chakra-ui-runtime-tradeoffs` and weigh CSS-in-JS costs vs alternatives.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "reuse-existing-pi-assets",
+            "action": "verify",
+            "description": "Avoid duplication: you already ship `chakra-ui-card-component` and validate rules like `a11y-images` and `no-hardcoded-hex`. Prefer running `pi validate` before adding custom UI rules.",
+            "critical_rules": [],
+            "validation_checks": ["pi validate"]
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

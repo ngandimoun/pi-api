@@ -1,0 +1,40 @@
+{
+  "id": "react-composition-state-interface",
+  "name": "Define generic context interfaces (state/actions/meta)",
+  "description": "HIGH: define a generic context contract `{ state, actions, meta }` so providers can dependency-inject different state implementations without changing UI subcomponents.",
+  "category": "ui",
+  "stack": ["react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-composition-state-interface",
+      "version": 1,
+      "intent": "Make composed UI dependency-injectable by standardizing context shape (state/actions/meta)",
+      "tags": ["react", "composition", "context", "dependency-injection", "typescript", "providers"],
+      "references": ["react-composition-decouple-state-ui", "react-composition-lift-state-provider"]
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Typed context value", "Contract-based providers"],
+        "must_not": ["UI subcomponents tightly coupled to a specific state hook"],
+        "conventions": ["Context value shape: `{ state, actions, meta }` to support non-visual dependencies like refs."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "contract",
+        "title": "Build the context contract",
+        "steps": [
+          { "id": "state-shape", "action": "verify", "description": "Define `State` as pure serializable UI state (input, flags, items).", "critical_rules": [], "validation_checks": [] },
+          { "id": "actions-shape", "action": "verify", "description": "Define `Actions` as imperative verbs (update/submit/remove) with stable signatures.", "critical_rules": [], "validation_checks": [] },
+          { "id": "meta-shape", "action": "verify", "description": "Define `Meta` for non-state dependencies (refs, ids, callbacks not tied to state).", "critical_rules": [], "validation_checks": [] },
+          { "id": "provider-implements", "action": "verify", "description": "Ensure each provider implements the same contract, even if state backend differs (local, global store, server sync).", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

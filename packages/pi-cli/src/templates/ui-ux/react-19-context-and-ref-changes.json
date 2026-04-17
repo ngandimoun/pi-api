@@ -1,0 +1,39 @@
+{
+  "id": "react-19-context-and-ref-changes",
+  "name": "React 19: context + ref changes",
+  "description": "React 19+ only: `ref` is a regular prop; use `use()` instead of `useContext()` for context consumption. Avoid `forwardRef` for new code.",
+  "category": "ui",
+  "stack": ["react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-19-context-and-ref-changes",
+      "version": 1,
+      "intent": "Apply React 19 context/ref API changes safely during refactors",
+      "tags": ["react", "react19", "context", "refs", "hooks", "migration"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["React 19+ semantics: ref-as-prop, use() for context"],
+        "must_not": ["Introduce forwardRef patterns where ref-as-prop is intended", "Keep useContext where project is using use() for context"],
+        "conventions": ["If project is React 18 or earlier, do NOT apply this rule."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "guardrails",
+        "title": "Guardrails",
+        "steps": [
+          { "id": "check-react-version", "action": "verify", "description": "Confirm the codebase is React 19+ before applying ref-as-prop or use() context patterns.", "critical_rules": [], "validation_checks": [] },
+          { "id": "context-consumption", "action": "verify", "description": "Prefer `use(MyContext)` over `useContext(MyContext)` in React 19+ where supported by codebase conventions.", "critical_rules": [], "validation_checks": [] },
+          { "id": "refs", "action": "verify", "description": "Prefer `function Input({ ref, ...props })` (ref is a prop) over wrapping with `forwardRef` for new code.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

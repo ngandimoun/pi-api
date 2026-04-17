@@ -1,0 +1,92 @@
+{
+  "id": "shadcn-ui-ecosystem-libraries",
+  "name": "shadcn/ui ecosystem libraries",
+  "description": "Derived libraries that pair well with shadcn/ui (many with free tiers): Radix, CVA, tailwind-merge, Lucide, RHF+Zod, Sonner, Framer Motion, and block registries.",
+  "category": "integration",
+  "stack": ["shadcn", "react", "next.js", "tailwind"],
+  "routine_spec": {
+    "metadata": {
+      "id": "shadcn-ui-ecosystem-libraries",
+      "version": 1,
+      "intent": "Choose shadcn-compatible libraries for real products without breaking ownership or accessibility",
+      "tags": ["shadcn", "ecosystem", "radix", "cva", "forms", "icons", "toasts", "motion"],
+      "references": []
+    },
+    "context": {
+      "framework": "shadcn/ui",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Libraries that preserve accessibility and code ownership", "Type-safe validation for forms"],
+        "must_not": ["Heavy UI libraries that replace owned components with opaque runtime dependencies"],
+        "conventions": ["Prefer small, composable helpers that fit Tailwind + shadcn patterns."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "pick",
+        "title": "Recommended ecosystem (what each solves)",
+        "steps": [
+          {
+            "id": "radix",
+            "action": "verify",
+            "description": "Radix UI: unstyled accessible primitives (keyboard, focus, ARIA). Use directly when you need behavior beyond what shadcn exposes.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "cva",
+            "action": "verify",
+            "description": "class-variance-authority (CVA): scalable variants (size/intent/state) without conditional class soup. Non-negotiable for reusable primitives.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "tailwind-merge",
+            "action": "verify",
+            "description": "tailwind-merge + `cn()`: resolves conflicting classes and keeps overrides clean. Prefer this over manual class concatenation.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "lucide",
+            "action": "verify",
+            "description": "Lucide React: tree-shakable neutral icons. Use consistent icon sizing rules to maintain visual rhythm.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "forms",
+            "action": "verify",
+            "description": "React Hook Form + Zod: performant forms with type-safe validation. Use Zod schemas for both UI validation and server boundaries when possible.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "sonner",
+            "action": "verify",
+            "description": "Sonner: lightweight accessible toasts that fit Tailwind UIs. Use for user feedback (success/error) without heavy UI kits.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "motion",
+            "action": "verify",
+            "description": "Framer Motion: use selectively for high-impact transitions (dialog/page motion). Avoid turning every hover into JS animation; prefer CSS for simple interactions.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "blocks-registries",
+            "action": "verify",
+            "description": "Blocks/registries (often with free tiers): use them as inspiration + copy-source patterns. Keep the shadcn ethos: copy code, own it, adapt it, and keep a11y intact.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

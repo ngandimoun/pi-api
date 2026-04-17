@@ -424,6 +424,105 @@ export interface VoiceSessionUpdate {
   updated_at?: string;
 }
 
+export interface UserProfileRow {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  stripe_customer_id: string | null;
+  subscription_tier: string | null;
+  subscription_status: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface UserProfileInsert {
+  id: string;
+  email: string;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  stripe_customer_id?: string | null;
+  subscription_tier?: string | null;
+  subscription_status?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface UserProfileUpdate {
+  id?: string;
+  email?: string;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  stripe_customer_id?: string | null;
+  subscription_tier?: string | null;
+  subscription_status?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface ApiKeyRow {
+  id: string;
+  user_id: string;
+  unkey_key_id: string;
+  name: string | null;
+  last_used_at: string | null;
+  created_at: string | null;
+  revoked_at: string | null;
+}
+
+export interface ApiKeyInsert {
+  id?: string;
+  user_id: string;
+  unkey_key_id: string;
+  name?: string | null;
+  last_used_at?: string | null;
+  created_at?: string | null;
+  revoked_at?: string | null;
+}
+
+export interface ApiKeyUpdate {
+  id?: string;
+  user_id?: string;
+  unkey_key_id?: string;
+  name?: string | null;
+  last_used_at?: string | null;
+  created_at?: string | null;
+  revoked_at?: string | null;
+}
+
+export interface UsageEventRow {
+  id: string;
+  user_id: string;
+  api_key_id: string | null;
+  event_type: string;
+  tokens_used: number | null;
+  cost_cents: number | null;
+  metadata: Json | null;
+  created_at: string | null;
+}
+
+export interface UsageEventInsert {
+  id?: string;
+  user_id: string;
+  api_key_id?: string | null;
+  event_type: string;
+  tokens_used?: number | null;
+  cost_cents?: number | null;
+  metadata?: Json | null;
+  created_at?: string | null;
+}
+
+export interface UsageEventUpdate {
+  id?: string;
+  user_id?: string;
+  api_key_id?: string | null;
+  event_type?: string;
+  tokens_used?: number | null;
+  cost_cents?: number | null;
+  metadata?: Json | null;
+  created_at?: string | null;
+}
+
 export interface Database {
   public: {
     Enums: {
@@ -486,6 +585,21 @@ export interface Database {
         Row: VoiceSession;
         Insert: VoiceSessionInsert;
         Update: VoiceSessionUpdate;
+      };
+      users: {
+        Row: UserProfileRow;
+        Insert: UserProfileInsert;
+        Update: UserProfileUpdate;
+      };
+      api_keys: {
+        Row: ApiKeyRow;
+        Insert: ApiKeyInsert;
+        Update: ApiKeyUpdate;
+      };
+      usage_events: {
+        Row: UsageEventRow;
+        Insert: UsageEventInsert;
+        Update: UsageEventUpdate;
       };
     };
     Views: Record<string, never>;

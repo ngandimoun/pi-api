@@ -1,0 +1,42 @@
+{
+  "id": "chakra-ui-vs-tailwind",
+  "name": "Chakra UI vs Tailwind CSS",
+  "description": "Comparison guide: what Chakra provides beyond Tailwind (components, a11y, responsive API, overrides, dark mode) and tradeoffs.",
+  "category": "ui",
+  "stack": ["react", "chakra", "tailwind"],
+  "routine_spec": {
+    "metadata": {
+      "id": "chakra-ui-vs-tailwind",
+      "version": 1,
+      "intent": "Decide between Chakra UI and Tailwind CSS for a product team",
+      "tags": ["chakra", "tailwind", "comparison", "responsive", "a11y", "theming"],
+      "references": ["chakra-ui-runtime-tradeoffs"]
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Choose based on team ergonomics + design needs + performance constraints"],
+        "must_not": ["Assume Tailwind includes accessibility behaviors (it doesn't)"],
+        "conventions": ["If using Tailwind, budget time for semantics/a11y/composition; if Chakra, budget for runtime overhead."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "comparison",
+        "title": "Comparison (compressed)",
+        "steps": [
+          { "id": "overview", "action": "verify", "description": "Tailwind = CSS utility framework; you assemble semantics, accessibility behaviors, composition patterns yourself. Chakra = React component system with prop-based styling + many UX/a11y details handled for you.", "critical_rules": [], "validation_checks": [] },
+          { "id": "learning-curve", "action": "verify", "description": "Learning curve: Tailwind is easy for Bootstrap-like CSS users; Chakra is intuitive for CSS-in-JS/styled-system users due to CSS-like style props and readable component APIs.", "critical_rules": [], "validation_checks": [] },
+          { "id": "responsive", "action": "verify", "description": "Responsive styles: Tailwind uses breakpoint prefixes and class strings; Chakra supports array/object responsive props for many style props.", "critical_rules": [], "validation_checks": [] },
+          { "id": "overrides", "action": "verify", "description": "Style overrides: Tailwind often requires class override strategy or custom CSS; Chakra overrides are typically just prop overrides and theme extensions.", "critical_rules": [], "validation_checks": [] },
+          { "id": "a11y", "action": "verify", "description": "Accessibility: Tailwind doesn't enforce semantics/ARIA/keyboard behavior; Chakra includes accessible defaults for many components but you can still break them—re-test flows.", "critical_rules": [], "validation_checks": ["pi validate"] },
+          { "id": "dark-mode", "action": "verify", "description": "Dark mode: both can do it; Chakra supports color mode patterns out of the box and lets you author light/dark experiences in theme tokens.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

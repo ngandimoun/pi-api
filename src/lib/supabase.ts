@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
 
-let cachedServiceClient: SupabaseClient | null = null;
+let cachedServiceClient: SupabaseClient<Database> | null = null;
 
 /**
  * Returns a singleton Supabase service-role client for server-side jobs/routes.
@@ -20,7 +21,7 @@ export function getServiceSupabaseClient(): SupabaseClient {
     throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
   }
 
-  cachedServiceClient = createClient(supabaseUrl, serviceRoleKey, {
+  cachedServiceClient = createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,

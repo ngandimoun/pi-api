@@ -1,0 +1,56 @@
+{
+  "id": "react-native-navigation",
+  "name": "React Native — navigation (HIGH)",
+  "description": "Prefer native navigators: `@react-navigation/native-stack` (not JS stack), native tabs (e.g. bottom native tabs / Expo Router native tabs). Prefer native header options over custom header components when possible.",
+  "category": "ui",
+  "stack": ["react-native", "expo", "react-navigation", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-navigation",
+      "version": 1,
+      "intent": "Use native navigation stacks and tabs for performance and platform UX",
+      "tags": ["react-native", "navigation", "expo-router", "native-stack", "tabs"],
+      "references": []
+    },
+    "context": {
+      "framework": "React Native",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Native stack for stack navigation", "Native tab solutions when platform fidelity matters"],
+        "must_not": ["Default to JS stack / JS tabs for primary app chrome without a deliberate reason"],
+        "conventions": ["Prefer screen `options` (title, large title, search bar) over bespoke header trees."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Navigation rules",
+        "steps": [
+          {
+            "id": "native-stack",
+            "action": "verify",
+            "description": "Migrate `@react-navigation/stack` → `createNativeStackNavigator` or Expo Router `Stack` defaults.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "native-tabs",
+            "action": "verify",
+            "description": "Evaluate native bottom tabs / Expo Router native tabs instead of pure JS tab bar for primary tabs.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "native-headers",
+            "action": "verify",
+            "description": "Replace custom `header: () => …` where possible with native header configuration for large titles, blur, search.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

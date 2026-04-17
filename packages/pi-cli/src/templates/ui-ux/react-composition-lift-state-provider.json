@@ -1,0 +1,39 @@
+{
+  "id": "react-composition-lift-state-provider",
+  "name": "Lift state into provider components",
+  "description": "HIGH: move state management into a Provider so siblings (outside the visual component tree) can access shared state/actions without prop drilling or refs.",
+  "category": "ui",
+  "stack": ["react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-composition-lift-state-provider",
+      "version": 1,
+      "intent": "Enable shared state across siblings by lifting state into a Provider boundary",
+      "tags": ["react", "composition", "providers", "context", "state-management", "refactor"],
+      "references": ["react-composition-state-interface"]
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Provider owns state", "Consumers read via context"],
+        "must_not": ["Sync state upward via useEffect on every change", "Read state from refs on submit"],
+        "conventions": ["Provider boundary matters; components may live outside visual nesting but inside provider."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "refactor",
+        "title": "Refactor to provider-owned state",
+        "steps": [
+          { "id": "create-provider", "action": "verify", "description": "Extract state + actions into `XProvider` that sets the context value.", "critical_rules": [], "validation_checks": [] },
+          { "id": "move-custom-ui", "action": "verify", "description": "Move sibling UI that needs access (preview buttons, footer actions) inside the provider boundary.", "critical_rules": [], "validation_checks": [] },
+          { "id": "delete-plumbing", "action": "verify", "description": "Delete prop drilling / useEffect syncing / ref readbacks introduced only for state access.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

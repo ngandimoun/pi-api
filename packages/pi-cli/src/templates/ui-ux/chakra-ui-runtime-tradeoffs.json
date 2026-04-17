@@ -1,0 +1,57 @@
+{
+  "id": "chakra-ui-runtime-tradeoffs",
+  "name": "Chakra UI runtime tradeoffs",
+  "description": "CSS-in-JS runtime footprint (emotion + styled-system): when it matters, what to watch, and how to decide.",
+  "category": "ui",
+  "stack": ["react", "chakra", "emotion", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "chakra-ui-runtime-tradeoffs",
+      "version": 1,
+      "intent": "Evaluate Chakra’s runtime overhead vs alternatives for performance-sensitive apps",
+      "tags": ["chakra", "performance", "runtime", "emotion", "styled-system"],
+      "references": []
+    },
+    "context": {
+      "framework": "Chakra UI",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Measure or at least reason about high-frequency re-render areas"],
+        "must_not": ["Adopt Chakra blindly for extremely performance-sensitive, high-frequency UIs without comparing alternatives"],
+        "conventions": ["Most small/medium data-driven apps are fine; hotspots (huge tables, realtime dashboards) require extra care."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "tradeoffs",
+        "title": "Runtime tradeoff guide (compressed)",
+        "steps": [
+          {
+            "id": "what-causes-footprint",
+            "action": "verify",
+            "description": "Cause: Chakra uses CSS-in-JS (emotion) and styled-system style computations; this adds runtime work (style prop resolution, class generation).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "when-it-matters",
+            "action": "verify",
+            "description": "It matters most when: UI re-renders frequently (high-frequency data), large lists/tables update often, or you have strict performance budgets.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "decision-rule",
+            "action": "verify",
+            "description": "Decision rule: if your product is heavy on dynamic dashboards and large data grids, compare Chakra with utility-first CSS or source-owned systems. If you’re shipping small/medium apps and value DX + theming, Chakra is often a good fit.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

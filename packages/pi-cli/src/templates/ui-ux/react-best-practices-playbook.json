@@ -1,0 +1,105 @@
+{
+  "id": "react-best-practices-playbook",
+  "name": "React best practices (performance hub)",
+  "description": "Vercel Engineering (Jan 2026). Token-safe hub that routes to focused performance rule modules for React + Next.js: waterfalls, bundle size, server/client performance, re-render & rendering optimization, JS perf, advanced patterns.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-best-practices-playbook",
+      "version": 1,
+      "intent": "Apply high-impact React + Next.js performance best practices without loading a giant doc",
+      "tags": ["react", "nextjs", "performance", "best-practices", "optimization", "token-safe", "vercel"],
+      "references": [
+        "react-best-practices-waterfalls",
+        "react-best-practices-bundle-size",
+        "react-best-practices-server-performance",
+        "react-best-practices-client-data-fetching",
+        "react-best-practices-rerender-optimization",
+        "react-best-practices-rendering-performance",
+        "react-best-practices-javascript-performance",
+        "react-best-practices-advanced-patterns"
+      ]
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": [
+          "Eliminate waterfalls first (largest wins)",
+          "Reduce bundle size next (TTI/LCP wins)",
+          "Keep changes deterministic and measurable (before/after)"
+        ],
+        "must_not": ["Bulk-load every routine into context (keep it token-safe)"],
+        "conventions": ["Open only the leaf module(s) relevant to the current performance symptom."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "route",
+        "title": "Pick the right module",
+        "steps": [
+          {
+            "id": "server-waterfall",
+            "action": "verify",
+            "description": "If you see sequential awaits in server code (RSC, route handlers, server actions), open `react-best-practices-waterfalls`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "bundle-heavy",
+            "action": "verify",
+            "description": "If build/dev is slow or bundles are heavy (Monaco, icons, MUI), open `react-best-practices-bundle-size`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "rsc-server",
+            "action": "verify",
+            "description": "If RSC payloads feel big/slow, or server concurrency/caching is wrong, open `react-best-practices-server-performance`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "client-fetching",
+            "action": "verify",
+            "description": "If client is refetching or duplicating listeners, open `react-best-practices-client-data-fetching`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "rerenders",
+            "action": "verify",
+            "description": "If the UI is janky due to re-renders/effects, open `react-best-practices-rerender-optimization`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "rendering",
+            "action": "verify",
+            "description": "If rendering/paint/hydration issues exist, open `react-best-practices-rendering-performance`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "js-hotpaths",
+            "action": "verify",
+            "description": "If hot-path JS is slow (loops, lookups, storage reads), open `react-best-practices-javascript-performance`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "advanced",
+            "action": "verify",
+            "description": "If you’re using `useEffectEvent`, one-time init, stable subscriptions, open `react-best-practices-advanced-patterns`.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

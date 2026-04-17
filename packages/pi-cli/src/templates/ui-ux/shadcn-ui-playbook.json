@@ -1,0 +1,80 @@
+{
+  "id": "shadcn-ui-playbook",
+  "name": "shadcn/ui playbook (hub)",
+  "description": "Token-safe hub for shadcn/ui principles, scaling structure, blocks strategy, and ecosystem libraries (Radix, CVA, RHF+Zod, Sonner, etc.).",
+  "category": "ui",
+  "stack": ["next.js", "react", "tailwind", "shadcn", "radix"],
+  "routine_spec": {
+    "metadata": {
+      "id": "shadcn-ui-playbook",
+      "version": 1,
+      "intent": "Apply shadcn/ui principles and scaling patterns without loading long docs",
+      "tags": ["shadcn", "ui", "radix", "tailwind", "tokens", "playbook", "token-safe"],
+      "references": [
+        "shadcn-ui-principles-aesthetic",
+        "shadcn-ui-best-practices-2026",
+        "shadcn-ui-structure-for-scale",
+        "shadcn-ui-blocks-guide",
+        "shadcn-ui-ecosystem-libraries"
+      ]
+    },
+    "context": {
+      "framework": "shadcn/ui",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Open code ownership model (copy source into repo)", "CSS variables + tokens for theming", "Radix accessibility preserved"],
+        "must_not": ["Treat shadcn as a black-box dependency", "Break focus/ARIA semantics when customizing"],
+        "conventions": [
+          "Prefer composing blocks from primitives, not duplicating entire screens.",
+          "Keep routing token-safe: install hub + only needed leaf modules."
+        ]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "route",
+        "title": "Pick the right shadcn module",
+        "steps": [
+          {
+            "id": "principles",
+            "action": "verify",
+            "description": "If you need the aesthetic + UX philosophy (minimalism, defaults, shadows, accessibility), open `shadcn-ui-principles-aesthetic`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "scale-structure",
+            "action": "verify",
+            "description": "If you need long-term maintainability guidance (source ownership, versioning, folder layout, tokens), open `shadcn-ui-structure-for-scale` + `shadcn-ui-best-practices-2026`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "blocks",
+            "action": "verify",
+            "description": "If you want to ship faster using composable sections (auth, dashboards, tables, settings pages), open `shadcn-ui-blocks-guide`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "ecosystem",
+            "action": "verify",
+            "description": "If you need derived libraries + free tiers and when to use them (CVA, tailwind-merge, Lucide, RHF+Zod, Sonner, Framer Motion; plus block registries), open `shadcn-ui-ecosystem-libraries`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "reuse-existing-pi-assets",
+            "action": "verify",
+            "description": "Avoid duplication: you already ship implementation templates like `shadcn-card-component` and validate rules like `a11y-images` and `no-hardcoded-hex`. Prefer `pi validate` before inventing new UI heuristics.",
+            "critical_rules": [],
+            "validation_checks": ["pi validate"]
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

@@ -1,0 +1,39 @@
+{
+  "id": "react-composition-compound-components",
+  "name": "Use compound components (React composition)",
+  "description": "Structure complex components as compound components with shared context; subcomponents read shared state via context (not prop drilling).",
+  "category": "ui",
+  "stack": ["react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-composition-compound-components",
+      "version": 1,
+      "intent": "Design component APIs with compound components + shared context, avoiding monolithic render-prop interfaces",
+      "tags": ["react", "composition", "compound-components", "context", "api-design"],
+      "references": ["react-composition-state-interface", "react-composition-children-over-render-props"]
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Shared context for internals", "Composition via subcomponents"],
+        "must_not": ["Monolithic component with many renderX props for structural composition"],
+        "conventions": ["Keep context typed; subcomponents should throw if used outside provider."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "design",
+        "title": "Design the compound component API",
+        "steps": [
+          { "id": "identify-shared-state", "action": "verify", "description": "List shared state/actions that all subcomponents need; decide provider boundary.", "critical_rules": [], "validation_checks": [] },
+          { "id": "export-surface", "action": "verify", "description": "Export as an object of subcomponents: `{ Provider, Frame, Header, Input, Footer, Submit, ... }` to encourage composition.", "critical_rules": [], "validation_checks": [] },
+          { "id": "remove-hidden-modes", "action": "verify", "description": "No hidden conditionals inside the compound component for modes; let variants compose the pieces.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

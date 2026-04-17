@@ -1,0 +1,54 @@
+{
+  "id": "supabase-realtime-subscription",
+  "name": "Supabase Realtime channel",
+  "description": "Subscribe to postgres changes with cleanup and auth-scoped filters.",
+  "category": "integration",
+  "stack": ["supabase", "react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "supabase-realtime-subscription",
+      "version": 1,
+      "intent": "Client hook for Supabase Realtime on a table",
+      "tags": ["supabase", "realtime", "subscription"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@supabase/supabase-js"],
+        "must_not": [],
+        "conventions": ["Unsubscribe on unmount; respect RLS policies"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/hooks/useRealtimeRows.ts",
+        "purpose": "Realtime hook",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "rt",
+        "title": "Realtime hook",
+        "steps": [
+          {
+            "id": "hook",
+            "action": "create_file",
+            "description": "useEffect channel subscribe to INSERT/UPDATE with filter",
+            "file_path": "src/hooks/useRealtimeRows.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/hooks/useRealtimeRows.ts"],
+      "required_exports": ["useRealtimeRows"],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

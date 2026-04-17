@@ -1,0 +1,57 @@
+{
+  "id": "ui-ux-aesthetic-usability-effect",
+  "name": "Aesthetic–usability effect",
+  "description": "Users perceive attractive interfaces as more usable; use aesthetics to support usability (not replace it) and interpret research signals correctly.",
+  "category": "ui",
+  "stack": ["ux", "ui", "research"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ui-ux-aesthetic-usability-effect",
+      "version": 1,
+      "intent": "Apply the aesthetic–usability effect responsibly in design and user research",
+      "tags": ["ux", "ui", "aesthetics", "research", "bias"],
+      "references": []
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Use aesthetics to reduce friction perception for minor issues"],
+        "must_not": ["Use visual polish as a substitute for broken task completion"],
+        "conventions": ["In research, compare what users do vs what they say to detect bias."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "apply",
+        "title": "How to use the effect (without lying to yourself)",
+        "steps": [
+          {
+            "id": "definition",
+            "action": "verify",
+            "description": "Definition: people often judge beautiful interfaces as easier to use, even when inherent usability isn't better. This buys tolerance for minor issues; it doesn't forgive broken flows.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "research-detect",
+            "action": "verify",
+            "description": "In usability research, watch for 'nice UI' comments masking failures. Probe with workflow questions: 'How easy was it to find X?' and validate by task outcomes.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "design-implication",
+            "action": "verify",
+            "description": "Design implication: use visual clarity (typography, spacing, consistent components, feedback states) to lower cognitive load and increase perceived ease—while still fixing functional friction.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

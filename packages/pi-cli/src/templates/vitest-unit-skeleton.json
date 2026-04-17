@@ -1,0 +1,54 @@
+{
+  "id": "vitest-unit-skeleton",
+  "name": "Vitest unit test skeleton",
+  "description": "Colocated test file with describe/it and mocks stub.",
+  "category": "testing",
+  "stack": ["vitest", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "vitest-unit-skeleton",
+      "version": 1,
+      "intent": "Add a Vitest unit test next to source",
+      "tags": ["vitest", "testing"],
+      "references": []
+    },
+    "context": {
+      "framework": "Vitest",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["describe(", "it(", "expect("],
+        "must_not": [],
+        "conventions": ["Use vi.mock for network"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/lib/example.test.ts",
+        "purpose": "Unit tests",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "test",
+        "title": "Tests",
+        "steps": [
+          {
+            "id": "t1",
+            "action": "create_file",
+            "description": "Create Vitest file with basic cases",
+            "file_path": "src/lib/example.test.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/lib/example.test.ts"],
+      "required_exports": [],
+      "test_commands": ["npx vitest run src/lib/example.test.ts"]
+    }
+  }
+}

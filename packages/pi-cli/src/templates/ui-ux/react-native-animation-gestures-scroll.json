@@ -1,0 +1,69 @@
+{
+  "id": "react-native-animation-gestures-scroll",
+  "name": "React Native — animation, gestures, scroll (HIGH)",
+  "description": "Animate `transform` + `opacity` (GPU), not layout props. Prefer `useDerivedValue` over `useAnimatedReaction` for derivations. Use `GestureDetector` + worklets for press micro-interactions. Never drive scroll offset with `useState` — use Reanimated shared values or refs.",
+  "category": "ui",
+  "stack": ["react-native", "reanimated", "gesture-handler", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-animation-gestures-scroll",
+      "version": 1,
+      "intent": "Keep animations on the UI thread and avoid scroll-driven render thrashing",
+      "tags": ["react-native", "reanimated", "gesture-handler", "animation", "scroll", "performance"],
+      "references": ["react-native-compiler-reanimated"]
+    },
+    "context": {
+      "framework": "React Native",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["GPU-friendly animated properties", "UI-thread scroll handlers for animated headers"],
+        "must_not": ["Animate width/height/margin per frame unless unavoidable"],
+        "conventions": ["Store press/open as state shared value; derive visuals via `interpolate`."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "animation",
+        "title": "Animation",
+        "steps": [
+          {
+            "id": "gpu-props",
+            "action": "verify",
+            "description": "Prefer `translateY` / `scale` / `opacity` over layout-driven animations for expand/collapse and transitions.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "derived-vs-reaction",
+            "action": "verify",
+            "description": "Use `useDerivedValue` for computed shared values; reserve `useAnimatedReaction` for true side effects (haptics, logging, `runOnJS`).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "gesture-press",
+            "action": "verify",
+            "description": "For animated press states, prefer `GestureDetector` + `Gesture.Tap()` worklets over `Pressable` `onPressIn/out` when you need UI-thread smoothness.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "scroll",
+        "title": "Scroll",
+        "steps": [
+          {
+            "id": "no-scroll-usestate",
+            "action": "verify",
+            "description": "Do not store `contentOffset.y` in `useState` for high-frequency scroll; use Reanimated `useSharedValue` + `useAnimatedScrollHandler` or a ref.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

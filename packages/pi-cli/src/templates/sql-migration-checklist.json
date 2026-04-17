@@ -1,0 +1,54 @@
+{
+  "id": "sql-migration-checklist",
+  "name": "SQL migration checklist",
+  "description": "Safe migration steps: expand → backfill → contract with rollback notes.",
+  "category": "database",
+  "stack": ["postgres", "sql"],
+  "routine_spec": {
+    "metadata": {
+      "id": "sql-migration-checklist",
+      "version": 1,
+      "intent": "Apply additive schema change with zero-downtime pattern",
+      "tags": ["database", "migration", "postgres"],
+      "references": []
+    },
+    "context": {
+      "framework": "Postgres",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": [],
+        "must_not": ["DROP COLUMN without multi-phase deploy"],
+        "conventions": ["Document rollback; test on staging copy"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "db/migrations/0001_expand_schema.sql",
+        "purpose": "Migration SQL",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "migrate",
+        "title": "Migration",
+        "steps": [
+          {
+            "id": "sql",
+            "action": "create_file",
+            "description": "Additive migration: new nullable columns and indexes CONCURRENTLY",
+            "file_path": "db/migrations/0001_expand_schema.sql",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["db/migrations/0001_expand_schema.sql"],
+      "required_exports": [],
+      "test_commands": []
+    }
+  }
+}

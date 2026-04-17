@@ -1,0 +1,54 @@
+{
+  "id": "mastra-workflow-hitl",
+  "name": "Mastra workflow (suspend / HITL)",
+  "description": "Workflow with suspend step for human approval and resume.",
+  "category": "workflow",
+  "stack": ["mastra", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "mastra-workflow-hitl",
+      "version": 1,
+      "intent": "Define workflow with suspend/resume for approval",
+      "tags": ["mastra", "workflow", "hitl"],
+      "references": []
+    },
+    "context": {
+      "framework": "Mastra",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@mastra/core", "createWorkflow"],
+        "must_not": [],
+        "conventions": ["Typed step data; resume payload validated"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/mastra/workflows/approval-workflow.ts",
+        "purpose": "HITL workflow",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "wf",
+        "title": "Workflow",
+        "steps": [
+          {
+            "id": "file",
+            "action": "create_file",
+            "description": "Workflow: draft → suspend(approval) → finalize",
+            "file_path": "src/mastra/workflows/approval-workflow.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/mastra/workflows/approval-workflow.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

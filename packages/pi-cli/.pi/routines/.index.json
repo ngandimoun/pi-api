@@ -1,0 +1,193 @@
+{
+  "generated_at": "2026-04-17T10:57:22.339Z",
+  "entries": [
+    {
+      "id": "chakra-ui-playbook",
+      "version": 1,
+      "intent": "Use Chakra UI effectively (and decide when not to) without loading long docs",
+      "tags": [
+        "chakra",
+        "ui",
+        "playbook",
+        "comparison",
+        "a11y",
+        "theming",
+        "token-safe"
+      ],
+      "files_manifest": [],
+      "references": [
+        "chakra-ui-principles",
+        "chakra-ui-vs-tailwind",
+        "chakra-ui-vs-mui",
+        "chakra-ui-vs-ant-design",
+        "chakra-ui-vs-theme-ui",
+        "chakra-ui-runtime-tradeoffs",
+        "chakra-ui-best-practices"
+      ],
+      "created_at": "2026-04-17T10:57:22.290Z",
+      "file_path": ".pi/routines/chakra-ui-playbook.v1.md"
+    },
+    {
+      "id": "chakra-ui-vs-tailwind",
+      "version": 1,
+      "intent": "Decide between Chakra UI and Tailwind CSS for a product team",
+      "tags": [
+        "chakra",
+        "tailwind",
+        "comparison",
+        "responsive",
+        "a11y",
+        "theming"
+      ],
+      "files_manifest": [],
+      "references": [
+        "chakra-ui-runtime-tradeoffs"
+      ],
+      "created_at": "2026-04-17T10:57:22.301Z",
+      "file_path": ".pi/routines/chakra-ui-vs-tailwind.v1.md"
+    },
+    {
+      "id": "mui-customization-slot-strategy",
+      "version": 1,
+      "intent": "Choose the right customization strategy for complex UI components without exploding API surface area",
+      "tags": [
+        "mui",
+        "customization",
+        "slots",
+        "theming",
+        "componentsProps",
+        "scaling"
+      ],
+      "files_manifest": [],
+      "references": [],
+      "created_at": "2026-04-17T10:57:22.305Z",
+      "file_path": ".pi/routines/mui-customization-slot-strategy.v1.md"
+    },
+    {
+      "id": "react-ui-libraries-2025",
+      "version": 1,
+      "intent": "Choose a React UI library in 2025 based on project constraints and desired ownership",
+      "tags": [
+        "react",
+        "ui-library",
+        "comparison",
+        "2025",
+        "frontend"
+      ],
+      "files_manifest": [],
+      "references": [
+        "shadcn-ui-playbook",
+        "chakra-ui-playbook",
+        "mui-customization-slot-strategy"
+      ],
+      "created_at": "2026-04-17T10:57:22.306Z",
+      "file_path": ".pi/routines/react-ui-libraries-2025.v1.md"
+    },
+    {
+      "id": "shadcn-ui-best-practices-2026",
+      "version": 1,
+      "intent": "Apply real-world best practices for shadcn/ui in production apps",
+      "tags": [
+        "shadcn",
+        "best-practices",
+        "a11y",
+        "performance",
+        "tokens"
+      ],
+      "files_manifest": [],
+      "references": [
+        "shadcn-ui-ecosystem-libraries",
+        "shadcn-ui-blocks-guide"
+      ],
+      "created_at": "2026-04-17T10:57:22.309Z",
+      "file_path": ".pi/routines/shadcn-ui-best-practices-2026.v1.md"
+    },
+    {
+      "id": "shadcn-ui-playbook",
+      "version": 1,
+      "intent": "Apply shadcn/ui principles and scaling patterns without loading long docs",
+      "tags": [
+        "shadcn",
+        "ui",
+        "radix",
+        "tailwind",
+        "tokens",
+        "playbook",
+        "token-safe"
+      ],
+      "files_manifest": [],
+      "references": [
+        "shadcn-ui-principles-aesthetic",
+        "shadcn-ui-best-practices-2026",
+        "shadcn-ui-structure-for-scale",
+        "shadcn-ui-blocks-guide",
+        "shadcn-ui-ecosystem-libraries"
+      ],
+      "created_at": "2026-04-17T10:57:22.311Z",
+      "file_path": ".pi/routines/shadcn-ui-playbook.v1.md"
+    },
+    {
+      "id": "ui-ux-for-product-managers",
+      "version": 1,
+      "intent": "Turn business requirements into design-ready context and unblock PM↔Designer collaboration",
+      "tags": [
+        "ux",
+        "pm",
+        "discovery",
+        "collaboration",
+        "spec"
+      ],
+      "files_manifest": [],
+      "references": [
+        "ui-ux-metrics-for-pms",
+        "ui-ux-design-process-5-stages",
+        "ui-ux-ui-vs-ux-clarifier"
+      ],
+      "created_at": "2026-04-17T10:57:22.314Z",
+      "file_path": ".pi/routines/ui-ux-for-product-managers.v1.md"
+    },
+    {
+      "id": "ui-ux-metrics-for-pms",
+      "version": 1,
+      "intent": "Choose and use UX metrics that defend roadmap tradeoffs with evidence",
+      "tags": [
+        "ux",
+        "pm",
+        "metrics",
+        "usability",
+        "outcomes"
+      ],
+      "files_manifest": [],
+      "references": [],
+      "created_at": "2026-04-17T10:57:22.315Z",
+      "file_path": ".pi/routines/ui-ux-metrics-for-pms.v1.md"
+    },
+    {
+      "id": "ui-ux-playbook",
+      "version": 1,
+      "intent": "Use the right UI/UX principles module for the current task without loading a giant doc",
+      "tags": [
+        "ui",
+        "ux",
+        "playbook",
+        "routing",
+        "token-safe"
+      ],
+      "files_manifest": [],
+      "references": [
+        "ui-ux-for-product-managers",
+        "ui-ux-metrics-for-pms",
+        "ui-ux-design-process-5-stages",
+        "ui-ux-ui-vs-ux-clarifier",
+        "ui-ux-ui-principles-7",
+        "ui-ux-aesthetic-usability-effect",
+        "ui-ux-visual-design-principles-12",
+        "ui-ux-principles-2026",
+        "frontend-design-distinctive-ui-skill",
+        "ui-ux-color-theory-basics"
+      ],
+      "created_at": "2026-04-17T10:57:22.318Z",
+      "file_path": ".pi/routines/ui-ux-playbook.v1.md"
+    }
+  ]
+}

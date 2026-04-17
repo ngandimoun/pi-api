@@ -1,0 +1,145 @@
+{
+  "id": "ui-ux-playbook",
+  "name": "UI/UX playbook (hub)",
+  "description": "Token-safe hub routine that routes to focused UI/UX modules (PM↔Design, metrics, visual principles, aesthetics prompts).",
+  "category": "ui",
+  "stack": ["product", "ux", "ui"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ui-ux-playbook",
+      "version": 1,
+      "intent": "Use the right UI/UX principles module for the current task without loading a giant doc",
+      "tags": ["ui", "ux", "playbook", "routing", "token-safe"],
+      "references": [
+        "ui-ux-for-product-managers",
+        "ui-ux-metrics-for-pms",
+        "ui-ux-design-process-5-stages",
+        "ui-ux-ui-vs-ux-clarifier",
+        "ui-ux-ui-principles-7",
+        "ui-ux-aesthetic-usability-effect",
+        "ui-ux-visual-design-principles-12",
+        "ui-ux-principles-2026",
+        "frontend-design-distinctive-ui-skill",
+        "ui-ux-color-theory-basics",
+        "shadcn-ui-playbook",
+        "chakra-ui-playbook",
+        "react-ui-libraries-2025",
+        "mui-customization-slot-strategy",
+        "react-composition-playbook",
+        "react-native-skills-playbook",
+        "react-view-transitions-playbook"
+      ]
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["pi validate (use existing built-in checks before inventing new rules)"],
+        "must_not": ["Bulk-load every .pi/routines file into an agent context"],
+        "conventions": ["Keep only the hub + a few referenced leaves in active agent context (cap is enforced by Pi CLI)."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "route",
+        "title": "Pick the right module (fast routing)",
+        "steps": [
+          {
+            "id": "pm-designer-pushback",
+            "action": "verify",
+            "description": "If you’re in sprint kickoff and design is pushing back on a feature spec, open `ui-ux-for-product-managers` + `ui-ux-design-process-5-stages` and rewrite the spec as: user→problem→why→constraints→success metrics.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "need-metrics",
+            "action": "verify",
+            "description": "If stakeholders need evidence, open `ui-ux-metrics-for-pms` and pick 2–3 measurable outcomes (task success rate, time on task, CSAT/NPS) tied to the roadmap decision.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "need-ui-principles",
+            "action": "verify",
+            "description": "If the team needs interface-level guardrails, open `ui-ux-ui-principles-7` (checklist) + `ui-ux-visual-design-principles-12` (composition) and apply them directly to the current flow.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "need-polish-not-generic",
+            "action": "verify",
+            "description": "If you need distinctive, production-grade UI (avoid 'AI slop'), open `frontend-design-distinctive-ui-skill` and use it as an agent prompt prefix (typography, color tokens, motion, backgrounds, constraints).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "shadcn-principles",
+            "action": "verify",
+            "description": "If you’re using shadcn/ui and want its principles, scaling structure, blocks, and ecosystem libraries (Radix/CVA/RHF/Zod/Sonner/etc.), open `shadcn-ui-playbook` and then install only the relevant leaf modules.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "chakra-principles",
+            "action": "verify",
+            "description": "If you’re using Chakra UI (style props, theming, dark mode) and want comparisons vs Tailwind/MUI/Ant/Theme UI plus runtime tradeoffs, open `chakra-ui-playbook` and install only the leaf modules you need.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "choose-library-2025",
+            "action": "verify",
+            "description": "If you’re choosing a React UI library for 2025 (MUI/Chakra/Radix/shadcn/Ant/Mantine/etc.), open `react-ui-libraries-2025` and pick based on ownership + a11y + customization + performance constraints.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "mui-customization",
+            "action": "verify",
+            "description": "If you need deep MUI customization without exploding the API, open `mui-customization-slot-strategy` and apply: slots for replaceable parts + slotProps/componentsProps for scoped behavior tweaks.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "react-composition-patterns",
+            "action": "verify",
+            "description": "If you’re refactoring React components with too many boolean props, render props, or prop drilling, open `react-composition-playbook` and apply composition patterns (compound components + provider-owned state + explicit variants).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "react-native-mobile",
+            "action": "verify",
+            "description": "If the task is React Native or Expo (lists, Reanimated, gestures, navigation, images, native menus/modals, monorepo autolinking), open `react-native-skills-playbook` and load only the leaf modules you need.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "react-view-transitions",
+            "action": "verify",
+            "description": "If the task is React View Transitions (`<ViewTransition>`, `addTransitionType`, shared-element morphs, Suspense reveals, Next.js `experimental.viewTransition` / `Link` `transitionTypes`), open `react-view-transitions-playbook` and import only the referenced leaf modules (start with `react-view-transitions-css-recipes` + `react-view-transitions-implementation-workflow`).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "existing-pi-checks",
+            "action": "verify",
+            "description": "Before adding new heuristics, run `pi validate` and use the existing checks: semantic: `ux-copy-tone`, `animation-ux`, `navigation-ia`; deterministic: `a11y-images`, `no-hardcoded-hex`, `no-z-index-chaos`, `no-magic-dimensions`, `no-inline-style-object`.",
+            "critical_rules": [],
+            "validation_checks": ["pi validate"]
+          },
+          {
+            "id": "install-leaf-modules",
+            "action": "verify",
+            "description": "To keep routing token-safe, install only the leaf modules you need (each becomes a routine file under `.pi/routines/`): `pi routine import ui-ux-for-product-managers`, `pi routine import ui-ux-metrics-for-pms`, `pi routine import ui-ux-ui-principles-7`, `pi routine import ui-ux-visual-design-principles-12`, `pi routine import frontend-design-distinctive-ui-skill`.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

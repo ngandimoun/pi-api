@@ -1,0 +1,44 @@
+{
+  "id": "react-best-practices-server-performance",
+  "name": "Server-side performance (RSC / Next.js)",
+  "description": "HIGH: secure + fast server code. Includes: auth server actions, minimize serialization, avoid shared module state, hoist static I/O, React.cache per-request dedup, LRU cross-request caching, parallelize RSC fetching, use after() for non-blocking work.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-best-practices-server-performance",
+      "version": 1,
+      "intent": "Optimize Next.js server code (RSC, server actions, route handlers) for performance and correctness",
+      "tags": ["nextjs", "rsc", "server-actions", "serialization", "react-cache", "lru-cache", "after"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js App Router",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Authenticate/authorize inside server actions", "Minimize data across RSC boundary", "Parallelize fetches via composition"],
+        "must_not": ["Store request/user data in mutable module scope", "Duplicate serialization of derived arrays/objects in RSC props"],
+        "conventions": ["Prefer module-level hoisting for static I/O; use caches with clear scoping (per-request vs cross-request)."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Server-side rules",
+        "steps": [
+          { "id": "auth-server-actions", "action": "verify", "description": "Treat Server Actions like public API endpoints: validate input, authenticate, authorize inside the action.", "critical_rules": [], "validation_checks": [] },
+          { "id": "minimize-serialization", "action": "verify", "description": "At RSC→client boundaries, pass only fields the client uses. Avoid shipping whole objects/arrays when only 1–2 fields are rendered.", "critical_rules": [], "validation_checks": [] },
+          { "id": "avoid-shared-module-state", "action": "verify", "description": "Do not store request/user data in mutable module variables (race conditions + data leaks). Keep request data in render tree scope.", "critical_rules": [], "validation_checks": [] },
+          { "id": "hoist-static-io", "action": "verify", "description": "Hoist static I/O (fonts/logos/config/templates) to module level so it runs once per module load, not per request.", "critical_rules": [], "validation_checks": [] },
+          { "id": "react-cache-dedup", "action": "verify", "description": "Use `React.cache()` to deduplicate per-request work (auth/db/heavy compute). Avoid cache misses from inline object args.", "critical_rules": [], "validation_checks": [] },
+          { "id": "lru-cross-request", "action": "verify", "description": "Use an LRU for cross-request caching when sequential user actions reuse data. Be explicit about TTL/max and invalidation strategy.", "critical_rules": [], "validation_checks": [] },
+          { "id": "parallelize-rsc", "action": "verify", "description": "Parallelize RSC data fetching by splitting into sibling async components or composing layout so fetches start concurrently.", "critical_rules": [], "validation_checks": [] },
+          { "id": "after-nonblocking", "action": "verify", "description": "Use `after()` for logging/analytics/cache invalidation that should not block the response.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

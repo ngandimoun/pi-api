@@ -1,0 +1,54 @@
+{
+  "id": "hono-middleware",
+  "name": "Hono API + middleware",
+  "description": "Hono app with CORS, logger, and Zod-validated JSON body.",
+  "category": "backend",
+  "stack": ["hono", "zod", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "hono-middleware",
+      "version": 1,
+      "intent": "Edge-first Hono API with middleware chain",
+      "tags": ["hono", "edge", "api"],
+      "references": []
+    },
+    "context": {
+      "framework": "Hono",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["hono", "zod"],
+        "must_not": [],
+        "conventions": ["Use hono/zod-validator or manual parse; consistent JSON errors"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/server/hono-app.ts",
+        "purpose": "Hono entry",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "hono",
+        "title": "Hono app",
+        "steps": [
+          {
+            "id": "app",
+            "action": "create_file",
+            "description": "Create Hono instance with middleware and POST /echo example",
+            "file_path": "src/server/hono-app.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/server/hono-app.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

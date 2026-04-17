@@ -1,0 +1,49 @@
+{
+  "id": "react-native-core-rendering",
+  "name": "React Native — core rendering (CRITICAL)",
+  "description": "Prevent production crashes: never leak falsy `0`/`\"\"` with `&&`; always wrap strings in `<Text>`; prefer ternary / `!!` / early return; enable `react/jsx-no-leaked-render` where applicable.",
+  "category": "ui",
+  "stack": ["react-native", "expo", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-core-rendering",
+      "version": 1,
+      "intent": "Fix React Native rendering crashes from conditional JSX and raw strings",
+      "tags": ["react-native", "rendering", "text", "conditional", "crash", "jsx"],
+      "references": []
+    },
+    "context": {
+      "framework": "React Native",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["`<Text>` for all user-visible strings", "Explicit conditionals for numeric/string edge cases"],
+        "must_not": ["`{value && <X/>}` when `value` can be `0` or `\"\"`"],
+        "conventions": ["Prefer `count > 0 ? … : null` or `!!value && …` over leaky `&&`."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Rules",
+        "steps": [
+          {
+            "id": "no-leaked-render",
+            "action": "verify",
+            "description": "Replace `{name && <Text>…}` / `{count && …}` with ternary, `!!`, or early return so `0` and `\"\"` never render as raw text children of `View`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "strings-in-text",
+            "action": "verify",
+            "description": "Ensure every string literal / interpolation is under `<Text>` (never direct children of `View` / `Pressable` root without `Text`).",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

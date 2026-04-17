@@ -1,0 +1,39 @@
+{
+  "id": "chakra-ui-vs-ant-design",
+  "name": "Chakra UI vs Ant Design",
+  "description": "Comparison guide: design language lock-in (Ant) vs unopinionated style-props system (Chakra), theming extensibility, and customization strategy.",
+  "category": "ui",
+  "stack": ["react", "chakra", "ant-design"],
+  "routine_spec": {
+    "metadata": {
+      "id": "chakra-ui-vs-ant-design",
+      "version": 1,
+      "intent": "Decide between Chakra UI and Ant Design for a scalable UI system",
+      "tags": ["chakra", "ant-design", "comparison", "theming", "customization"],
+      "references": []
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Choose based on whether you want a fixed design language or freedom"],
+        "must_not": ["Assume you can fully remove Ant’s design language without significant effort"],
+        "conventions": ["If you need unopinionated UI that morphs into your brand, Chakra often fits better."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "comparison",
+        "title": "Comparison (compressed)",
+        "steps": [
+          { "id": "styling-model", "action": "verify", "description": "Styling: Ant follows ant.design language and limits customization to variables; Chakra emphasizes style props as the primary styling model and is not tied to a design language.", "critical_rules": [], "validation_checks": [] },
+          { "id": "theming", "action": "verify", "description": "Theming: Ant exposes many variables but deep customization beyond them is discouraged; Chakra allows extending global and component defaults and composing new components via Chakra Factory.", "critical_rules": [], "validation_checks": [] },
+          { "id": "practical-implication", "action": "verify", "description": "Practical implication: Ant can be fast if you accept its visual language; Chakra is better when you need custom product branding and flexible composition.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

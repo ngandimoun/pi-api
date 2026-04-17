@@ -1,0 +1,42 @@
+{
+  "id": "react-best-practices-bundle-size",
+  "name": "Bundle size optimization (React/Next.js)",
+  "description": "CRITICAL: reduce initial bundle size and import overhead. Includes: avoid barrel imports, conditional module loading, defer third-party, dynamic imports, analyzable import paths, preload based on intent.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-best-practices-bundle-size",
+      "version": 1,
+      "intent": "Reduce bundle size and import costs for faster TTI/LCP and dev builds",
+      "tags": ["react", "nextjs", "performance", "bundle", "dynamic-import", "optimizePackageImports"],
+      "references": []
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Prefer code-splitting for heavy components", "Keep import paths statically analyzable"],
+        "must_not": ["Accidentally import huge libraries through barrels when deep imports/optimizer exists"],
+        "conventions": ["If Next.js supports import optimization, prefer it over unsafe deep imports without types."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Bundle rules",
+        "steps": [
+          { "id": "avoid-barrels", "action": "verify", "description": "Avoid barrel imports that re-export thousands of modules (icons, MUI). Prefer Next.js import optimization or safe direct imports.", "critical_rules": [], "validation_checks": [] },
+          { "id": "conditional-loading", "action": "verify", "description": "Load big modules/data only when feature is enabled (and gate SSR bundles with `typeof window !== 'undefined'` when appropriate).", "critical_rules": [], "validation_checks": [] },
+          { "id": "defer-third-party", "action": "verify", "description": "Defer analytics/logging/error tracking until after hydration (e.g. `next/dynamic` with `ssr: false`).", "critical_rules": [], "validation_checks": [] },
+          { "id": "dynamic-heavy-components", "action": "verify", "description": "Use `next/dynamic` to lazy-load heavy UI (Monaco, charts) not needed for initial render.", "critical_rules": [], "validation_checks": [] },
+          { "id": "analyzable-paths", "action": "verify", "description": "Prefer statically analyzable import/fs paths. Use explicit maps like `{ key: () => import('...') }` rather than `import(map[key])`.", "critical_rules": [], "validation_checks": [] },
+          { "id": "preload-intent", "action": "verify", "description": "Preload code based on user intent (hover/focus prefetch) to reduce perceived latency without bloating initial bundle.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

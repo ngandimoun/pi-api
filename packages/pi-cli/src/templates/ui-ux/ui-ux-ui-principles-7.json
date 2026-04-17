@@ -1,0 +1,85 @@
+{
+  "id": "ui-ux-ui-principles-7",
+  "name": "7 UI principles (checklist)",
+  "description": "Hierarchy, progressive disclosure, consistency, contrast, proximity, accessibility, alignment — a fast UI checklist for reviews.",
+  "category": "ui",
+  "stack": ["ui", "ux", "frontend"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ui-ux-ui-principles-7",
+      "version": 1,
+      "intent": "Apply a practical UI principles checklist to improve clarity and reduce cognitive load",
+      "tags": ["ui", "ux", "checklist", "accessibility", "hierarchy"],
+      "references": ["ui-ux-visual-design-principles-12"]
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Progressive disclosure for complex flows", "Consistency of components and interactions"],
+        "must_not": ["Overload screens with competing calls-to-action"],
+        "conventions": ["Review flows step-by-step; ensure each step has one primary action and clear escape hatch."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "review",
+        "title": "UI principles checklist",
+        "steps": [
+          {
+            "id": "hierarchy",
+            "action": "verify",
+            "description": "Hierarchy: can users identify the primary action and the next step in <5 seconds? Use size/weight/spacing/contrast to guide attention.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "progressive-disclosure",
+            "action": "verify",
+            "description": "Progressive disclosure: reveal complexity as needed; orient users with step indicators so they know where they are and what's left.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "consistency",
+            "action": "verify",
+            "description": "Consistency: same components look/behave the same across screens. Deviations must have a strong reason (e.g., critical destructive action).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "contrast",
+            "action": "verify",
+            "description": "Contrast: highlight critical information/CTAs; also meet accessibility contrast needs (foreground/background).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "proximity",
+            "action": "verify",
+            "description": "Proximity: things that belong together are grouped together; dangerous actions separated from safe controls.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "accessibility",
+            "action": "verify",
+            "description": "Accessibility: keyboard navigation, focus states, alt text, labels, sufficient target sizes, and readable contrast. Prefer `pi validate` checks before new rules.",
+            "critical_rules": [],
+            "validation_checks": ["pi validate"]
+          },
+          {
+            "id": "alignment",
+            "action": "verify",
+            "description": "Alignment: grids and consistent edges reduce cognitive load; misalignment should be intentional and rare.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

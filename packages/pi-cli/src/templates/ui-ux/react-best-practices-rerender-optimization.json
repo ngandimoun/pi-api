@@ -1,0 +1,46 @@
+{
+  "id": "react-best-practices-rerender-optimization",
+  "name": "Re-render optimization (React)",
+  "description": "MEDIUM: reduce wasted renders and effect churn. Includes: derive state during render, defer reads to usage point, avoid memo for simple primitives, don’t define components inside components, narrow deps, event handlers vs effects, functional setState, lazy init, transitions, deferred value, refs for transient values.",
+  "category": "ui",
+  "stack": ["react", "typescript", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-best-practices-rerender-optimization",
+      "version": 1,
+      "intent": "Reduce unnecessary re-renders and effect re-runs while keeping code correct and readable",
+      "tags": ["react", "performance", "rerender", "usememo", "useeffect", "dependencies", "startTransition", "useDeferredValue"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Derive values in render when possible", "Move interaction side effects into handlers", "Use functional setState for stable callbacks"],
+        "must_not": ["Define components inside components (remounts)", "Use effects for derived state syncing"],
+        "conventions": ["If React Compiler is enabled, avoid over-manual memoization unless needed for correctness."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Re-render rules",
+        "steps": [
+          { "id": "derive-state-in-render", "action": "verify", "description": "If value is computed from props/state, derive it during render (don’t store + sync via effect).", "critical_rules": [], "validation_checks": [] },
+          { "id": "defer-reads", "action": "verify", "description": "Don’t subscribe to state/searchParams/storage if only needed inside a callback; read on demand.", "critical_rules": [], "validation_checks": [] },
+          { "id": "no-memo-simple-primitive", "action": "verify", "description": "Don’t wrap simple boolean/number/string expressions in `useMemo`; the hook overhead can exceed computation.", "critical_rules": [], "validation_checks": [] },
+          { "id": "no-inline-components", "action": "verify", "description": "Don’t define components inside components (causes remount + state loss + effect churn).", "critical_rules": [], "validation_checks": [] },
+          { "id": "narrow-effect-deps", "action": "verify", "description": "Depend on primitives (e.g. `user.id`) rather than objects (`user`) to prevent effect reruns.", "critical_rules": [], "validation_checks": [] },
+          { "id": "handlers-not-effects", "action": "verify", "description": "If side effect is triggered by a user action, perform it in the event handler, not state+effect.", "critical_rules": [], "validation_checks": [] },
+          { "id": "functional-setstate", "action": "verify", "description": "Use functional updates when next state depends on current (`setX(curr => ...)`) for correctness + stable callbacks.", "critical_rules": [], "validation_checks": [] },
+          { "id": "lazy-init", "action": "verify", "description": "Use `useState(() => expensiveInit())` so expensive init runs once, not every render.", "critical_rules": [], "validation_checks": [] },
+          { "id": "transitions-deferred", "action": "verify", "description": "Use `startTransition` for non-urgent updates; use `useDeferredValue` to keep inputs responsive during expensive renders.", "critical_rules": [], "validation_checks": [] },
+          { "id": "refs-transient", "action": "verify", "description": "Use `useRef` for transient values that change frequently but shouldn’t trigger renders.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

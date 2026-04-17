@@ -1,0 +1,78 @@
+{
+  "id": "react-best-practices-waterfalls",
+  "name": "Eliminate waterfalls (React/Next.js)",
+  "description": "CRITICAL: remove sequential awaits and unblock streaming with Suspense boundaries. Includes: cheap conditions first, defer await, Promise.all, start promises early, dependency-based parallelization, strategic Suspense.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-best-practices-waterfalls",
+      "version": 1,
+      "intent": "Eliminate server-side and route-handler waterfalls for large latency wins",
+      "tags": ["react", "nextjs", "performance", "waterfall", "async", "suspense", "promise-all"],
+      "references": []
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Start independent work early", "Await late", "Prefer parallelization over sequential awaits"],
+        "must_not": ["Accidental waterfall chains in API routes/server actions"],
+        "conventions": ["If you can restructure into separate async components + Suspense, do it."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Waterfall elimination rules",
+        "steps": [
+          {
+            "id": "cheap-condition-before-async-flag",
+            "action": "verify",
+            "description": "Check cheap sync guards before awaiting flags/remote values. Example: if `someCondition` is false, skip `await getFlag()` entirely by nesting the await under the guard.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "defer-await",
+            "action": "verify",
+            "description": "Defer awaits until the branch where results are actually used (avoid blocking early-return paths).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "promise-all",
+            "action": "verify",
+            "description": "Use `Promise.all()` for independent operations; don’t serialize unrelated network/db calls.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "start-promises-early-api-routes",
+            "action": "verify",
+            "description": "In route handlers/server actions: start promises immediately (`const p = foo()`), then `await` later after cheap guards/auth when needed.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "dependency-parallelization",
+            "action": "verify",
+            "description": "Parallelize partial dependency chains by creating promises first (or using a dependency graph approach). Avoid: `await user; await profile(user.id)` when profile can start via `userPromise.then(...)`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "strategic-suspense",
+            "action": "verify",
+            "description": "Use Suspense boundaries so layout renders immediately and only the data-dependent subtree awaits. Prefer streaming UI over blocking the entire page.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

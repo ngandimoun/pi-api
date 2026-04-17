@@ -1,0 +1,38 @@
+{
+  "id": "react-composition-explicit-variants",
+  "name": "Create explicit component variants",
+  "description": "MEDIUM: create explicit `ThreadComposer` / `EditComposer` / `ForwardComposer` variants instead of one component with many modes/flags.",
+  "category": "ui",
+  "stack": ["react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-composition-explicit-variants",
+      "version": 1,
+      "intent": "Replace implicit modes with explicit self-documenting variants",
+      "tags": ["react", "composition", "variants", "architecture", "refactor"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Explicit variants composed of shared internals"],
+        "must_not": ["One component with many mode props and hidden conditionals"],
+        "conventions": ["Each variant should declare its provider/state and the exact UI pieces it renders."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "apply",
+        "title": "Apply",
+        "steps": [
+          { "id": "name-variants", "action": "verify", "description": "Name variants by user intent (Thread/Edit/Forward), not booleans.", "critical_rules": [], "validation_checks": [] },
+          { "id": "compose-shared-internals", "action": "verify", "description": "Compose shared internal subcomponents; keep each variant small and explicit.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

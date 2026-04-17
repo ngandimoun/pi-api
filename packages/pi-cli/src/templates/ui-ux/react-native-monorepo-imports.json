@@ -1,0 +1,62 @@
+{
+  "id": "react-native-monorepo-imports",
+  "name": "React Native — monorepo & design-system imports (LOW–CRITICAL)",
+  "description": "CRITICAL for native modules: packages with native code must be depended on by the app package so autolinking sees them. Keep single versions across the monorepo (overrides/syncpack). LOW: re-export third-party UI from a design-system folder so app code imports `@/components/*` not deep package paths.",
+  "category": "ui",
+  "stack": ["react-native", "monorepo", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-monorepo-imports",
+      "version": 1,
+      "intent": "Fix autolinking and dependency drift in React Native monorepos; centralize design-system imports",
+      "tags": ["react-native", "monorepo", "autolinking", "dependencies", "design-system"],
+      "references": []
+    },
+    "context": {
+      "framework": "React Native monorepo",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Native deps listed in the app `package.json`", "Single resolved version per native module across packages"],
+        "must_not": ["Native-only modules installed only in a shared package the app does not depend on"],
+        "conventions": ["Re-export shared primitives from `components/` or `ui/` package entrypoints."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "native-deps",
+        "title": "Native dependencies",
+        "steps": [
+          {
+            "id": "app-install",
+            "action": "verify",
+            "description": "Ensure every native module used at runtime is a direct dependency of the mobile app package (autolinking scans app `node_modules`).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "single-version",
+            "action": "verify",
+            "description": "Deduplicate versions (pnpm overrides / yarn resolutions / npm overrides + syncpack) to avoid duplicate native copies and subtle runtime conflicts.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "imports",
+        "title": "Design-system imports",
+        "steps": [
+          {
+            "id": "barrel-design-system",
+            "action": "verify",
+            "description": "Route app imports through design-system modules so refactors swap implementation without touching every screen.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

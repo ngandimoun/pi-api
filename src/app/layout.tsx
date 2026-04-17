@@ -1,15 +1,25 @@
 import type { Metadata } from "next";
-
-import "./globals.css";
-import { Geist } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
+import "./globals.css";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Pi API",
+  title: "Pi CLI — The Intelligence Layer for Developers",
   description:
-    "Pi — Enterprise-grade Agentic Infrastructure Intelligence Platform",
+    "Pi CLI — Where developer intent becomes code reality. AI-powered development tools that understand your codebase and ship production-ready implementations.",
 };
 
 export default function RootLayout({
@@ -18,8 +28,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body className="min-h-screen antialiased">{children}</body>
+    <html lang="en" suppressHydrationWarning className={cn(inter.variable, jetbrainsMono.variable)}>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+          crossOrigin="anonymous"
+        />
+      </head>
+      <body className="min-h-screen antialiased font-sans">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -1,0 +1,111 @@
+{
+  "id": "react-native-ui-patterns",
+  "name": "React Native — UI patterns (MEDIUM)",
+  "description": "Measure with `useLayoutEffect` + `onLayout` + functional size updates. Modern layout: `gap`, `borderCurve: 'continuous'`, CSS-like `boxShadow`, `experimental_backgroundImage` gradients. Dynamic scroll insets: `contentInset` + `scrollIndicatorInsets`; safe areas: `contentInsetAdjustmentBehavior` on root scrollers. Images: `expo-image` (+ blurhash, cachePolicy, recyclingKey). Galleries: Galeria. Menus: Zeego native menus. Sheets: native `Modal` formSheet / native stack formSheet. Pressables: prefer `Pressable` (RN or RNGH) over legacy Touchables. Compound components for buttons (`Button` + `ButtonText` + `ButtonIcon`) instead of polymorphic string children.",
+  "category": "ui",
+  "stack": ["react-native", "expo", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-ui-patterns",
+      "version": 1,
+      "intent": "Apply native-first UI patterns for images, menus, modals, layout, and component APIs",
+      "tags": ["react-native", "expo-image", "ui", "safe-area", "modal", "pressable", "zeego", "galeria"],
+      "references": []
+    },
+    "context": {
+      "framework": "React Native / Expo",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Native menus/modals where appropriate", "`expo-image` for performance-sensitive image surfaces"],
+        "must_not": ["Reimplement platform menus/modals in JS without strong reason"],
+        "conventions": ["RNGH `Pressable` inside gesture-handler scroll surfaces when gesture competition matters."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "layout-style",
+        "title": "Layout & style",
+        "steps": [
+          {
+            "id": "measure",
+            "action": "verify",
+            "description": "Combine synchronous first measure (`useLayoutEffect` / `getBoundingClientRect` when available) with `onLayout` updates; functional `setSize` to dedupe identical dimensions.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "modern-style",
+            "action": "verify",
+            "description": "Prefer `gap` for sibling spacing; `borderCurve: 'continuous'` with radius; CSS `boxShadow` strings; native gradient via `experimental_backgroundImage` where suitable.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "scroll-insets",
+            "action": "verify",
+            "description": "For dynamic bottom/top spacing (keyboard/toolbars), prefer `contentInset` over mutating heavy `contentContainerStyle` padding when it causes relayout churn.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "safe-area-scroll",
+            "action": "verify",
+            "description": "Prefer `contentInsetAdjustmentBehavior=\"automatic\"` on root `ScrollView` when it matches product constraints vs manual safe padding wrappers.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "media-menus-modals",
+        "title": "Media, menus, modals",
+        "steps": [
+          {
+            "id": "expo-image",
+            "action": "verify",
+            "description": "Use `expo-image` for caching, placeholders (`blurhash`), `contentFit`, `priority`, `cachePolicy`, `recyclingKey` in lists.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "galeria",
+            "action": "verify",
+            "description": "For lightbox / gallery transitions, prefer `@nandorojo/galeria` over ad-hoc `Modal` + pinch implementations.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "zeego",
+            "action": "verify",
+            "description": "Use Zeego (`dropdown-menu`, `context-menu`) for native menus instead of absolutely-positioned custom popovers.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "native-modals",
+            "action": "verify",
+            "description": "Prefer native `Modal` `presentationStyle=\"formSheet\"` or navigation native form sheets over JS-only bottom sheets for primary flows.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "pressable",
+            "action": "verify",
+            "description": "Replace `TouchableOpacity`/`TouchableHighlight` with `Pressable` (RN or RNGH) for new code.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "compound-components",
+            "action": "verify",
+            "description": "Expose `Button` + `ButtonText` + `ButtonIcon` compound API instead of `children: string | ReactNode` polymorphism that risks invalid text trees.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

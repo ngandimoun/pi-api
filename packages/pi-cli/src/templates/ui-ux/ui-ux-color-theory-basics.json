@@ -1,0 +1,40 @@
+{
+  "id": "ui-ux-color-theory-basics",
+  "name": "Color theory for UI (basics)",
+  "description": "Color wheel, harmony, properties, psychology, and practical palette types (mono/analog/complementary/triadic) with accessibility constraints.",
+  "category": "ui",
+  "stack": ["ui", "design", "a11y"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ui-ux-color-theory-basics",
+      "version": 1,
+      "intent": "Choose and apply UI color palettes that support hierarchy, brand, and accessibility",
+      "tags": ["ui", "color", "contrast", "tokens", "accessibility"],
+      "references": []
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Design tokens / CSS variables for palette consistency", "Contrast checks for text and critical UI"],
+        "must_not": ["Rely on color alone to communicate state (also use icons/text/shape)"],
+        "conventions": ["Use dominant base + sharp accents; keep neutrals for layout and readability."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "palette",
+        "title": "Palette selection (quick rules)",
+        "steps": [
+          { "id": "harmony", "action": "verify", "description": "Pick a palette type: monochromatic (subtle), analogous (natural), complementary (high contrast), triadic/tetradic (vivid). Choose one dominant + 1–2 accents + neutrals.", "critical_rules": [], "validation_checks": [] },
+          { "id": "properties", "action": "verify", "description": "Adjust value/saturation/temperature for hierarchy: accents pop via saturation and contrast; backgrounds stay quieter.", "critical_rules": [], "validation_checks": [] },
+          { "id": "psychology", "action": "verify", "description": "Use color psychology intentionally (trust blues, energetic warms, organic greens) but validate against brand and audience expectations.", "critical_rules": [], "validation_checks": [] },
+          { "id": "accessibility", "action": "verify", "description": "Check contrast and states in light/dark; ensure error/warn/success are distinguishable for color-vision deficiency. Prefer `pi validate` and avoid hardcoded hex when your stack uses tokens.", "critical_rules": [], "validation_checks": ["pi validate"] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

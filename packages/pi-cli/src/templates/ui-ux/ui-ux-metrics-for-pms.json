@@ -1,0 +1,84 @@
+{
+  "id": "ui-ux-metrics-for-pms",
+  "name": "UX metrics for PMs",
+  "description": "Tie UX decisions to measurable product outcomes: task success rate, time on task, CSAT, NPS, and how to instrument/use them without gaming.",
+  "category": "workflow",
+  "stack": ["product", "ux", "analytics"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ui-ux-metrics-for-pms",
+      "version": 1,
+      "intent": "Choose and use UX metrics that defend roadmap tradeoffs with evidence",
+      "tags": ["ux", "pm", "metrics", "usability", "outcomes"],
+      "references": []
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Track metrics per flow/feature, not only global averages"],
+        "must_not": ["Treat CSAT/NPS as early warning signals (they’re lagging)"],
+        "conventions": ["Define metric, segment, baseline, and target before claiming success."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "select",
+        "title": "Pick the right usability metrics (fast)",
+        "steps": [
+          {
+            "id": "task-success-rate",
+            "action": "verify",
+            "description": "Task success rate = % of users who complete the target action (checkout, onboarding, find setting). Measure per critical flow step; a high overall success rate can hide step-level friction.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "time-on-task",
+            "action": "verify",
+            "description": "Time on task = duration to complete an action. Use alongside task success rate: slow success still indicates struggle. Segment by new vs returning users and by device/context.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "csat-nps",
+            "action": "verify",
+            "description": "CSAT (moment) + NPS (relationship) capture sentiment. They lag; pair with behavior metrics so you catch friction before retention drops.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "tie-to-goals",
+            "action": "verify",
+            "description": "Translate UX→product outcomes: onboarding friction → activation; checkout confusion → conversion; nav IA problems → support load + retention. Pick 2–3 metrics that map to the business decision being debated.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "operationalize",
+        "title": "Operationalize (so metrics change decisions)",
+        "steps": [
+          {
+            "id": "define-success",
+            "action": "verify",
+            "description": "For each metric: define event(s), population, segmentation, baseline, and target. Decide what change would justify re-prioritizing the roadmap (and what wouldn’t).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "prototype-compare",
+            "action": "verify",
+            "description": "Use prototypes to compare options and make tradeoffs visible: UX value vs effort. When possible, do a short usability test before committing engineering time.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

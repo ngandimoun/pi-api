@@ -1,0 +1,34 @@
+# Template: copy into your repo and set secrets.PI_API_KEY
+name: Pi Routine Drift Check
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  pi-routine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Pi CLI
+        run: npm install -g @pi-api/cli@latest
+
+      - name: Pi validate (routine drift vs changed files)
+        env:
+          PI_API_KEY: ${{ secrets.PI_API_KEY }}
+          PI_CLI_BASE_URL: ${{ vars.PI_CLI_BASE_URL }}
+          # Optional: set repo secret PI_ROUTINE_ID for a fixed routine; else uses branch/commit heuristics
+          PI_ROUTINE_ID: ${{ secrets.PI_ROUTINE_ID }}
+        run: |
+          if [ -n "$PI_ROUTINE_ID" ]; then
+            npx --yes @pi-api/cli@latest validate --staged --strict --routine "$PI_ROUTINE_ID" --json
+          else
+            npx --yes @pi-api/cli@latest validate --staged --strict --auto-detect-routine --json
+          fi

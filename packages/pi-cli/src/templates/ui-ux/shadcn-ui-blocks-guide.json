@@ -1,0 +1,64 @@
+{
+  "id": "shadcn-ui-blocks-guide",
+  "name": "shadcn/ui blocks guide",
+  "description": "Use composable blocks (auth, dashboards, tables, settings) to ship faster; keep ownership and avoid rigid libraries.",
+  "category": "ui",
+  "stack": ["shadcn", "react", "next.js", "tailwind"],
+  "routine_spec": {
+    "metadata": {
+      "id": "shadcn-ui-blocks-guide",
+      "version": 1,
+      "intent": "Adopt shadcn UI blocks to speed delivery without sacrificing a11y or ownership",
+      "tags": ["shadcn", "blocks", "layouts", "dashboard", "auth", "tables"],
+      "references": ["shadcn-ui-ecosystem-libraries"]
+    },
+    "context": {
+      "framework": "shadcn/ui",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Blocks composed from primitives", "Responsive layouts and states"],
+        "must_not": ["Adopt block libraries as opaque runtime dependencies if they fight ownership"],
+        "conventions": ["Copy code, own it, adapt to product logic; keep states and a11y correct."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "blocks",
+        "title": "Block strategy (what to build / reuse)",
+        "steps": [
+          {
+            "id": "what-are-blocks",
+            "action": "verify",
+            "description": "Blocks = pre-assembled sections built from multiple shadcn components (dashboard shells, auth flows, tables, settings pages). You copy JSX and adapt it—no rigid props API lock-in.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "common-categories",
+            "action": "verify",
+            "description": "Common block categories: dashboards (shell/sidebar/topbar/widgets), auth (login/register/verify/reset/2FA), data (tables/charts/stats cards), forms & settings, marketing (hero/features/pricing/testimonials/faq/cta/footer).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "ownership-rule",
+            "action": "verify",
+            "description": "Ownership rule: blocks should live in `components/blocks/` and be product-aware. Avoid copying the same block into multiple pages—centralize and parameterize with minimal props.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "state-and-a11y",
+            "action": "verify",
+            "description": "When you adapt blocks, preserve: loading/empty/error states, keyboard navigation, focus order, labels, and responsive layout. Run `pi validate` and fix the deterministic a11y findings first.",
+            "critical_rules": [],
+            "validation_checks": ["pi validate"]
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

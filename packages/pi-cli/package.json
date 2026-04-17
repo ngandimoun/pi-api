@@ -1,0 +1,72 @@
+{
+  "name": "@pi-api/cli",
+  "version": "0.1.0",
+  "description": "Pi CLI — Intelligence infrastructure for AI agents. The Hokage of your codebase.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "pi": "./dist/index.js",
+    "pi-hokage": "./dist/hokage.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./hokage": {
+      "types": "./dist/hokage.d.ts",
+      "import": "./dist/hokage.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsc --noEmit -w",
+    "test": "vitest run -c vitest.config.ts",
+    "ci": "npm run build && npm run test"
+  },
+  "keywords": [
+    "pi",
+    "cli",
+    "ai",
+    "code-analysis",
+    "cursor",
+    "hokage"
+  ],
+  "author": "Pi",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.8.2",
+    "boxen": "^8.0.1",
+    "cac": "^6.7.14",
+    "chalk": "^5.3.0",
+    "chokidar": "^4.0.3",
+    "cli-spinners": "^3.4.0",
+    "clipboardy": "^5.3.1",
+    "conf": "^13.0.1",
+    "execa": "^9.5.2",
+    "fast-glob": "^3.3.2",
+    "gradient-string": "^3.0.0",
+    "marked": "^14.1.4",
+    "marked-terminal": "^7.3.0",
+    "pi-routine-spec": "file:../pi-routine-spec",
+    "simple-git": "^3.25.0",
+    "ts-morph": "^23.0.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.1"
+  }
+}

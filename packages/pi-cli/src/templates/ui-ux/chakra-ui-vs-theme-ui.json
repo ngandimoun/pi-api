@@ -1,0 +1,39 @@
+{
+  "id": "chakra-ui-vs-theme-ui",
+  "name": "Chakra UI vs Theme UI",
+  "description": "Comparison guide: Chakra inspired by Theme UI but adds more components, improved styling API, and stronger accessibility defaults.",
+  "category": "ui",
+  "stack": ["react", "chakra", "theme-ui"],
+  "routine_spec": {
+    "metadata": {
+      "id": "chakra-ui-vs-theme-ui",
+      "version": 1,
+      "intent": "Decide between Chakra UI and Theme UI",
+      "tags": ["chakra", "theme-ui", "comparison", "theming", "components"],
+      "references": []
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Pick based on component coverage vs your need for a lighter system"],
+        "must_not": ["Assume similar theming implies similar component ergonomics"],
+        "conventions": ["If you want more built-in components + prop-based ergonomics, Chakra often fits; if you want a smaller system, Theme UI can be attractive."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "comparison",
+        "title": "Comparison (compressed)",
+        "steps": [
+          { "id": "inspiration", "action": "verify", "description": "Chakra was inspired by Theme UI and follows system UI specs, but aims to be a more robust, component-rich system with a very intuitive prop-based styling API.", "critical_rules": [], "validation_checks": [] },
+          { "id": "when-chakra", "action": "verify", "description": "Choose Chakra when: you want many accessible components, strong theming + dark mode patterns, and a highly ergonomic style-props API.", "critical_rules": [], "validation_checks": [] },
+          { "id": "when-theme-ui", "action": "verify", "description": "Choose Theme UI when: you want a lighter-weight theming-first system and prefer to build more of the component layer yourself.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

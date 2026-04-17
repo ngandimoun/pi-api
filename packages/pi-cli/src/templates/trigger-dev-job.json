@@ -1,0 +1,54 @@
+{
+  "id": "trigger-dev-job",
+  "name": "Trigger.dev background task",
+  "description": "Long-running job with retries and structured logging.",
+  "category": "workflow",
+  "stack": ["trigger.dev", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "trigger-dev-job",
+      "version": 1,
+      "intent": "Scaffold Trigger.dev task for async work",
+      "tags": ["trigger", "background", "jobs"],
+      "references": []
+    },
+    "context": {
+      "framework": "Trigger.dev",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@trigger.dev/sdk"],
+        "must_not": [],
+        "conventions": ["Idempotency keys; bounded retries; no secrets in logs"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/trigger/example-task.ts",
+        "purpose": "Trigger task",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "task",
+        "title": "Background task",
+        "steps": [
+          {
+            "id": "file",
+            "action": "create_file",
+            "description": "Export task with schema and handler",
+            "file_path": "src/trigger/example-task.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/trigger/example-task.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

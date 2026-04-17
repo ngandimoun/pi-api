@@ -1,0 +1,68 @@
+{
+  "id": "livekit-room-session",
+  "name": "LiveKit room token + join",
+  "description": "Server token mint and client Room connect pattern (env-driven URLs).",
+  "category": "realtime",
+  "stack": ["livekit", "next.js", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "livekit-room-session",
+      "version": 1,
+      "intent": "Join a LiveKit room with server-minted token",
+      "tags": ["livekit", "webrtc", "realtime"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["livekit-server-sdk", "livekit-client"],
+        "must_not": [],
+        "conventions": ["Use internal token API; never embed API secret in client"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/app/api/livekit/token/route.ts",
+        "purpose": "Mint access token",
+        "depends_on": [],
+        "action": "create"
+      },
+      {
+        "path": "src/components/LiveKitRoom.tsx",
+        "purpose": "Client Room",
+        "depends_on": ["src/app/api/livekit/token/route.ts"],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "lk",
+        "title": "LiveKit",
+        "steps": [
+          {
+            "id": "token",
+            "action": "create_file",
+            "description": "POST returns JWT for room name and identity",
+            "file_path": "src/app/api/livekit/token/route.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "client",
+            "action": "create_file",
+            "description": "Connect Room with token from API",
+            "file_path": "src/components/LiveKitRoom.tsx",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/app/api/livekit/token/route.ts", "src/components/LiveKitRoom.tsx"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

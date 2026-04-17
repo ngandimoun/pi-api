@@ -1,0 +1,54 @@
+{
+  "id": "trpc-router",
+  "name": "tRPC router + procedures",
+  "description": "Root router with public and protected procedures and Zod inputs.",
+  "category": "backend",
+  "stack": ["trpc", "zod", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "trpc-router",
+      "version": 1,
+      "intent": "Add tRPC router with typed procedures",
+      "tags": ["trpc", "api"],
+      "references": []
+    },
+    "context": {
+      "framework": "tRPC",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@trpc/server", "zod"],
+        "must_not": [],
+        "conventions": ["Use middleware for ctx; procedure errors via TRPCError"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/server/trpc/router.ts",
+        "purpose": "App router",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "trpc",
+        "title": "Router",
+        "steps": [
+          {
+            "id": "router",
+            "action": "create_file",
+            "description": "Define initTRPC, router, and example query/mutation",
+            "file_path": "src/server/trpc/router.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/server/trpc/router.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

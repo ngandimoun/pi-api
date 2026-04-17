@@ -1,0 +1,49 @@
+{
+  "id": "react-composition-playbook",
+  "name": "React composition patterns (hub)",
+  "description": "Automation-optimized React composition patterns (Jan 2026): avoid boolean prop proliferation, use compound components, lift state into providers, and apply React 19 context/ref changes safely.",
+  "category": "ui",
+  "stack": ["react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-composition-playbook",
+      "version": 1,
+      "intent": "Refactor and generate React components using composition patterns that scale",
+      "tags": ["react", "composition", "compound-components", "context", "providers", "refactor", "automation"],
+      "references": [
+        "react-composition-avoid-boolean-props",
+        "react-composition-compound-components",
+        "react-composition-state-interface",
+        "react-composition-lift-state-provider",
+        "react-composition-decouple-state-ui",
+        "react-composition-children-over-render-props",
+        "react-composition-explicit-variants",
+        "react-19-context-and-ref-changes"
+      ]
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Composition over configuration", "Providers for state injection", "Explicit variants instead of boolean mode props"],
+        "must_not": ["Boolean prop proliferation", "Monolithic render-prop APIs for structural composition"],
+        "conventions": ["Define context interfaces as { state, actions, meta } for dependency injection."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "route",
+        "title": "Pick the right composition rule",
+        "steps": [
+          { "id": "many-booleans", "action": "verify", "description": "If a component has many booleans/modes, open `react-composition-avoid-boolean-props` + `react-composition-explicit-variants`.", "critical_rules": [], "validation_checks": [] },
+          { "id": "prop-drilling", "action": "verify", "description": "If you see prop drilling or massive render props, open `react-composition-compound-components` + `react-composition-state-interface`.", "critical_rules": [], "validation_checks": [] },
+          { "id": "siblings-need-state", "action": "verify", "description": "If siblings outside a component need access to its state/actions, open `react-composition-lift-state-provider`.", "critical_rules": [], "validation_checks": [] },
+          { "id": "react19", "action": "verify", "description": "If the codebase is React 19+, open `react-19-context-and-ref-changes` before refactor patterns that touch refs/context.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

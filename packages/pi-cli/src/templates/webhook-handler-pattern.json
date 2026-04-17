@@ -1,0 +1,54 @@
+{
+  "id": "webhook-handler-pattern",
+  "name": "Verified webhook handler",
+  "description": "Raw body verification (HMAC/signature) before JSON parse.",
+  "category": "integration",
+  "stack": ["next.js", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "webhook-handler-pattern",
+      "version": 1,
+      "intent": "Secure webhook route with signature verification",
+      "tags": ["webhook", "security", "api"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js App Router",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": [],
+        "must_not": ["JSON.parse before verify"],
+        "conventions": ["Read raw body string; constant-time compare signatures"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/app/api/webhooks/provider/route.ts",
+        "purpose": "Webhook POST",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "wh",
+        "title": "Webhook",
+        "steps": [
+          {
+            "id": "route",
+            "action": "create_file",
+            "description": "POST handler: raw body, verify, idempotent processing",
+            "file_path": "src/app/api/webhooks/provider/route.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/app/api/webhooks/provider/route.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

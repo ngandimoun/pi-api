@@ -1,0 +1,102 @@
+{
+  "id": "ui-ux-design-process-5-stages",
+  "name": "UX design process (5 stages)",
+  "description": "Define→research→prototype→test→iterate. Includes what PMs should provide to design at each stage to reduce kickoff churn.",
+  "category": "workflow",
+  "stack": ["ux", "process", "product"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ui-ux-design-process-5-stages",
+      "version": 1,
+      "intent": "Run a lightweight UX process that produces decisions you can defend (not just screens)",
+      "tags": ["ux", "process", "research", "prototype", "testing", "iteration"],
+      "references": []
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["User needs + behavior evidence early (even lightweight)"],
+        "must_not": ["Skip testing for high-risk flows when a small prototype test is feasible"],
+        "conventions": ["Iterate based on observed behavior, not purely stakeholder preference."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "define",
+        "title": "Stage 1 — Define the problem",
+        "steps": [
+          {
+            "id": "problem-statement",
+            "action": "verify",
+            "description": "Write a clear problem statement: user segment + context + pain + desired outcome. Include constraints and non-goals.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "research",
+        "title": "Stage 2 — Research",
+        "steps": [
+          {
+            "id": "evidence",
+            "action": "verify",
+            "description": "Collect behavioral evidence: interviews, surveys, usability tests, support tickets, analytics. Use AI summarization carefully but always validate with raw examples.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "personas",
+            "action": "verify",
+            "description": "If helpful, define lightweight personas / jobs-to-be-done to align the team on who is served and what tradeoffs are acceptable.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "prototype",
+        "title": "Stage 3 — Prototype",
+        "steps": [
+          {
+            "id": "flows-first",
+            "action": "verify",
+            "description": "Prototype the flow before pixel perfection. A rough wireflow can reveal missing states, unclear choices, and brittle assumptions early.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "test",
+        "title": "Stage 4 — Test and gather feedback",
+        "steps": [
+          {
+            "id": "usability-testing",
+            "action": "verify",
+            "description": "Run small usability tests and observe where users hesitate, fail, or misunderstand. Prefer 'show me' over 'tell me'.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "iterate",
+        "title": "Stage 5 — Iterate and refine",
+        "steps": [
+          {
+            "id": "ship-learn",
+            "action": "verify",
+            "description": "After launch, monitor activation/conversion/support signals; refine flows. Design is not done at launch—instrumentation + iteration keeps UX aligned with reality.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

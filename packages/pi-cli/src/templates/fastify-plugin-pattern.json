@@ -1,0 +1,54 @@
+{
+  "id": "fastify-plugin-pattern",
+  "name": "Fastify plugin",
+  "description": "Encapsulated Fastify plugin with typed options and prefix.",
+  "category": "backend",
+  "stack": ["fastify", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "fastify-plugin-pattern",
+      "version": 1,
+      "intent": "Create a reusable Fastify plugin",
+      "tags": ["fastify", "plugin"],
+      "references": []
+    },
+    "context": {
+      "framework": "Fastify",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["fastify-plugin"],
+        "must_not": [],
+        "conventions": ["Use fp() wrapper; avoid decorating global instance outside plugin"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/plugins/example-plugin.ts",
+        "purpose": "Fastify plugin",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "plugin",
+        "title": "Plugin",
+        "steps": [
+          {
+            "id": "file",
+            "action": "create_file",
+            "description": "Export async plugin with options schema and routes",
+            "file_path": "src/plugins/example-plugin.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/plugins/example-plugin.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "server-action-pattern",
+  "name": "Next.js Server Action pattern",
+  "description": "Typed server action with Zod validation and revalidatePath.",
+  "category": "api",
+  "stack": ["next.js", "zod"],
+  "routine_spec": {
+    "metadata": {
+      "id": "server-action-pattern",
+      "version": 1,
+      "intent": "Add a server action with Zod input validation",
+      "tags": ["server-actions", "zod", "nextjs"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js App Router",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["\"use server\"", "z.object"],
+        "must_not": [],
+        "conventions": ["Return discriminated union for errors"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/actions/example.ts",
+        "purpose": "Server action module",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "sa",
+        "title": "Server action",
+        "steps": [
+          {
+            "id": "sa-create",
+            "action": "create_file",
+            "description": "Create server action with Zod schema",
+            "file_path": "src/actions/example.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/actions/example.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

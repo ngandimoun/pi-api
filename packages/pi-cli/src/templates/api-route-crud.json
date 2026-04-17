@@ -1,0 +1,54 @@
+{
+  "id": "api-route-crud",
+  "name": "App Router REST CRUD route",
+  "description": "Route handlers for GET/POST/PATCH/DELETE with Zod body validation.",
+  "category": "api",
+  "stack": ["next.js", "zod"],
+  "routine_spec": {
+    "metadata": {
+      "id": "api-route-crud",
+      "version": 1,
+      "intent": "CRUD API route under app/api with validation",
+      "tags": ["api", "rest", "route-handler"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js App Router",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["NextResponse", "zod"],
+        "must_not": [],
+        "conventions": ["Return consistent JSON error shape"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/app/api/items/route.ts",
+        "purpose": "REST handlers",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "crud",
+        "title": "Route handlers",
+        "steps": [
+          {
+            "id": "route",
+            "action": "create_file",
+            "description": "Implement GET/POST handlers",
+            "file_path": "src/app/api/items/route.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/app/api/items/route.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

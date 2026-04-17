@@ -1,0 +1,68 @@
+{
+  "id": "mastra-agent-scaffold",
+  "name": "Mastra agent with tools",
+  "description": "Agent definition with Zod tools and environment-driven model.",
+  "category": "agent",
+  "stack": ["mastra", "typescript", "zod"],
+  "routine_spec": {
+    "metadata": {
+      "id": "mastra-agent-scaffold",
+      "version": 1,
+      "intent": "Scaffold a Mastra agent with typed tools",
+      "tags": ["agent", "mastra", "tools"],
+      "references": []
+    },
+    "context": {
+      "framework": "Mastra",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@mastra/core", "createTool", "z"],
+        "must_not": [],
+        "conventions": ["Model from env; tools return structured JSON only"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/mastra/agents/task-agent.ts",
+        "purpose": "Mastra agent",
+        "depends_on": ["src/mastra/tools/example-tool.ts"],
+        "action": "create"
+      },
+      {
+        "path": "src/mastra/tools/example-tool.ts",
+        "purpose": "Zod-typed tool",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "agent",
+        "title": "Agent scaffold",
+        "steps": [
+          {
+            "id": "tool",
+            "action": "create_file",
+            "description": "Create example-tool with input/output schema",
+            "file_path": "src/mastra/tools/example-tool.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "agent-file",
+            "action": "create_file",
+            "description": "Wire task-agent with tools and instructions",
+            "file_path": "src/mastra/agents/task-agent.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/mastra/agents/task-agent.ts", "src/mastra/tools/example-tool.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

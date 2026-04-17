@@ -1,0 +1,40 @@
+{
+  "id": "react-best-practices-client-data-fetching",
+  "name": "Client-side data fetching (React/Next.js)",
+  "description": "MEDIUM-HIGH: reduce redundant network work and listener duplication. Includes: SWR deduplication, passive listeners, global listener dedup, localStorage minimization/versioning.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-best-practices-client-data-fetching",
+      "version": 1,
+      "intent": "Optimize client-side data fetching and event subscriptions for responsiveness and correctness",
+      "tags": ["react", "performance", "swr", "event-listeners", "passive", "localstorage"],
+      "references": []
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Deduplicate requests and subscriptions", "Use passive listeners for scroll/touch where safe"],
+        "must_not": ["Register N global listeners for N component instances", "Store large/sensitive blobs in localStorage without versioning"],
+        "conventions": ["Wrap storage reads/writes in try/catch (private mode/quota)."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Client fetching rules",
+        "steps": [
+          { "id": "dedup-global-listeners", "action": "verify", "description": "Deduplicate global event listeners across component instances (single subscription, fan out to callbacks).", "critical_rules": [], "validation_checks": [] },
+          { "id": "passive-scroll", "action": "verify", "description": "Use `{ passive: true }` for touch/wheel/scroll listeners that never call `preventDefault()`.", "critical_rules": [], "validation_checks": [] },
+          { "id": "swr-dedup", "action": "verify", "description": "Prefer SWR for automatic request deduplication/caching across component instances.", "critical_rules": [], "validation_checks": [] },
+          { "id": "localstorage-version-minimize", "action": "verify", "description": "Version keys and store minimal fields in localStorage; handle exceptions; include migrations when schema changes.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

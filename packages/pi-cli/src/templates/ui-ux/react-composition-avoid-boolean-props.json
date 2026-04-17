@@ -1,0 +1,50 @@
+{
+  "id": "react-composition-avoid-boolean-props",
+  "name": "Avoid boolean prop proliferation (React composition)",
+  "description": "CRITICAL: don’t add mode booleans (isThread/isEditing/etc.). Create explicit variants and compose internals instead.",
+  "category": "ui",
+  "stack": ["react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-composition-avoid-boolean-props",
+      "version": 1,
+      "intent": "Prevent exponential complexity by replacing boolean-mode props with composition",
+      "tags": ["react", "composition", "architecture", "props", "refactor"],
+      "references": ["react-composition-explicit-variants"]
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Explicit variant components", "Compound pieces composed by consumers"],
+        "must_not": ["Add multiple isX booleans to a single component to control rendering"],
+        "conventions": ["Each variant should be explicit about what it renders; no hidden conditionals."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rule",
+        "title": "Rule",
+        "steps": [
+          {
+            "id": "why",
+            "action": "verify",
+            "description": "Each boolean doubles possible states, producing unmaintainable conditional logic. Replace booleans with explicit variants that compose shared internals.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "how",
+            "action": "verify",
+            "description": "Refactor approach: identify boolean modes → extract shared primitives → create `ThreadComposer`, `EditComposer`, etc. → delete boolean branching.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

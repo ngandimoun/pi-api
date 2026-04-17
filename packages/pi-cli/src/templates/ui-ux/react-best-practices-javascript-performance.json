@@ -1,0 +1,43 @@
+{
+  "id": "react-best-practices-javascript-performance",
+  "name": "JavaScript performance (hot paths)",
+  "description": "LOW-MEDIUM: micro-optimizations for hot paths (DOM/layout thrash avoidance, maps/sets for lookups, caching storage calls, combine iterations, early exits, toSorted immutability, requestIdleCallback).",
+  "category": "ui",
+  "stack": ["javascript", "typescript", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-best-practices-javascript-performance",
+      "version": 1,
+      "intent": "Improve JS hot-path performance in React apps without creating correctness bugs",
+      "tags": ["javascript", "performance", "hotpath", "map", "set", "storage", "requestIdleCallback"],
+      "references": []
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Prefer algorithmic wins (O(n)→O(1)) before micro tweaks"],
+        "must_not": ["Introduce caching without invalidation when external changes are possible"],
+        "conventions": ["Keep perf changes localized and testable; avoid premature optimization."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "JS performance rules",
+        "steps": [
+          { "id": "avoid-layout-thrashing", "action": "verify", "description": "Avoid interleaving layout reads (`getBoundingClientRect/offsetWidth`) with style writes; batch writes then read once.", "critical_rules": [], "validation_checks": [] },
+          { "id": "index-maps", "action": "verify", "description": "Use Map/Set for repeated lookups instead of repeated `.find()`/`.includes()` over arrays.", "critical_rules": [], "validation_checks": [] },
+          { "id": "cache-storage", "action": "verify", "description": "Cache `localStorage/sessionStorage/cookie` reads in memory; invalidate on `storage` / visibility changes when needed.", "critical_rules": [], "validation_checks": [] },
+          { "id": "combine-iterations", "action": "verify", "description": "Combine multiple filter/map passes into a single loop when it’s a hot path.", "critical_rules": [], "validation_checks": [] },
+          { "id": "early-exit", "action": "verify", "description": "Return early when outcome is known; check cheap conditions like array length before expensive comparisons.", "critical_rules": [], "validation_checks": [] },
+          { "id": "immutable-sort", "action": "verify", "description": "Prefer `toSorted()` (or `[...arr].sort`) over mutating `.sort()` to avoid React state/prop mutation bugs.", "critical_rules": [], "validation_checks": [] },
+          { "id": "idle-callback", "action": "verify", "description": "Defer non-critical work (analytics, prefetch, persistence) using `requestIdleCallback` (with timeout/fallback).", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

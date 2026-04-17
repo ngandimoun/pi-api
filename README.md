@@ -1,42 +1,54 @@
-# Pi (PI Intelligence) — OpenAI-compatible agentic intelligence APIs
+# Pi CLI — The Intelligence Layer for Developers
 
-**Pi** is an enterprise-grade **Agentic Infrastructure Intelligence Platform**: a multi-modal orchestration API with a predictable, **OpenAI-style** developer experience (Bearer auth, consistent envelopes, async jobs, typed contracts).
+**Pi CLI** is an AI-powered development tool that understands your codebase and transforms natural language into production-ready implementations. Where developer intent becomes code reality.
 
-- **Docs hub**: [`docs/README.md`](docs/README.md)
-- **Start here**: [`docs/v1/intro.mdx`](docs/v1/intro.mdx)
-- **Copy/paste quickstart**: [`docs/v1/quickstart.mdx`](docs/v1/quickstart.mdx)
+- **Landing Page**: http://localhost:3000
+- **Documentation**: https://piii.mintlify.app/
+- **CLI Package**: `@pi-api/cli` (coming soon)
 
-## Why Pi is useful
+## Why Pi CLI is revolutionary
 
-- **One API surface, many verticals**: brand identity, visual ads, voice agents, health decision support, neuro/BCI decoding, video surveillance, and robotics—using the same auth + job lifecycle patterns.
-- **Production-first async**: heavy work returns `202 Accepted` + `job_id` / `run_id`, then you poll for completion (or subscribe via SSE where supported).
-- **Deterministic + model-backed**: contracts are validated (Zod), with fallbacks and diagnostics designed for real operations.
+- **Conversational Code Intelligence**: Describe what you want in natural language and get complete implementations, not just snippets
+- **Contextual Understanding**: Pi CLI analyzes your entire codebase to generate code that fits your patterns and architecture
+- **Production-Ready Output**: From authentication systems to deployment configs, Pi CLI ships code that works
+- **Seamless Workflow**: One command from idea to implementation—no switching between tools or contexts
 
-## Core API patterns (v1)
+## Quick Start
 
-- **Base URL**: your deployed host. Public routes are under **`/api/v1/`**.
-- **Authentication**: every request includes:
+### 1. Get Your API Key
+Visit [http://localhost:3000](http://localhost:3000) and sign up with Google to generate your Pi CLI API key.
 
-```http
-Authorization: Bearer <pi_api_key>
-Content-Type: application/json
+### 2. Install Pi CLI
+```bash
+npm install -g @pi-api/cli
 ```
 
-- **Async jobs**: creation endpoints typically respond:
+### 3. Authenticate
+```bash
+pi auth login --key YOUR_API_KEY
+```
 
-```json
-{ "object": "job", "status": "queued", "data": { "job_id": "<uuid>" } }
+### 4. Start Building
+```bash
+# Generate a complete Next.js app with authentication
+pi "Create a Next.js app with Supabase auth and Stripe billing"
+
+# Add features to existing projects
+pi "Add real-time chat to my React app"
+
+# Refactor and improve code
+pi "Migrate this component to TypeScript with proper types"
 ```
 
 Then poll:
 
 - `GET /api/v1/jobs/:id?wait_for_completion=true&timeout_seconds=20`
 
-Full envelope + error format is documented in [`docs/v1/intro.mdx`](docs/v1/intro.mdx).
+Full envelope + error format is documented in `[docs/v1/intro.mdx](docs/v1/intro.mdx)`.
 
 ## API surface (what exists in this repo)
 
-Canonical endpoint index lives in [`docs/README.md`](docs/README.md). High-level grouping:
+Canonical endpoint index lives in `[docs/README.md](docs/README.md)`. High-level grouping:
 
 ### Brand intelligence (identity → usable JSON)
 
@@ -45,8 +57,9 @@ Canonical endpoint index lives in [`docs/README.md`](docs/README.md). High-level
 - **Project** identity into a compact `use_case` payload: `POST /api/v1/brands/:id/project`
 
 Docs:
-- [`docs/v1/endpoints/brand-extraction.mdx`](docs/v1/endpoints/brand-extraction.mdx)
-- [`docs/v1/endpoints/brand-project.mdx`](docs/v1/endpoints/brand-project.mdx)
+
+- `[docs/v1/endpoints/brand-extraction.mdx](docs/v1/endpoints/brand-extraction.mdx)`
+- `[docs/v1/endpoints/brand-project.mdx](docs/v1/endpoints/brand-project.mdx)`
 
 ### Visual commerce (static ads + campaign pipelines)
 
@@ -56,10 +69,11 @@ Docs:
 - `POST /api/v1/campaigns/edit`
 - `POST /api/v1/campaigns/localize-ad`
 - `POST /api/v1/images/campaigns` (alias)
-- `POST /api/v1/avatars/generate` + list/get/save (`/api/v1/avatars*`)
+- `POST /api/v1/avatars/generate` + list/get/save (`/api/v1/avatars`*)
 
 Guide:
-- [`docs/v1/guides/pipeline-orchestration.mdx`](docs/v1/guides/pipeline-orchestration.mdx)
+
+- `[docs/v1/guides/pipeline-orchestration.mdx](docs/v1/guides/pipeline-orchestration.mdx)`
 
 ### Voice intelligence (LiveKit + Gemini Live)
 
@@ -70,35 +84,36 @@ Configure reusable agents, start realtime sessions, then complete with transcrip
 - LiveKit webhook (signed): `POST /api/v1/voice/webhooks/livekit`
 
 Docs:
-- [`docs/v1/endpoints/voice.mdx`](docs/v1/endpoints/voice.mdx)
-- [`docs/v1/guides/voice-sessions.mdx`](docs/v1/guides/voice-sessions.mdx)
+
+- `[docs/v1/endpoints/voice.mdx](docs/v1/endpoints/voice.mdx)`
+- `[docs/v1/guides/voice-sessions.mdx](docs/v1/guides/voice-sessions.mdx)`
 
 ### Health intelligence (triage + decision APIs)
 
 All health endpoints are **async job APIs**: `POST` → `202 job_id` → poll jobs for `payload.output`.
 
-- Point-of-care triage: `POST /api/v1/health/analyze` ([`docs/v1/health-triage.mdx`](docs/v1/health-triage.mdx))
-- Decision suite (7 endpoints): overview in [`docs/v1/health-decision-apis.mdx`](docs/v1/health-decision-apis.mdx)
+- Point-of-care triage: `POST /api/v1/health/analyze` (`[docs/v1/health-triage.mdx](docs/v1/health-triage.mdx)`)
+- Decision suite (7 endpoints): overview in `[docs/v1/health-decision-apis.mdx](docs/v1/health-decision-apis.mdx)`
 
 ### Neuro / BCI (EEG decode + wellness)
 
-- `POST /api/v1/neuro/decode` ([`docs/v1/neuro-decode.mdx`](docs/v1/neuro-decode.mdx))
-- `POST /api/v1/health/wellness` ([`docs/v1/cognitive-wellness.mdx`](docs/v1/cognitive-wellness.mdx))
+- `POST /api/v1/neuro/decode` (`[docs/v1/neuro-decode.mdx](docs/v1/neuro-decode.mdx)`)
+- `POST /api/v1/health/wellness` (`[docs/v1/cognitive-wellness.mdx](docs/v1/cognitive-wellness.mdx)`)
 
 ### Video surveillance + robotics
 
-- Surveillance: streams/policies/events (SSE) ([`docs/v1/video-surveillance.mdx`](docs/v1/video-surveillance.mdx))
-- Robotics: runs/status/command/events ([`docs/v1/robotics-api.mdx`](docs/v1/robotics-api.mdx))
+- Surveillance: streams/policies/events (SSE) (`[docs/v1/video-surveillance.mdx](docs/v1/video-surveillance.mdx)`)
+- Robotics: runs/status/command/events (`[docs/v1/robotics-api.mdx](docs/v1/robotics-api.mdx)`)
 
 ### Infrastructure endpoints (jobs, runs, webhooks)
 
-- Jobs: `GET /api/v1/jobs/:id` ([`docs/v1/endpoints/jobs.mdx`](docs/v1/endpoints/jobs.mdx))
-- Runs (one-request pipelines): `POST /api/v1/runs`, `GET /api/v1/runs/:id` ([`docs/v1/endpoints/runs.mdx`](docs/v1/endpoints/runs.mdx))
-- Webhooks registry: `GET|POST /api/v1/webhooks`, `PATCH /api/v1/webhooks/:id` ([`docs/v1/endpoints/webhooks.mdx`](docs/v1/endpoints/webhooks.mdx))
+- Jobs: `GET /api/v1/jobs/:id` (`[docs/v1/endpoints/jobs.mdx](docs/v1/endpoints/jobs.mdx)`)
+- Runs (one-request pipelines): `POST /api/v1/runs`, `GET /api/v1/runs/:id` (`[docs/v1/endpoints/runs.mdx](docs/v1/endpoints/runs.mdx)`)
+- Webhooks registry: `GET|POST /api/v1/webhooks`, `PATCH /api/v1/webhooks/:id` (`[docs/v1/endpoints/webhooks.mdx](docs/v1/endpoints/webhooks.mdx)`)
 
 ## Quickstart (curl)
 
-Full copy/paste examples (curl, fetch, Python) are in [`docs/v1/quickstart.mdx`](docs/v1/quickstart.mdx). Minimal end-to-end:
+Full copy/paste examples (curl, fetch, Python) are in `[docs/v1/quickstart.mdx](docs/v1/quickstart.mdx)`. Minimal end-to-end:
 
 ```bash
 export BASE="https://api.example.com"
@@ -124,13 +139,48 @@ npm install @pi-api/sdk
 ```
 
 Docs:
-- [`packages/pi-sdk/README.md`](packages/pi-sdk/README.md)
+
+- `[packages/pi-sdk/README.md](packages/pi-sdk/README.md)`
+
+## Pi CLI (Hokage Edition)
+
+Local CLI + `pi-hokage` onboarding wizard live under `packages/pi-cli` and `packages/pi-hokage`:
+
+```bash
+npx pi-hokage@latest
+# or
+npm install -g @pi-api/cli
+pi learn
+```
+
+- API routes: `/api/cli/*` (auth, learn, routine, validate, intent, cache, GitHub webhook)
+- Install script (for your deployed app): `GET /hokage` → shell installer
+
+See `[packages/pi-cli/README.md](packages/pi-cli/README.md)`.
+
+### Mastra-powered CLI orchestration
+
+The CLI pipeline now supports deterministic, auditable orchestration with Mastra:
+
+- Workflow-backed command execution for `learn`, `routine`, and `validate`
+- Optional thread-aware memory scoped by organization + branch (+ developer)
+- HITL suspend/resume for routine approval flows
+- Workflow status/resume/debug API routes under `/api/cli/workflow/*` and `/api/cli/validate/debug`
+
+Enable with environment flags:
+
+- `PI_CLI_USE_WORKFLOWS=true`
+- `PI_CLI_ROUTINE_HITL=true` (for approval gates in `pi routine --approval`)
+- `PI_CLI_DATABASE_URL=<postgres-connection>` (required for workflow storage + memory)
+- `PI_MASTRA_DEFAULT_MODEL=<provider/model>`
+
+Architecture details: `[docs/cli/mastra-architecture.md](docs/cli/mastra-architecture.md)`.
 
 ## Local development
 
 - `npm install`
 - `npm run dev`
-- Configure env via `.env.local` and restart `next dev` after changes (details in [`docs/v1/intro.mdx`](docs/v1/intro.mdx)).
+- Configure env via `.env.local` and restart `next dev` after changes (details in `[docs/v1/intro.mdx](docs/v1/intro.mdx)`).
 
 
 

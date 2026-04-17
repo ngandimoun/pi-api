@@ -1,0 +1,38 @@
+{
+  "id": "react-composition-decouple-state-ui",
+  "name": "Decouple state management from UI",
+  "description": "MEDIUM: the Provider should be the only place that knows how state is stored/synced; UI reads the generic context interface.",
+  "category": "ui",
+  "stack": ["react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-composition-decouple-state-ui",
+      "version": 1,
+      "intent": "Keep UI components independent from the underlying state implementation",
+      "tags": ["react", "composition", "state-management", "providers", "architecture"],
+      "references": ["react-composition-state-interface"]
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Provider abstracts state backend", "UI depends only on the context contract"],
+        "must_not": ["UI components calling global store hooks directly when they are intended to be reusable"],
+        "conventions": ["Swap providers (local vs global vs server-synced) without changing UI subcomponents."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "apply",
+        "title": "Apply",
+        "steps": [
+          { "id": "find-coupling", "action": "verify", "description": "Search for UI components that directly call state hooks that make them non-reusable.", "critical_rules": [], "validation_checks": [] },
+          { "id": "wrap-with-provider", "action": "verify", "description": "Create a provider that owns the state hook + sync logic, and pass only `{ state, actions, meta }` to context.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

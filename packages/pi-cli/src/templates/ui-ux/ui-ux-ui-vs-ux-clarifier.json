@@ -1,0 +1,57 @@
+{
+  "id": "ui-ux-ui-vs-ux-clarifier",
+  "name": "UI vs UX (clarifier)",
+  "description": "Quick rubric for teams: UX vs UI responsibilities, overlap zones, and how to avoid handoff confusion.",
+  "category": "workflow",
+  "stack": ["ux", "ui", "collaboration"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ui-ux-ui-vs-ux-clarifier",
+      "version": 1,
+      "intent": "Clarify UX vs UI responsibilities so specs and feedback are actionable",
+      "tags": ["ux", "ui", "definition", "handoff"],
+      "references": []
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["UX = journey + structure + research + testing", "UI = visual + interaction layer"],
+        "must_not": ["Treat UI polish as a substitute for broken usability"],
+        "conventions": ["Name what you’re asking for: flow/IA vs visuals/micro-interactions."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "definitions",
+        "title": "Definitions and overlap",
+        "steps": [
+          {
+            "id": "ux-definition",
+            "action": "verify",
+            "description": "UX design = shaping the end-to-end experience: research, user journeys, IA, interaction design, testing, iteration. Success is: users achieve goals with minimal friction.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "ui-definition",
+            "action": "verify",
+            "description": "UI design = visual and interactive layer: layout, typography, color tokens, components, motion, states. Success is: clarity, accessibility, aesthetic coherence, predictable behavior.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "overlap",
+            "action": "verify",
+            "description": "Overlap = product design: both disciplines share user-centered thinking and collaboration with engineering. A strong UI supports UX; it doesn’t replace it.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

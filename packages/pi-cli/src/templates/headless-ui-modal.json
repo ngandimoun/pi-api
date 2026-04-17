@@ -1,0 +1,54 @@
+{
+  "id": "headless-ui-modal",
+  "name": "Headless UI accessible modal",
+  "description": "Dialog + Transition pattern with focus trap and escape handling.",
+  "category": "ui",
+  "stack": ["react", "headless-ui", "tailwind"],
+  "routine_spec": {
+    "metadata": {
+      "id": "headless-ui-modal",
+      "version": 1,
+      "intent": "Add accessible modal using Headless UI Dialog",
+      "tags": ["ui", "headless-ui", "a11y", "modal"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@headlessui/react", "Dialog", "DialogPanel", "Transition"],
+        "must_not": [],
+        "conventions": ["Manage open state; support Escape and overlay click policy"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/components/ui/ConfirmModal.tsx",
+        "purpose": "Headless UI modal",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "modal",
+        "title": "Modal component",
+        "steps": [
+          {
+            "id": "modal-file",
+            "action": "create_file",
+            "description": "Implement ConfirmModal with Dialog, Transition, and Tailwind styling",
+            "file_path": "src/components/ui/ConfirmModal.tsx",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/components/ui/ConfirmModal.tsx"],
+      "required_exports": ["ConfirmModal"],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

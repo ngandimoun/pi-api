@@ -1,0 +1,40 @@
+{
+  "id": "chakra-ui-vs-mui",
+  "name": "Chakra UI vs Material UI (MUI)",
+  "description": "Comparison guide: customization flexibility, responsive styling ergonomics, base-style friction, and when MUI is a better fit.",
+  "category": "ui",
+  "stack": ["react", "chakra", "mui"],
+  "routine_spec": {
+    "metadata": {
+      "id": "chakra-ui-vs-mui",
+      "version": 1,
+      "intent": "Decide between Chakra UI and Material UI for a scalable product UI",
+      "tags": ["chakra", "mui", "comparison", "customization", "responsive"],
+      "references": ["chakra-ui-runtime-tradeoffs"]
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Choose based on desired design language + customization needs + performance constraints"],
+        "must_not": ["Ignore base-style override friction when targeting a custom brand aesthetic"],
+        "conventions": ["If you need strong custom branding at scale, favor systems that are easy to morph; if you want strong defaults, MUI can be faster."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "comparison",
+        "title": "Comparison (compressed)",
+        "steps": [
+          { "id": "ease-of-modification", "action": "verify", "description": "Ease of modification: Chakra is prop-first and tends to require less fight-with-base-styles. MUI often requires overriding more base classes and styles to remove the 'material' feel.", "critical_rules": [], "validation_checks": [] },
+          { "id": "responsive", "action": "verify", "description": "Responsive styling: Chakra has built-in responsive prop patterns; MUI often requires explicit responsive styling logic or additional code.", "critical_rules": [], "validation_checks": [] },
+          { "id": "when-mui", "action": "verify", "description": "Choose MUI when: you want a large catalog of pre-styled components and the default aesthetic is acceptable with minimal customization.", "critical_rules": [], "validation_checks": [] },
+          { "id": "when-chakra", "action": "verify", "description": "Choose Chakra when: you want flexible, composable layout primitives and easy overrides for a custom design system as the product scales.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

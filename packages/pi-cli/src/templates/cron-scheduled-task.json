@@ -1,0 +1,54 @@
+{
+  "id": "cron-scheduled-task",
+  "name": "Scheduled cron task",
+  "description": "Platform cron or node-cron pattern with single-flight lock.",
+  "category": "infrastructure",
+  "stack": ["typescript", "node"],
+  "routine_spec": {
+    "metadata": {
+      "id": "cron-scheduled-task",
+      "version": 1,
+      "intent": "Add scheduled job with safe concurrent execution",
+      "tags": ["cron", "schedule", "ops"],
+      "references": []
+    },
+    "context": {
+      "framework": "Node",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": [],
+        "must_not": [],
+        "conventions": ["Use distributed lock or advisory lock for multi-instance"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/jobs/scheduled-sweep.ts",
+        "purpose": "Cron job entry",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "cron",
+        "title": "Scheduled sweep",
+        "steps": [
+          {
+            "id": "job",
+            "action": "create_file",
+            "description": "Implement sweep with try/finally and metrics hook",
+            "file_path": "src/jobs/scheduled-sweep.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/jobs/scheduled-sweep.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

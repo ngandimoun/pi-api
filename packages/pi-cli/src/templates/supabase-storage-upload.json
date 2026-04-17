@@ -1,0 +1,54 @@
+{
+  "id": "supabase-storage-upload",
+  "name": "Supabase Storage upload",
+  "description": "Server-side signed upload or bucket write with RLS-friendly patterns.",
+  "category": "storage",
+  "stack": ["next.js", "supabase"],
+  "routine_spec": {
+    "metadata": {
+      "id": "supabase-storage-upload",
+      "version": 1,
+      "intent": "Upload files to Supabase Storage from a server action or route",
+      "tags": ["supabase", "storage", "upload"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@/lib/supabase/server"],
+        "must_not": ["service_role key in client bundle"],
+        "conventions": ["Validate MIME type and size server-side"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/lib/storage/upload.ts",
+        "purpose": "Upload helper",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "upload",
+        "title": "Storage",
+        "steps": [
+          {
+            "id": "up",
+            "action": "create_file",
+            "description": "Create upload helper using server Supabase client",
+            "file_path": "src/lib/storage/upload.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/lib/storage/upload.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

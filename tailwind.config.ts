@@ -1,10 +1,6 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
-/**
- * Semantic tokens map to CSS variables in `src/app/globals.css` (Shadcn base-nova).
- * Required for Tailwind v3 + `@apply border-border` etc.
- */
 const config: Config = {
   darkMode: ["class"],
   content: [
@@ -14,6 +10,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
+      },
       colors: {
         border: "var(--border)",
         input: "var(--input)",
@@ -65,11 +65,37 @@ const config: Config = {
           4: "var(--chart-4)",
           5: "var(--chart-5)",
         },
+        "pi-blue": {
+          400: "#60A5FA",
+          500: "#3B82F6",
+          600: "#2563EB",
+        },
+        "pi-emerald": {
+          400: "#34D399",
+          500: "#10B981",
+        },
+        ja: {
+          sumi: "var(--ja-sumi)",
+          kinari: "var(--ja-kinari)",
+          shu: "var(--ja-shu)",
+          "shu-soft": "var(--ja-shu-soft)",
+          asagi: "var(--ja-asagi)",
+          "asagi-soft": "var(--ja-asagi-soft)",
+          kincha: "var(--ja-kincha)",
+          matcha: "var(--ja-matcha)",
+          sakura: "var(--ja-sakura)",
+          fuji: "var(--ja-fuji)",
+          konjo: "var(--ja-konjo)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "var(--radius-md)",
         sm: "var(--radius-sm)",
+      },
+      maxWidth: {
+        prose: "700px",
+        section: "1200px",
       },
     },
   },

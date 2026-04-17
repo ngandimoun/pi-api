@@ -1,0 +1,92 @@
+{
+  "id": "shadcn-ui-best-practices-2026",
+  "name": "shadcn/ui best practices (2026)",
+  "description": "Production best practices: source ownership, tokens, abstractions, blocks, a11y discipline, avoid over-styling, performance with CSS, and documentation habits.",
+  "category": "ui",
+  "stack": ["shadcn", "radix", "tailwind", "react", "next.js"],
+  "routine_spec": {
+    "metadata": {
+      "id": "shadcn-ui-best-practices-2026",
+      "version": 1,
+      "intent": "Apply real-world best practices for shadcn/ui in production apps",
+      "tags": ["shadcn", "best-practices", "a11y", "performance", "tokens"],
+      "references": ["shadcn-ui-ecosystem-libraries", "shadcn-ui-blocks-guide"]
+    },
+    "context": {
+      "framework": "shadcn/ui",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Tokens early", "Blocks > screens", "Keep a11y untouched"],
+        "must_not": ["12+ variants everywhere", "Conditional class soup without CVA", "React state for simple hover interactions"],
+        "conventions": ["Prefer CSS for interactions; keep JS for real state."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "discipline",
+        "title": "Best practices checklist",
+        "steps": [
+          {
+            "id": "source-not-dep",
+            "action": "verify",
+            "description": "Treat shadcn as source code, not a dependency: you own the API, upgrades, and breaking changes. Update intentionally.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "tokens-early",
+            "action": "verify",
+            "description": "Design tokens early: CSS variables for radius/colors/foregrounds; map to Tailwind; keep theme changes cheap and consistent.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "product-primitives",
+            "action": "verify",
+            "description": "Build product-specific primitives (thin wrappers) instead of importing Button/Dialog everywhere. This is where you add analytics, loading, permissions, and consistent class tweaks.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "compose-blocks",
+            "action": "verify",
+            "description": "Compose blocks (pricing section, auth forms, dashboard cards) rather than whole screens; reuse improves consistency and cuts page complexity.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "a11y-untouched",
+            "action": "verify",
+            "description": "Keep accessibility untouched: don’t break `asChild`, don’t wrap interactive elements improperly, don’t remove focus styles. Re-test keyboard flows after semantic changes.",
+            "critical_rules": [],
+            "validation_checks": ["pi validate (a11y-images + semantic UX checks)"]
+          },
+          {
+            "id": "avoid-over-styling",
+            "action": "verify",
+            "description": "Avoid over-styling: keep variants minimal; push layout responsibility up to container components; avoid heavy conditional Tailwind strings without structure.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "performance-css",
+            "action": "verify",
+            "description": "Performance: less JS, more CSS. Prefer group-hover, transitions, and Radix behavior over stateful hover toggles. Virtualize large tables/lists.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "document-decisions",
+            "action": "verify",
+            "description": "Document your component decisions because you own them: why it exists, when to use it, when not to. A small README in components/ saves future time.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

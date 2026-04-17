@@ -110,9 +110,12 @@ export const robotTaskSchema = z.enum([
 /**
  * Robot behavior rules build on the existing surveillance behavior DSL,
  * and add robot-specific control behaviors that can drive actions.
+ *
+ * Composed with `z.union` (not extending `behaviorRuleSchema` via discriminatedUnion spread) so Zod infers a proper
+ * output type; spreading `.options` breaks `ZodDiscriminatedUnionOption` tuple typing in Zod 3.25+.
  */
-export const robotBehaviorRuleSchema = z.discriminatedUnion("type", [
-  ...(behaviorRuleSchema.options as unknown as [z.ZodTypeAny, ...z.ZodTypeAny[]]),
+export const robotBehaviorRuleSchema = z.union([
+  behaviorRuleSchema,
   z.object({
     type: z.literal("patrol"),
     waypoints: z.array(z.string().trim().min(1).max(128)).min(1).max(200),

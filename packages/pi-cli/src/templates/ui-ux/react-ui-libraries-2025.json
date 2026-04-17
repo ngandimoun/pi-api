@@ -1,0 +1,110 @@
+{
+  "id": "react-ui-libraries-2025",
+  "name": "Top React UI libraries (2025 chooser)",
+  "description": "A token-safe chooser for pre-built React UI libraries in 2025: MUI, Chakra, Radix, shadcn/ui, Ant Design, Mantine, Blueprint, HeroUI/NextUI, DaisyUI, Aceternity UI.",
+  "category": "ui",
+  "stack": ["react", "frontend"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-ui-libraries-2025",
+      "version": 1,
+      "intent": "Choose a React UI library in 2025 based on project constraints and desired ownership",
+      "tags": ["react", "ui-library", "comparison", "2025", "frontend"],
+      "references": [
+        "shadcn-ui-playbook",
+        "chakra-ui-playbook",
+        "mui-customization-slot-strategy"
+      ]
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Pick based on ownership model, a11y needs, customization depth, and performance constraints"],
+        "must_not": ["Choose purely on aesthetics; consider long-term maintainability and DX"],
+        "conventions": ["If you adopt a library, document the rationale + exit strategy in your repo."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "chooser",
+        "title": "2025 library chooser (compressed)",
+        "steps": [
+          {
+            "id": "mui",
+            "action": "verify",
+            "description": "Material UI (MUI): comprehensive Material Design components, strong theming/tokens, strong community. Best when you want a feature-rich kit and accept/embrace Material-ish defaults (or you’re willing to customize deeply).",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "chakra",
+            "action": "verify",
+            "description": "Chakra UI: prop-based styling, accessibility defaults, strong DX, easy responsive styling and dark mode. Watch CSS-in-JS runtime footprint for highly dynamic UIs.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "radix",
+            "action": "verify",
+            "description": "Radix UI: headless accessible primitives (behavior, focus, keyboard). Best when you want full styling control and to build a custom design system.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "shadcn",
+            "action": "verify",
+            "description": "shadcn/ui: copy-source components (Radix + Tailwind). Best when you want ownership, scalable customization, and no runtime dependency lock-in.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "ant",
+            "action": "verify",
+            "description": "Ant Design: enterprise-oriented, data-heavy components (tables/forms/i18n). Best for complex admin/enterprise apps where the design language is acceptable.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "mantine",
+            "action": "verify",
+            "description": "Mantine: large component set + hooks, TypeScript-friendly, dark mode. Good productivity choice when you want a complete kit with less enterprise lock-in.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "blueprint",
+            "action": "verify",
+            "description": "Blueprint: dense desktop-style UIs (overlays, pickers). Best for high information density dashboards and complex interaction-heavy tools.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "heroui",
+            "action": "verify",
+            "description": "HeroUI (NextUI): lightweight, modern components with dark mode; good for teams optimizing for performance and clean defaults.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "daisyui",
+            "action": "verify",
+            "description": "DaisyUI: Tailwind extension with semantic class names + themes. Best for rapid prototyping when you already love Tailwind and want speed.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "aceternity",
+            "action": "verify",
+            "description": "Aceternity UI: animation-rich components (often Framer Motion) for marketing/landing experiences. Use selectively so motion enhances usability, not distracts.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

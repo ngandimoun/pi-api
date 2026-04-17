@@ -1,0 +1,123 @@
+{
+  "id": "react-view-transitions-css-recipes",
+  "name": "View Transitions — global CSS recipes",
+  "description": "Copy these blocks into a global stylesheet (e.g. globals.css). Tune only :root durations after initial integration.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "css"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-view-transitions-css-recipes",
+      "version": 1,
+      "intent": "Ship consistent VT animations with reduced-motion safety",
+      "tags": ["react", "view-transitions", "css", "accessibility"],
+      "references": []
+    },
+    "context": {
+      "framework": "CSS",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Include reduced-motion block in production CSS"],
+        "must_not": ["Invent one-off VT keyframes per screen without sharing the recipe set"],
+        "conventions": ["Match class names exactly to `enter`/`exit`/`share` props on `<ViewTransition>`."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "timing-keyframes",
+        "title": "Timing + shared keyframes",
+        "steps": [
+          {
+            "id": "vars",
+            "action": "verify",
+            "description": "Paste:\n```css\n:root {\n  --duration-exit: 150ms;\n  --duration-enter: 210ms;\n  --duration-move: 400ms;\n}\n@keyframes fade {\n  from { filter: blur(3px); opacity: 0; }\n  to { filter: blur(0); opacity: 1; }\n}\n@keyframes slide {\n  from { translate: var(--slide-offset); }\n  to { translate: 0; }\n}\n@keyframes slide-y {\n  from { transform: translateY(var(--slide-y-offset, 10px)); }\n  to { transform: translateY(0); }\n}\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "fade-slide",
+        "title": "Fade + vertical slide",
+        "steps": [
+          {
+            "id": "fade",
+            "action": "verify",
+            "description": "Fade recipe (classes `fade-in` / `fade-out`):\n```css\n::view-transition-old(.fade-out) {\n  animation: var(--duration-exit) ease-in fade reverse;\n}\n::view-transition-new(.fade-in) {\n  animation: var(--duration-enter) ease-out var(--duration-exit) both fade;\n}\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "slide-y",
+            "action": "verify",
+            "description": "Vertical slide (classes `slide-up` / `slide-down`):\n```css\n::view-transition-old(.slide-down) {\n  animation:\n    var(--duration-exit) ease-out both fade reverse,\n    var(--duration-exit) ease-out both slide-y reverse;\n}\n::view-transition-new(.slide-up) {\n  animation:\n    var(--duration-enter) ease-in var(--duration-exit) both fade,\n    var(--duration-move) ease-in both slide-y;\n}\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "directional-nav",
+        "title": "Directional navigation",
+        "steps": [
+          {
+            "id": "nav-single-class",
+            "action": "verify",
+            "description": "Single-class nav-forward / nav-back (pair with type map or string class):\n```css\n::view-transition-old(.nav-forward) {\n  --slide-offset: -60px;\n  animation:\n    var(--duration-exit) ease-in both fade reverse,\n    var(--duration-move) ease-in-out both slide reverse;\n}\n::view-transition-new(.nav-forward) {\n  --slide-offset: 60px;\n  animation:\n    var(--duration-enter) ease-out var(--duration-exit) both fade,\n    var(--duration-move) ease-in-out both slide;\n}\n::view-transition-old(.nav-back) {\n  --slide-offset: 60px;\n  animation:\n    var(--duration-exit) ease-in both fade reverse,\n    var(--duration-move) ease-in-out both slide reverse;\n}\n::view-transition-new(.nav-back) {\n  --slide-offset: -60px;\n  animation:\n    var(--duration-enter) ease-out var(--duration-exit) both fade,\n    var(--duration-move) ease-in-out both slide;\n}\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "nav-split-classes",
+            "action": "verify",
+            "description": "Split enter/exit classes (asymmetric page in vs out):\n```css\n::view-transition-new(.slide-from-right) {\n  --slide-offset: 60px;\n  animation:\n    var(--duration-enter) ease-out var(--duration-exit) both fade,\n    var(--duration-move) ease-in-out both slide;\n}\n::view-transition-old(.slide-to-left) {\n  --slide-offset: -60px;\n  animation:\n    var(--duration-exit) ease-in both fade reverse,\n    var(--duration-move) ease-in-out both slide reverse;\n}\n::view-transition-new(.slide-from-left) {\n  --slide-offset: -60px;\n  animation:\n    var(--duration-enter) ease-out var(--duration-exit) both fade,\n    var(--duration-move) ease-in-out both slide;\n}\n::view-transition-old(.slide-to-right) {\n  --slide-offset: 60px;\n  animation:\n    var(--duration-exit) ease-in both fade reverse,\n    var(--duration-move) ease-in-out both slide reverse;\n}\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "morph-text-persistent-a11y",
+        "title": "Morph, text, chrome, a11y",
+        "steps": [
+          {
+            "id": "morph",
+            "action": "verify",
+            "description": "Shared morph (`share=\"morph\"`):\n```css\n::view-transition-group(.morph) {\n  animation-duration: var(--duration-move);\n}\n::view-transition-image-pair(.morph) {\n  animation-name: via-blur;\n}\n@keyframes via-blur {\n  30% { filter: blur(3px); }\n}\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "text-morph",
+            "action": "verify",
+            "description": "Text morph (`share=\"text-morph\"`) to avoid raster upscaling ghosts on large text size jumps:\n```css\n::view-transition-group(.text-morph) {\n  animation-duration: var(--duration-move);\n}\n::view-transition-old(.text-morph) {\n  display: none;\n}\n::view-transition-new(.text-morph) {\n  animation: none;\n  object-fit: none;\n  object-position: left top;\n}\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "scale",
+            "action": "verify",
+            "description": "Scale in/out:\n```css\n::view-transition-old(.scale-out) {\n  animation: var(--duration-exit) ease-in scale-down;\n}\n::view-transition-new(.scale-in) {\n  animation: var(--duration-enter) ease-out var(--duration-exit) both scale-up;\n}\n@keyframes scale-down {\n  from { transform: scale(1); opacity: 1; }\n  to { transform: scale(0.85); opacity: 0; }\n}\n@keyframes scale-up {\n  from { transform: scale(0.85); opacity: 0; }\n  to { transform: scale(1); opacity: 1; }\n}\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "persistent",
+            "action": "verify",
+            "description": "Persistent chrome (example name `persistent-nav`):\n```css\n::view-transition-group(persistent-nav) {\n  animation: none;\n  z-index: 100;\n}\n::view-transition-old(persistent-nav) { display: none; }\n::view-transition-new(persistent-nav) { animation: none; }\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "reduced-motion",
+            "action": "verify",
+            "description": "Required reduced motion:\n```css\n@media (prefers-reduced-motion: reduce) {\n  ::view-transition-old(*),\n  ::view-transition-new(*),\n  ::view-transition-group(*) {\n    animation-duration: 0s !important;\n    animation-delay: 0s !important;\n  }\n}\n```",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

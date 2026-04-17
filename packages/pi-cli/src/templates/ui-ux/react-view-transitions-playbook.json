@@ -1,0 +1,117 @@
+{
+  "id": "react-view-transitions-playbook",
+  "name": "React View Transitions (hub)",
+  "description": "Vercel Engineering (Mar 2026). Token-safe hub: React `<ViewTransition>`, `addTransitionType`, CSS `::view-transition-*`, shared elements, Suspense reveals, list identity, Next.js `experimental.viewTransition` + `Link` `transitionTypes`, a11y reduced motion.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript", "css"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-view-transitions-playbook",
+      "version": 1,
+      "intent": "Implement view transitions correctly without loading an oversized single document",
+      "tags": [
+        "react",
+        "view-transitions",
+        "ViewTransition",
+        "addTransitionType",
+        "nextjs",
+        "animation",
+        "suspense",
+        "token-safe"
+      ],
+      "references": [
+        "react-view-transitions-fundamentals",
+        "react-view-transitions-types-and-styling",
+        "react-view-transitions-shared-elements-and-lists",
+        "react-view-transitions-suspense-and-layering",
+        "react-view-transitions-nextjs-integration",
+        "react-view-transitions-implementation-workflow",
+        "react-view-transitions-common-mistakes",
+        "react-view-transitions-css-recipes"
+      ]
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": [
+          "`default=\"none\"` unless you explicitly want auto cross-fade on every transition",
+          "`startTransition` / `useDeferredValue` / `Suspense` as the activation model (not raw `setState` for VT)"
+        ],
+        "must_not": [
+          "Call `document.startViewTransition` manually when using React `<ViewTransition>`",
+          "Wrap `<ViewTransition>` in an outer DOM wrapper before its first child (breaks enter/exit)"
+        ],
+        "conventions": [
+          "Pair `enter` with `exit`; type-keyed maps must include `default: \"none\"` (TS + behavior)."
+        ]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "route",
+        "title": "Pick a leaf module",
+        "steps": [
+          {
+            "id": "basics",
+            "action": "verify",
+            "description": "Placement, triggers, availability (canary vs Next bundled React) → `react-view-transitions-fundamentals`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "types-css",
+            "action": "verify",
+            "description": "`addTransitionType`, per-type class maps, pseudo-elements → `react-view-transitions-types-and-styling`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "share-lists",
+            "action": "verify",
+            "description": "Shared morph `name`, uniqueness, nested list+share layers → `react-view-transitions-shared-elements-and-lists`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "suspense",
+            "action": "verify",
+            "description": "Suspense reveals, two-layer directional+suspense, nested VT limitations → `react-view-transitions-suspense-and-layering`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "next",
+            "action": "verify",
+            "description": "`next.config` flag, `Link` `transitionTypes`, `loading.tsx`, same-route `key`+`name`+`share` → `react-view-transitions-nextjs-integration`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "workflow",
+            "action": "verify",
+            "description": "Ordered audit → CSS → persistent isolation → pages → suspense → shared → verify paths → `react-view-transitions-implementation-workflow`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "pitfalls",
+            "action": "verify",
+            "description": "Silent failures, `router.back()`, fade+morph conflicts → `react-view-transitions-common-mistakes`.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "css",
+            "action": "verify",
+            "description": "Copy-paste global CSS recipes + reduced motion → `react-view-transitions-css-recipes`.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

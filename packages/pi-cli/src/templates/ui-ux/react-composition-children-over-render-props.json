@@ -1,0 +1,38 @@
+{
+  "id": "react-composition-children-over-render-props",
+  "name": "Prefer children over render props (for structure)",
+  "description": "MEDIUM: use children for structural composition; reserve render props for data-driven iteration where parent provides item/state.",
+  "category": "ui",
+  "stack": ["react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-composition-children-over-render-props",
+      "version": 1,
+      "intent": "Replace renderX props used for layout/structure with children composition",
+      "tags": ["react", "composition", "children", "render-props", "api-design"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Children composition for structure"],
+        "must_not": ["renderHeader/renderFooter props for static structure"],
+        "conventions": ["Render props are fine for lists and data-driven rendering."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "refactor",
+        "title": "Refactor structural render props",
+        "steps": [
+          { "id": "identify-structural-render-props", "action": "verify", "description": "Identify render props used only to assemble static structure (header/footer/actions).", "critical_rules": [], "validation_checks": [] },
+          { "id": "replace-with-subcomponents", "action": "verify", "description": "Replace with compound subcomponents + children: `<Frame><Header /><Footer>...</Footer></Frame>`.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

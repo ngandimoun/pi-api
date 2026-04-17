@@ -1,0 +1,60 @@
+{
+  "id": "next-supabase-auth",
+  "name": "Next.js + Supabase auth (middleware)",
+  "description": "App Router middleware session refresh and protected route pattern.",
+  "category": "auth",
+  "stack": ["next.js", "supabase"],
+  "routine_spec": {
+    "metadata": {
+      "id": "next-supabase-auth",
+      "version": 1,
+      "intent": "Wire Supabase session in Next.js App Router middleware",
+      "tags": ["nextjs", "supabase", "auth", "middleware"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js App Router",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@/lib/supabase/server", "createServerClient"],
+        "must_not": ["@supabase/supabase-js in client components without wrapper"],
+        "conventions": ["Use middleware matcher for protected routes"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/middleware.ts",
+        "purpose": "Session refresh and route protection",
+        "depends_on": ["src/lib/supabase/middleware.ts"],
+        "action": "create"
+      },
+      {
+        "path": "src/lib/supabase/middleware.ts",
+        "purpose": "createServerClient for middleware",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "auth-mw",
+        "title": "Middleware",
+        "steps": [
+          {
+            "id": "mw-create",
+            "action": "create_file",
+            "description": "Create middleware.ts with Supabase session refresh",
+            "file_path": "src/middleware.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/middleware.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

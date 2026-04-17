@@ -1,0 +1,57 @@
+{
+  "id": "shadcn-ui-structure-for-scale",
+  "name": "shadcn/ui structure for scale",
+  "description": "How to organize shadcn/ui in a repo: source ownership, internal versioning, token layer, primitives vs blocks, and safe upgrades.",
+  "category": "ui",
+  "stack": ["shadcn", "radix", "tailwind", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "shadcn-ui-structure-for-scale",
+      "version": 1,
+      "intent": "Structure shadcn/ui codebases for long-term maintainability and safe iteration",
+      "tags": ["shadcn", "architecture", "tokens", "components", "scale"],
+      "references": ["shadcn-ui-best-practices-2026"]
+    },
+    "context": {
+      "framework": "shadcn/ui",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Treat components as owned source", "Design tokens via CSS variables", "Product primitives (thin wrappers) for global behavior"],
+        "must_not": ["Blindly update copied components without reviewing diffs", "Scatter one-off Tailwind values everywhere"],
+        "conventions": ["Compose blocks, not screens; keep variants minimal; centralize theme tokens."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "layout",
+        "title": "Recommended structure (opinionated but practical)",
+        "steps": [
+          {
+            "id": "folders",
+            "action": "verify",
+            "description": "Suggested layout:\n- `components/ui/` raw shadcn components (copied source)\n- `components/primitives/` lightly modified, product-aware components (analytics/loading/permissions)\n- `components/blocks/` composed sections (auth forms, pricing, dashboard shells)\nThis separation keeps upgrades and reuse predictable.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "token-layer",
+            "action": "verify",
+            "description": "Create a token layer early: define CSS variables in `:root`/`.dark` (HSL tokens), map them into Tailwind config, and forbid ad-hoc hex colors in JSX when tokens exist.",
+            "critical_rules": [],
+            "validation_checks": ["pi validate (no-hardcoded-hex)"]
+          },
+          {
+            "id": "safe-upgrades",
+            "action": "verify",
+            "description": "Safe upgrades: never blindly update shadcn component files. Upgrade intentionally: diff changes, apply only what you need, and re-test keyboard/focus behavior for interactive primitives.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

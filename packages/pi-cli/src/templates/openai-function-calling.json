@@ -1,0 +1,54 @@
+{
+  "id": "openai-function-calling",
+  "name": "OpenAI function calling loop",
+  "description": "Manual tool-response loop with Zod-validated tool args.",
+  "category": "ai",
+  "stack": ["openai", "typescript", "zod"],
+  "routine_spec": {
+    "metadata": {
+      "id": "openai-function-calling",
+      "version": 1,
+      "intent": "Implement sync function-calling with OpenAI SDK",
+      "tags": ["ai", "openai", "tools"],
+      "references": []
+    },
+    "context": {
+      "framework": "Node",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["openai", "zod"],
+        "must_not": [],
+        "conventions": ["Parse tool calls; validate args before executing side effects"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/lib/ai/function-calling.ts",
+        "purpose": "Tool loop",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "fc",
+        "title": "Function calling",
+        "steps": [
+          {
+            "id": "impl",
+            "action": "create_file",
+            "description": "Run chat completion with tools; loop until final message",
+            "file_path": "src/lib/ai/function-calling.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/lib/ai/function-calling.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

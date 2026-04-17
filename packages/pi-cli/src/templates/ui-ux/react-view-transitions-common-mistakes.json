@@ -1,0 +1,38 @@
+{
+  "id": "react-view-transitions-common-mistakes",
+  "name": "View Transitions — common mistakes",
+  "description": "Avoid: bare VT without `default=\"none\"` (cross-fades everything); directional VT in layout; fade-out exit with active morph; hand-rolled CSS instead of recipes; missing `default` key in type maps; type maps on suspense reveals; raw `viewTransitionName` as a substitute for `<ViewTransition>` triggers; expecting `update` for same-route param swaps (use `key`+`name`+`share`); duplicate `name` mounts; `router.back()` for animated VT; wrapping Suspense with a changing `key` causing refetch; layout VT blocking page VT; backdrop-blur flicker (hide old snapshot recipe).",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-view-transitions-common-mistakes",
+      "version": 1,
+      "intent": "Triage silent or broken view transition behavior quickly",
+      "tags": ["react", "view-transitions", "debugging", "pitfalls"],
+      "references": []
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Prefer explicit defaults and explicit navigation tagging"],
+        "must_not": ["Assume browser back or `router.back` participates in VT"],
+        "conventions": ["When in doubt, log which transition types fired and which VT boundaries remounted."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "checklist",
+        "title": "Checklist",
+        "steps": [
+          { "id": "defaults", "action": "verify", "description": "Search for `<ViewTransition>` without `default` — add `default=\"none\"` unless you intentionally want global cross-fade.", "critical_rules": [], "validation_checks": [] },
+          { "id": "layout", "action": "verify", "description": "Remove persistent layout wrappers that own type-keyed VT when child pages also wrap with VT.", "critical_rules": [], "validation_checks": [] },
+          { "id": "history", "action": "verify", "description": "Replace animated back stacks that rely on `router.back()` with explicit `router.push` targets.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

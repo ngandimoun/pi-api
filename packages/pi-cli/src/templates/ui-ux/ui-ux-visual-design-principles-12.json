@@ -1,0 +1,48 @@
+{
+  "id": "ui-ux-visual-design-principles-12",
+  "name": "12 visual design principles",
+  "description": "Size/scale, contrast, alignment, emphasis, typography, repetition, whitespace, proximity, movement, proportion, perspective, reading patterns — applied as a practical UI review.",
+  "category": "ui",
+  "stack": ["ui", "ux", "visual-design"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ui-ux-visual-design-principles-12",
+      "version": 1,
+      "intent": "Use 12 visual design principles to improve hierarchy, readability, and scan-ability in UI",
+      "tags": ["ui", "visual-design", "typography", "layout", "hierarchy"],
+      "references": ["ui-ux-ui-principles-7"]
+    },
+    "context": {
+      "framework": "",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["A consistent scale system for typography and spacing"],
+        "must_not": ["Overemphasize everything (if everything is loud, nothing is)"],
+        "conventions": ["Prefer clear reading patterns (F/Z) for information-dense layouts."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "principles",
+        "title": "Apply the 12 principles (compressed checklist)",
+        "steps": [
+          { "id": "size-scale", "action": "verify", "description": "Size & scale: define a fixed type scale (H1..H6) and spacing scale; use meaningful jumps (3x+) for true hierarchy.", "critical_rules": [], "validation_checks": [] },
+          { "id": "color-contrast", "action": "verify", "description": "Color & contrast: reserve high contrast for primary actions; ensure accessible contrast for text; use tokens/variables for consistency.", "critical_rules": [], "validation_checks": [] },
+          { "id": "alignment", "action": "verify", "description": "Alignment: grid discipline reduces confusion; misalignment must be intentional and rare.", "critical_rules": [], "validation_checks": [] },
+          { "id": "emphasis", "action": "verify", "description": "Emphasis: choose one focal point per screen/section; use scale, position, weight, or color — not all at once.", "critical_rules": [], "validation_checks": [] },
+          { "id": "typography", "action": "verify", "description": "Typography: balance weights and line lengths; keep body readable; use bolding sparingly to preserve meaning.", "critical_rules": [], "validation_checks": [] },
+          { "id": "repetition", "action": "verify", "description": "Repetition: reuse components, spacing, icon style, and interaction patterns to reduce learning cost and reinforce brand.", "critical_rules": [], "validation_checks": [] },
+          { "id": "whitespace", "action": "verify", "description": "Whitespace: avoid clutter; create breathing room so users can scan; dense ≠ cluttered if spacing is deliberate.", "critical_rules": [], "validation_checks": [] },
+          { "id": "proximity", "action": "verify", "description": "Proximity: group related controls; separate destructive actions; use spacing to communicate relationships.", "critical_rules": [], "validation_checks": [] },
+          { "id": "movement", "action": "verify", "description": "Movement: guide the eye (lines, progressive disclosure, animation) toward the next action; avoid distracting motion.", "critical_rules": [], "validation_checks": [] },
+          { "id": "proportion", "action": "verify", "description": "Proportion: ensure elements feel related; CTAs, images, and text blocks should support the same story and goal.", "critical_rules": [], "validation_checks": [] },
+          { "id": "perspective", "action": "verify", "description": "Perspective/depth: use subtle depth (shadows, layers) to clarify affordances; avoid fake depth that hurts accessibility.", "critical_rules": [], "validation_checks": [] },
+          { "id": "reading-patterns", "action": "verify", "description": "Reading patterns: design for F/Z scanning; headings should be meaning-bearing; avoid 'layer cake' pages where only headers are readable.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

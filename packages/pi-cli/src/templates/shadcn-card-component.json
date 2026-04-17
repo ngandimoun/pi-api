@@ -1,0 +1,54 @@
+{
+  "id": "shadcn-card-component",
+  "name": "shadcn/ui Card scaffold",
+  "description": "Composable Card, CardHeader, CardContent using shadcn patterns.",
+  "category": "ui",
+  "stack": ["next.js", "react", "tailwind", "shadcn"],
+  "routine_spec": {
+    "metadata": {
+      "id": "shadcn-card-component",
+      "version": 1,
+      "intent": "Add a reusable Card UI primitive aligned with shadcn/ui",
+      "tags": ["ui", "shadcn", "tailwind"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["cn(", "@/lib/utils"],
+        "must_not": [],
+        "conventions": ["Use forwardRef for leaf components"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/components/ui/card.tsx",
+        "purpose": "Card compound component",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "ui-card",
+        "title": "Card component",
+        "steps": [
+          {
+            "id": "card-file",
+            "action": "create_file",
+            "description": "Implement Card primitives with Tailwind + cn()",
+            "file_path": "src/components/ui/card.tsx",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/components/ui/card.tsx"],
+      "required_exports": ["Card"],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

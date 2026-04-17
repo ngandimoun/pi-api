@@ -1,0 +1,54 @@
+{
+  "id": "stripe-checkout-flow",
+  "name": "Stripe Checkout session",
+  "description": "Server action or route to create Checkout Session + success/cancel URLs.",
+  "category": "integration",
+  "stack": ["next.js", "stripe", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "stripe-checkout-flow",
+      "version": 1,
+      "intent": "Wire Stripe Checkout with server-side session creation",
+      "tags": ["stripe", "payments", "checkout"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["stripe"],
+        "must_not": [],
+        "conventions": ["Never expose secret key to client; validate price ids server-side"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/app/api/checkout/route.ts",
+        "purpose": "Create Checkout Session",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "checkout",
+        "title": "Checkout API",
+        "steps": [
+          {
+            "id": "route",
+            "action": "create_file",
+            "description": "POST creates Stripe Checkout Session with metadata",
+            "file_path": "src/app/api/checkout/route.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/app/api/checkout/route.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

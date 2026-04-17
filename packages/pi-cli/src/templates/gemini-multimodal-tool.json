@@ -1,0 +1,54 @@
+{
+  "id": "gemini-multimodal-tool",
+  "name": "Gemini multimodal request",
+  "description": "Text + image parts using Google GenAI SDK with typed responses.",
+  "category": "ai",
+  "stack": ["google-genai", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "gemini-multimodal-tool",
+      "version": 1,
+      "intent": "Call Gemini with image and text inputs",
+      "tags": ["ai", "gemini", "multimodal"],
+      "references": []
+    },
+    "context": {
+      "framework": "Node / Edge",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@google/genai"],
+        "must_not": [],
+        "conventions": ["Follow Interactions API / project policy for model ids"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/lib/ai/gemini-multimodal.ts",
+        "purpose": "Multimodal helper",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "gemini",
+        "title": "Multimodal helper",
+        "steps": [
+          {
+            "id": "file",
+            "action": "create_file",
+            "description": "Implement analyzeImageWithPrompt with base64 or URL handling",
+            "file_path": "src/lib/ai/gemini-multimodal.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/lib/ai/gemini-multimodal.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

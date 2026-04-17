@@ -1,0 +1,55 @@
+{
+  "id": "react-native-compiler-reanimated",
+  "name": "React Native — React Compiler + Reanimated (MEDIUM)",
+  "description": "With React Compiler: destructure hook functions early (avoid `router.push` dotting). With Reanimated + compiler: prefer `.get()` / `.set()` on shared values instead of `.value` reads/writes per Reanimated guidance.",
+  "category": "ui",
+  "stack": ["react-native", "react", "reanimated", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-compiler-reanimated",
+      "version": 1,
+      "intent": "Keep React Compiler and Reanimated shared values compatible and stable",
+      "tags": ["react-native", "react-compiler", "reanimated", "shared-value", "hooks"],
+      "references": []
+    },
+    "context": {
+      "framework": "React Native",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Destructured stable functions from hooks when compiler is enabled", "`.get()`/`.set()` for shared values when required by toolchain"],
+        "must_not": ["Dot into unstable objects in hot handlers when it breaks compiler memo keys"],
+        "conventions": ["Gate compiler-only rules on project actually enabling React Compiler."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "compiler",
+        "title": "React Compiler",
+        "steps": [
+          {
+            "id": "destructure-early",
+            "action": "verify",
+            "description": "Destructure functions from hooks at render top-level (`const { push } = useRouter()`) instead of calling through changing object identities in handlers.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "reanimated",
+        "title": "Reanimated shared values",
+        "steps": [
+          {
+            "id": "get-set",
+            "action": "verify",
+            "description": "When using React Compiler with Reanimated, prefer `sv.get()` / `sv.set(...)` over direct `.value` access patterns that opt out or confuse static analysis.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

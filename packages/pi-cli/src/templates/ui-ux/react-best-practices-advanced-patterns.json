@@ -1,0 +1,39 @@
+{
+  "id": "react-best-practices-advanced-patterns",
+  "name": "Advanced patterns (React)",
+  "description": "LOW: specialized patterns like useEffectEvent dependency handling, stable subscriptions, and initialize-once guards.",
+  "category": "ui",
+  "stack": ["react", "typescript", "performance"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-best-practices-advanced-patterns",
+      "version": 1,
+      "intent": "Apply advanced React patterns safely (stable subscriptions, one-time init, effect events)",
+      "tags": ["react", "useEffectEvent", "effects", "subscriptions", "initialization", "advanced"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Keep subscriptions stable", "Avoid effect churn from handler identity changes"],
+        "must_not": ["Put effect events in dependency arrays"],
+        "conventions": ["Prefer simple patterns; use these only when needed."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Advanced rules",
+        "steps": [
+          { "id": "effect-event-deps", "action": "verify", "description": "Do not include `useEffectEvent` results in effect deps; depend on reactive values (like `roomId`) and call the event inside the effect.", "critical_rules": [], "validation_checks": [] },
+          { "id": "init-once", "action": "verify", "description": "Don’t run app-wide init in component effects without a module-level guard; components can remount and re-run effects.", "critical_rules": [], "validation_checks": [] },
+          { "id": "stable-subscriptions", "action": "verify", "description": "Keep event subscriptions stable; store latest handler via `useEffectEvent` or ref pattern instead of resubscribing on every render.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

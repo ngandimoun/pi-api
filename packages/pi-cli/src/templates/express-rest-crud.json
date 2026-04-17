@@ -1,0 +1,54 @@
+{
+  "id": "express-rest-crud",
+  "name": "Express REST CRUD",
+  "description": "Router with Zod validation, error middleware, and consistent JSON errors.",
+  "category": "backend",
+  "stack": ["express", "zod", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "express-rest-crud",
+      "version": 1,
+      "intent": "REST CRUD routes on Express with validation",
+      "tags": ["express", "api", "crud"],
+      "references": []
+    },
+    "context": {
+      "framework": "Express",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["express", "zod"],
+        "must_not": [],
+        "conventions": ["Centralize error handler; never leak stack traces in production"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/routes/items.ts",
+        "purpose": "CRUD router",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "crud",
+        "title": "Express routes",
+        "steps": [
+          {
+            "id": "routes",
+            "action": "create_file",
+            "description": "GET/POST/PATCH/DELETE with Zod body/params and status codes",
+            "file_path": "src/routes/items.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/routes/items.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

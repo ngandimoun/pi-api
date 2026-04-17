@@ -1,0 +1,54 @@
+{
+  "id": "material-ui-form",
+  "name": "MUI form with validation",
+  "description": "TextField stack with react-hook-form + Zod resolver and MUI theming.",
+  "category": "ui",
+  "stack": ["react", "mui", "zod"],
+  "routine_spec": {
+    "metadata": {
+      "id": "material-ui-form",
+      "version": 1,
+      "intent": "Add a typed MUI form with client validation",
+      "tags": ["ui", "mui", "form", "zod"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@mui/material", "react-hook-form", "@hookform/resolvers/zod", "zod"],
+        "must_not": [],
+        "conventions": ["Use MUI Stack/Grid for layout; surface field errors from resolver"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/components/ProfileForm.tsx",
+        "purpose": "MUI form with Zod",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "mui-form",
+        "title": "Form implementation",
+        "steps": [
+          {
+            "id": "form-create",
+            "action": "create_file",
+            "description": "Build ProfileForm with MUI TextField and zod schema",
+            "file_path": "src/components/ProfileForm.tsx",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/components/ProfileForm.tsx"],
+      "required_exports": ["ProfileForm"],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

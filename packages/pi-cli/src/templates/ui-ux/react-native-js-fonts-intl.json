@@ -1,0 +1,55 @@
+{
+  "id": "react-native-js-fonts-intl",
+  "name": "React Native — JS micro-perf & fonts (LOW)",
+  "description": "Hoist `Intl.*Format` instances to module scope (or `useMemo` by locale) — avoid constructing formatters inside render/loops. Prefer Expo config plugin (`expo-font`) to embed fonts at build time instead of async `useFonts` gating first paint when product allows.",
+  "category": "ui",
+  "stack": ["react-native", "expo", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-js-fonts-intl",
+      "version": 1,
+      "intent": "Reduce hot-path formatter cost and simplify font loading on Expo",
+      "tags": ["react-native", "expo", "intl", "fonts", "performance"],
+      "references": []
+    },
+    "context": {
+      "framework": "React Native / Expo",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Module-level formatters for static locale/options", "Expo font config plugin when embedding fonts"],
+        "must_not": ["`new Intl.NumberFormat` inside every row render"],
+        "conventions": ["After font plugin changes, document `expo prebuild` + native rebuild for teammates."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "intl",
+        "title": "Intl",
+        "steps": [
+          {
+            "id": "hoist-formatters",
+            "action": "verify",
+            "description": "Move stable `Intl.DateTimeFormat` / `NumberFormat` / `RelativeTimeFormat` to module scope; memoize per-locale when dynamic.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "fonts",
+        "title": "Fonts",
+        "steps": [
+          {
+            "id": "expo-font-plugin",
+            "action": "verify",
+            "description": "When embedding custom fonts, prefer `expo-font` config plugin so fonts are available at launch without runtime loader gates.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "id": "react-native-state-patterns",
+  "name": "React Native — React state & architecture (MEDIUM)",
+  "description": "Minimize state: derive during render. Use `undefined` + `??` for reactive fallbacks vs one-time `useState(initial)`. Use functional `setState` when next depends on prev. Ground truth: state/shared values represent real state (`pressed`), not derived visuals (`scale`) — derive visuals via interpolation.",
+  "category": "ui",
+  "stack": ["react-native", "react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-native-state-patterns",
+      "version": 1,
+      "intent": "Keep React and Reanimated state minimal, correct, and easy to reason about",
+      "tags": ["react-native", "state", "hooks", "derived-state", "reanimated"],
+      "references": []
+    },
+    "context": {
+      "framework": "React Native",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Functional updates when depending on previous state", "Derived values computed in render when possible"],
+        "must_not": ["Mirror props into state with effects for values that should stay reactive"],
+        "conventions": ["Reanimated: store `pressed`/`open`, derive `scale`/`opacity` from it."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "react-state",
+        "title": "React state",
+        "steps": [
+          {
+            "id": "minimize",
+            "action": "verify",
+            "description": "Remove redundant state updated from props via `useEffect`; derive totals/counts/strings from props/state in render.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "fallback-undefined",
+            "action": "verify",
+            "description": "Model “user hasn’t chosen yet” as `undefined` and apply `value ?? fallback` so server/prop updates stay reactive.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "functional-updates",
+            "action": "verify",
+            "description": "Use `setState(prev => …)` for layout/size and counters to avoid stale closures; return `prev` to skip re-render when unchanged.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "ground-truth",
+        "title": "Ground truth (incl. Reanimated)",
+        "steps": [
+          {
+            "id": "state-not-visual",
+            "action": "verify",
+            "description": "Ensure shared values represent semantic state; derive transform/opacity from that state with `interpolate` / `useDerivedValue`.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

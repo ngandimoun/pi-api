@@ -1,0 +1,62 @@
+{
+  "id": "react-view-transitions-types-and-styling",
+  "name": "View Transitions — types & CSS classes",
+  "description": "Tag navigations with `addTransitionType('nav-forward'|'nav-back'|...)` inside `startTransition` before `router.push`. Map types to classes via object props on `enter`/`exit`/`share` with required `default: \"none\"` for TS and to avoid accidental auto cross-fade. Style via `::view-transition-old(.cls)`, `::view-transition-new(.cls)`, `::view-transition-group(.cls)`, `::view-transition-image-pair(.cls)`. `router.back()` / browser history `popstate` do not participate — use explicit `router.push` URLs for animated back.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript", "css"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-view-transitions-types-and-styling",
+      "version": 1,
+      "intent": "Use transition types and CSS class maps safely and predictably",
+      "tags": ["react", "addTransitionType", "view-transitions", "css", "typescript"],
+      "references": ["react-view-transitions-css-recipes"]
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["`default: \"none\"` inside every type-keyed map object"],
+        "must_not": ["Use type maps for Suspense-only reveals (no types on that transition)"],
+        "conventions": ["Stack multiple `addTransitionType` calls when multiple VT subtrees need different styling."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "types",
+        "title": "Transition types",
+        "steps": [
+          {
+            "id": "tag-nav",
+            "action": "verify",
+            "description": "For hierarchical forward/back, call `addTransitionType('nav-forward'|'nav-back')` inside the same `startTransition` as navigation.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "no-history-back",
+            "action": "verify",
+            "description": "Replace `router.back()` animated flows with `router.push(explicitUrl)` when view transitions are required (sync popstate limitation).",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "styling",
+        "title": "CSS hooks",
+        "steps": [
+          {
+            "id": "pseudo-selectors",
+            "action": "verify",
+            "description": "Target animations via `::view-transition-old/new/group/image-pair(.your-class)`; keep class names aligned with `enter`/`exit`/`share` string or map values.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

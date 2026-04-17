@@ -1,0 +1,42 @@
+{
+  "id": "chakra-ui-principles",
+  "name": "Chakra UI principles",
+  "description": "Core Chakra principles: style props, simplicity, composition, accessibility, dark mode, and prop naming conventions.",
+  "category": "ui",
+  "stack": ["react", "chakra", "emotion"],
+  "routine_spec": {
+    "metadata": {
+      "id": "chakra-ui-principles",
+      "version": 1,
+      "intent": "Apply Chakra UI’s core principles to keep components consistent and maintainable",
+      "tags": ["chakra", "principles", "style-props", "a11y", "dark-mode", "composition"],
+      "references": ["ui-ux-ui-principles-7"]
+    },
+    "context": {
+      "framework": "Chakra UI",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Style props (override/extend) before reaching for custom styled wrappers", "Compose new components from Box when appropriate"],
+        "must_not": ["Overcomplicate component APIs with excessive props", "Remove focus/keyboard behavior without re-testing"],
+        "conventions": ["Boolean props use auxiliary verbs: is/has/should (e.g., isDisabled, isLoading)."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "principles",
+        "title": "Principles checklist",
+        "steps": [
+          { "id": "style-props", "action": "verify", "description": "Style props: prefer prop-based styling overrides; reduce reliance on `css` prop or `styled()` for simple variants. Compose from `Box` for new primitives.", "critical_rules": [], "validation_checks": [] },
+          { "id": "simplicity", "action": "verify", "description": "Simplicity: keep APIs intuitive and CSS-like; document real-world usage examples rather than theoretical flexibility.", "critical_rules": [], "validation_checks": [] },
+          { "id": "composition", "action": "verify", "description": "Composition: break components into smaller parts; minimize props; compose together for extensibility.", "critical_rules": [], "validation_checks": [] },
+          { "id": "accessibility", "action": "verify", "description": "Accessibility: keyboard navigation, focus management, color contrast, ARIA attributes. Keep a11y top-of-mind; run `pi validate` for common issues.", "critical_rules": [], "validation_checks": ["pi validate"] },
+          { "id": "dark-mode", "action": "verify", "description": "Dark mode: ensure components work in both modes; use `useColorMode`/theme tokens and test contrast and focus styles in both palettes.", "critical_rules": [], "validation_checks": [] },
+          { "id": "prop-naming", "action": "verify", "description": "Naming props: boolean props start with is/has/should/does; names should indicate behavior clearly (avoid ambiguous names).", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

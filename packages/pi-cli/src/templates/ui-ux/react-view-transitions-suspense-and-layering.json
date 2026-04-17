@@ -1,0 +1,62 @@
+{
+  "id": "react-view-transitions-suspense-and-layering",
+  "name": "View Transitions — Suspense, nesting, coexistence",
+  "description": "Suspense reveals: string `enter`/`exit` classes (not type maps) on fallback vs content VTs; content VT uses `default=\"none\"`. Directional page VT (type-keyed) + Suspense reveal can coexist — different moments; both should default-none. Multiple VTs in one transition fire together. Parent VT exiting suppresses nested child VT enter/exit (outermost wins) — no per-item stagger during page nav today. Use `default=\"none\"` liberally to prevent unrelated cross-fades (revalidations, deferred search).",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-view-transitions-suspense-and-layering",
+      "version": 1,
+      "intent": "Layer Suspense and page transitions without cross-interference",
+      "tags": ["react", "view-transitions", "suspense", "nested"],
+      "references": []
+    },
+    "context": {
+      "framework": "React / Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Simple string classes for suspense-driven reveals"],
+        "must_not": ["Put directional type-keyed VT in a persistent layout wrapping `{children}` when pages also use VT (nested limitation / silent no-op)"],
+        "conventions": ["Directional slides only for hierarchical or ordered sequences; lateral tabs → fade or none."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "suspense",
+        "title": "Suspense",
+        "steps": [
+          {
+            "id": "fallback-exit",
+            "action": "verify",
+            "description": "Wrap skeleton in `<ViewTransition exit=\"slide-down\">` (or chosen recipe) and content in `<ViewTransition enter=\"slide-up\" default=\"none\">`.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "layering",
+        "title": "Layering",
+        "steps": [
+          {
+            "id": "page-not-layout",
+            "action": "verify",
+            "description": "Place directional transitions in page components, not shared layouts that never unmount.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "nested-limit",
+            "action": "verify",
+            "description": "If you need per-item enter/exit during a route transition, account for current nested VT limitation (only outermost animates) or restructure.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

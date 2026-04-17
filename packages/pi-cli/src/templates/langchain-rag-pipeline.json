@@ -1,0 +1,54 @@
+{
+  "id": "langchain-rag-pipeline",
+  "name": "LangChain RAG pipeline",
+  "description": "Loaders + embeddings + vector store retrieval with typed documents.",
+  "category": "ai",
+  "stack": ["langchain", "typescript", "openai"],
+  "routine_spec": {
+    "metadata": {
+      "id": "langchain-rag-pipeline",
+      "version": 1,
+      "intent": "Implement retrieval-augmented generation with LangChain.js",
+      "tags": ["ai", "rag", "langchain", "embeddings"],
+      "references": []
+    },
+    "context": {
+      "framework": "Node / Next.js API",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["@langchain/core", "VectorStore", "Embeddings"],
+        "must_not": [],
+        "conventions": ["Chunk documents with overlap; cite source ids in answers"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/lib/rag/pipeline.ts",
+        "purpose": "RAG chain",
+        "depends_on": [],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "rag",
+        "title": "RAG pipeline",
+        "steps": [
+          {
+            "id": "pipeline",
+            "action": "create_file",
+            "description": "Build ingest + retrieve + answer chain with error handling",
+            "file_path": "src/lib/rag/pipeline.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/lib/rag/pipeline.ts"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

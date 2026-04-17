@@ -1,0 +1,30 @@
+{
+  "name": "pi-hokage",
+  "version": "0.1.0",
+  "description": "Summon the Pi CLI Hokage wizard (installs @pi-api/cli).",
+  "type": "module",
+  "bin": {
+    "pi-hokage": "./bin.mjs"
+  },
+  "files": [
+    "bin.mjs",
+    "scripts"
+  ],
+  "scripts": {
+    "build": "node -e \"console.log('pi-hokage: no build step')\"",
+    "prepublishOnly": "node scripts/check-cli-version.mjs"
+  },
+  "keywords": [
+    "pi",
+    "cli",
+    "hokage",
+    "ai"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@pi-api/cli": "^0.1.0"
+  }
+}

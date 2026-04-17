@@ -1,0 +1,49 @@
+{
+  "id": "react-view-transitions-fundamentals",
+  "name": "View Transitions — fundamentals",
+  "description": "When to animate (communicate spatial continuity). `<ViewTransition>` wraps content; React coordinates `document.startViewTransition` — do not call it yourself. Triggers: enter/exit/update/share only with `startTransition`, `useDeferredValue`, or `Suspense`. Critical: VT must be before any DOM node (no wrapping `<div>` outside). Availability: without Next, use `react@canary`; Next App Router bundles canary — do not add canary just for VT. Browsers: Chromium 111+, Firefox 144+, Safari 18.2+ — degrade gracefully.",
+  "category": "ui",
+  "stack": ["react", "nextjs", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-view-transitions-fundamentals",
+      "version": 1,
+      "intent": "Apply core View Transition rules without breaking enter/exit activation",
+      "tags": ["react", "view-transitions", "ViewTransition", "canary", "suspense"],
+      "references": []
+    },
+    "context": {
+      "framework": "React",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Constrain VT to meaningful spatial/state continuity", "Correct VT DOM placement"],
+        "must_not": ["Manual `document.startViewTransition` alongside React VT"],
+        "conventions": ["Prefer `default=\"none\"` and opt-in triggers explicitly per subtree."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "rules",
+        "title": "Rules",
+        "steps": [
+          {
+            "id": "placement",
+            "action": "verify",
+            "description": "Ensure `<ViewTransition>` is the outermost wrapper for the animated subtree (first node in the fragment/tree), not nested under a parent `<div>` that appears before the VT.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "activation",
+            "action": "verify",
+            "description": "Gate visual transitions on Concurrent features: wrap navigations/state flips that should animate in `startTransition`; pair Suspense boundaries for reveal animations.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}

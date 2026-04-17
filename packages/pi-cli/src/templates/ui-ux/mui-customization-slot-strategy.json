@@ -1,0 +1,104 @@
+{
+  "id": "mui-customization-slot-strategy",
+  "name": "MUI customization strategies (slot strategy)",
+  "description": "How to customize MUI components at scale: CSS specificity, JS-generated CSS, props, headless hooks, subcomponents, and the slot/slotProps strategy (components/componentsProps).",
+  "category": "ui",
+  "stack": ["react", "mui"],
+  "routine_spec": {
+    "metadata": {
+      "id": "mui-customization-slot-strategy",
+      "version": 1,
+      "intent": "Choose the right customization strategy for complex UI components without exploding API surface area",
+      "tags": ["mui", "customization", "slots", "theming", "componentsProps", "scaling"],
+      "references": []
+    },
+    "context": {
+      "framework": "Material UI",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Use slots to replace independent internal parts (icons/panels/toolbars)", "Use slotProps/componentsProps to pass scoped props"],
+        "must_not": ["Add endless props for every micro-customization (doesn't scale)"],
+        "conventions": ["Prefer scoping: props for a slot live together; keep TypeScript autocomplete effective."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "style",
+        "title": "Style modification options",
+        "steps": [
+          {
+            "id": "css-specificity",
+            "action": "verify",
+            "description": "Good old CSS: override default styles with more specific selectors (e.g., two classes beats one). Works well for visual tweaks but can get messy at scale.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "css-in-js",
+            "action": "verify",
+            "description": "Let JS generate CSS: co-locate styling with components (theme/sx/styled). Improves ergonomics but still needs discipline to avoid scattered one-off styling.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "logic",
+        "title": "Logic modification options (what scales?)",
+        "steps": [
+          {
+            "id": "add-prop",
+            "action": "verify",
+            "description": "Add a prop when it impacts the whole component. Works for simple components, but complex components will explode API surface if you add a prop for every case.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "headless-hooks",
+            "action": "verify",
+            "description": "Headless approach: expose hooks for features (filtering/sorting/etc.) and let teams build UI. Maximum scalability + control, but highest build effort.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "subcomponents",
+            "action": "verify",
+            "description": "Subdivide into subcomponents: high flexibility but easy to misuse (wrong nesting/order can break behavior). Good for full-app frameworks, riskier for low-level building blocks.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "slots",
+        "title": "Slot strategy (the scalable middle path)",
+        "steps": [
+          {
+            "id": "override-slot",
+            "action": "verify",
+            "description": "Override internal parts via slots (e.g., replace a delete icon in a filter panel). Use when the internal part is independent and commonly swapped.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "slot-props",
+            "action": "verify",
+            "description": "Pass props to existing internal slots via slotProps/componentsProps (e.g., configure filter panel behavior without rewriting the whole panel). This keeps customizations scoped and TypeScript-friendly.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "when-to-add-slots",
+            "action": "verify",
+            "description": "Add slots for icons and semi-independent panels/menus/toolbars. Add props only when they affect the entire component. Use headless hooks only when you truly need to rebuild the UI from scratch.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

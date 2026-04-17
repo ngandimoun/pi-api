@@ -1,0 +1,42 @@
+{
+  "id": "chakra-ui-best-practices",
+  "name": "Chakra UI best practices",
+  "description": "Production practices for Chakra: structure, composition, responsive props, theming/dark mode, a11y discipline, and when to avoid Chakra.",
+  "category": "ui",
+  "stack": ["react", "chakra", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "chakra-ui-best-practices",
+      "version": 1,
+      "intent": "Build scalable Chakra UI apps with consistent patterns and predictable overrides",
+      "tags": ["chakra", "best-practices", "theming", "responsive", "a11y"],
+      "references": ["chakra-ui-principles", "chakra-ui-runtime-tradeoffs"]
+    },
+    "context": {
+      "framework": "Chakra UI",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Theme tokens over hardcoded values", "Composition over monolith components", "Responsive props for layout"],
+        "must_not": ["Break semantics when composing components", "Hide focus rings globally"],
+        "conventions": ["Prefer re-usable layout primitives (Box/Flex/Grid) and keep components single-responsibility."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "practices",
+        "title": "Best practices checklist",
+        "steps": [
+          { "id": "structure", "action": "verify", "description": "Structure: separate reusable UI components from domain components; keep component files focused; export via index files where helpful.", "critical_rules": [], "validation_checks": [] },
+          { "id": "responsive", "action": "verify", "description": "Responsive props: prefer Chakra’s array/object responsive syntax for layout and sizing; keep breakpoints consistent with theme.", "critical_rules": [], "validation_checks": [] },
+          { "id": "theming", "action": "verify", "description": "Theming: centralize colors/typography/spacing in theme; prefer semantic tokens; test in light and dark modes.", "critical_rules": [], "validation_checks": [] },
+          { "id": "overrides", "action": "verify", "description": "Overrides: prefer style props and theme extension before writing custom CSS; keep overrides localized and predictable.", "critical_rules": [], "validation_checks": [] },
+          { "id": "a11y", "action": "verify", "description": "Accessibility: keep keyboard navigation and focus management correct; verify contrast; run `pi validate` for common a11y issues.", "critical_rules": [], "validation_checks": ["pi validate"] },
+          { "id": "performance", "action": "verify", "description": "Performance: identify hotspots; avoid unnecessary prop churn; memoize where needed; if the runtime cost shows up, re-evaluate Chakra usage in the hottest paths.", "critical_rules": [], "validation_checks": [] }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
+

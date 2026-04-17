@@ -1,0 +1,68 @@
+{
+  "id": "ai-sdk-chat-interface",
+  "name": "Vercel AI SDK chat (streaming)",
+  "description": "useChat + Route handler streaming text with error boundaries.",
+  "category": "ai",
+  "stack": ["next.js", "vercel-ai-sdk", "react"],
+  "routine_spec": {
+    "metadata": {
+      "id": "ai-sdk-chat-interface",
+      "version": 1,
+      "intent": "Add streaming chat UI with AI SDK and App Router route",
+      "tags": ["ai", "streaming", "chat"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js App Router",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["ai", "@ai-sdk/openai", "useChat", "streamText"],
+        "must_not": [],
+        "conventions": ["Validate env model id; handle stream errors gracefully"]
+      }
+    },
+    "files_manifest": [
+      {
+        "path": "src/app/api/chat/route.ts",
+        "purpose": "Streaming chat API",
+        "depends_on": [],
+        "action": "create"
+      },
+      {
+        "path": "src/components/Chat.tsx",
+        "purpose": "useChat client UI",
+        "depends_on": ["src/app/api/chat/route.ts"],
+        "action": "create"
+      }
+    ],
+    "phases": [
+      {
+        "id": "ai-chat",
+        "title": "Chat feature",
+        "steps": [
+          {
+            "id": "route",
+            "action": "create_file",
+            "description": "POST handler with streamText and safe error JSON",
+            "file_path": "src/app/api/chat/route.ts",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "ui",
+            "action": "create_file",
+            "description": "Client Chat with useChat pointing at /api/chat",
+            "file_path": "src/components/Chat.tsx",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": {
+      "required_files": ["src/app/api/chat/route.ts", "src/components/Chat.tsx"],
+      "required_exports": [],
+      "test_commands": ["npm run lint"]
+    }
+  }
+}

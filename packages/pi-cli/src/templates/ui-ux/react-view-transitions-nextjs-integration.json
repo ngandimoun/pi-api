@@ -1,0 +1,62 @@
+{
+  "id": "react-view-transitions-nextjs-integration",
+  "name": "View Transitions — Next.js",
+  "description": "Enable `experimental: { viewTransition: true }` in `next.config` to wrap `<Link>` navigations. Prefer `<Link transitionTypes={[...]}>` when available (Next 15+ canary / 16+); grep `node_modules/next/dist` if unsure — else `startTransition`+`addTransitionType`+`router.push`. Do not add `react@canary` manually on Next App Router. Avoid layout-level VT around `{children}` if pages define VT (nested enter/exit won't fire). `loading.tsx` = implicit Suspense: VT skeleton exit in `loading.tsx`, VT content enter in page. Same-route dynamic segment: `key`+`name`+`share` inside Suspense. Server Components: `<ViewTransition>` and typed `<Link>` ok; programmatic types need client.",
+  "category": "ui",
+  "stack": ["nextjs", "react", "typescript"],
+  "routine_spec": {
+    "metadata": {
+      "id": "react-view-transitions-nextjs-integration",
+      "version": 1,
+      "intent": "Integrate view transitions idiomatically with the App Router",
+      "tags": ["nextjs", "view-transitions", "link", "app-router", "server-components"],
+      "references": []
+    },
+    "context": {
+      "framework": "Next.js",
+      "existing_patterns": { "imports": [], "components": [], "hooks": [] },
+      "constraints": {
+        "must_use": ["Feature flag for link-driven VT when using Next integration"],
+        "must_not": ["Layout VT + page VT that both expect enter/exit without checking nesting rules"],
+        "conventions": ["Use `router.replace` inside `startTransition` for server-driven filter/sort URL updates to animate list identity."]
+      }
+    },
+    "files_manifest": [],
+    "phases": [
+      {
+        "id": "setup",
+        "title": "Setup",
+        "steps": [
+          {
+            "id": "config-flag",
+            "action": "verify",
+            "description": "Turn on `experimental.viewTransition` and verify Next version supports `transitionTypes` on `Link` before relying on it.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      },
+      {
+        "id": "patterns",
+        "title": "App Router patterns",
+        "steps": [
+          {
+            "id": "loading-tsx",
+            "action": "verify",
+            "description": "Mirror explicit Suspense VT pattern using `loading.tsx` for skeleton exit + page content enter.",
+            "critical_rules": [],
+            "validation_checks": []
+          },
+          {
+            "id": "same-route",
+            "action": "verify",
+            "description": "For changing dynamic params without route remount, combine `key={segment}` with named `share` VT to force a paired transition.",
+            "critical_rules": [],
+            "validation_checks": []
+          }
+        ]
+      }
+    ],
+    "validation": { "required_files": [], "required_exports": [], "test_commands": [] }
+  }
+}
