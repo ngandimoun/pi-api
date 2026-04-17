@@ -121,15 +121,20 @@ function renderServerHealthBlock(health: PiCliHealthReport): void {
     c.default_model.configured,
     c.default_model.configured ? "PI_MASTRA_DEFAULT_MODEL set" : "PI_MASTRA_DEFAULT_MODEL missing",
   );
-  line(
-    "Postgres (Mastra schema)",
-    c.postgres.reachable,
-    c.postgres.configured
-      ? c.postgres.reachable
+  const pgDiag = c.postgres.diagnostics;
+  const postgresDetail = (() => {
+    if (c.postgres.configured) {
+      return c.postgres.reachable
         ? "reachable"
-        : `unreachable${c.postgres.error ? ` — ${c.postgres.error}` : ""}`
-      : "PI_CLI_DATABASE_URL missing",
-  );
+        : `unreachable${c.postgres.error ? ` — ${c.postgres.error}` : ""}`;
+    }
+    if (pgDiag?.deferred_during_next_build) return "deferred during Next build (unexpected in prod)";
+    if (!pgDiag?.env_value_present) return "no PI_CLI_DATABASE_URL or DATABASE_URL on this Vercel env";
+    if (!pgDiag.normalized_ok) return "URL failed validation (placeholder, too short, or malformed)";
+    if (!pgDiag.canonical_parse_ok) return "URL did not parse for Postgres (encode special chars in password)";
+    return "store not created — check Vercel logs for [mastra-storage]";
+  })();
+  line("Postgres (Mastra schema)", c.postgres.reachable && c.postgres.configured, postgresDetail);
   line(
     "Workflow mode",
     c.workflow_mode.enabled,

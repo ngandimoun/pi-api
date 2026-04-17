@@ -1,4 +1,8 @@
-import { getMastraPostgresStore, getMastraPgVector } from "@/lib/mastra-storage";
+import {
+  getMastraPostgresConnectionDiagnostics,
+  getMastraPostgresStore,
+  getMastraPgVector,
+} from "@/lib/mastra-storage";
 import { isCliMemoryEnabled } from "@/lib/pi-cli-memory";
 import { isPiCliRoutineHitlEnabled, isPiCliWorkflowModeEnabled } from "@/lib/pi-cli-workflows";
 import { mastra } from "@/mastra";
@@ -11,7 +15,12 @@ const POSTGRES_PING_TIMEOUT_MS = 1500;
 
 type HealthCheck = {
   default_model: { configured: boolean; source: "env" | "default" };
-  postgres: { configured: boolean; reachable: boolean; error?: string };
+  postgres: {
+    configured: boolean;
+    reachable: boolean;
+    error?: string;
+    diagnostics: ReturnType<typeof getMastraPostgresConnectionDiagnostics>;
+  };
   workflow_mode: { enabled: boolean };
   routine_hitl: { enabled: boolean };
   memory: { enabled: boolean; semantic_recall: boolean };
@@ -58,6 +67,7 @@ function hasGeminiKey(): boolean {
  */
 export async function GET() {
   const defaultModelConfigured = Boolean(process.env.PI_MASTRA_DEFAULT_MODEL?.trim());
+  const pgDiag = getMastraPostgresConnectionDiagnostics();
   const pgPing = await pingPostgres();
   const store = getMastraPostgresStore();
   const vector = getMastraPgVector();
@@ -76,6 +86,7 @@ export async function GET() {
     postgres: {
       configured: Boolean(store),
       reachable: pgPing.reachable,
+      diagnostics: pgDiag,
       ...(pgPing.error ? { error: pgPing.error } : {}),
     },
     workflow_mode: { enabled: workflowEnabled },

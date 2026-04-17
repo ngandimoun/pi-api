@@ -38,7 +38,17 @@ export type PiCliHealthReport = {
   ok: boolean;
   checks: {
     default_model: { configured: boolean; source: "env" | "default" };
-    postgres: { configured: boolean; reachable: boolean; error?: string };
+    postgres: {
+      configured: boolean;
+      reachable: boolean;
+      error?: string;
+      diagnostics?: {
+        env_value_present: boolean;
+        normalized_ok: boolean;
+        canonical_parse_ok: boolean;
+        deferred_during_next_build: boolean;
+      };
+    };
     workflow_mode: { enabled: boolean };
     routine_hitl: { enabled: boolean };
     memory: { enabled: boolean; semantic_recall: boolean };

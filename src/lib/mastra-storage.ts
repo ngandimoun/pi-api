@@ -37,8 +37,39 @@ function isNextCompilerBuild(): boolean {
   if (process.env.FORCE_MASTRA_STORAGE_IN_BUILD === "true") return false;
   if (process.env.NEXT_PHASE === "phase-production-build") return true;
   if (process.env.NEXT_PHASE === "phase-development-build") return true;
-  if (process.env.npm_lifecycle_event === "build") return true;
+  // Do not use `npm_lifecycle_event === "build"` here: some runtimes inherit it and would
+  // incorrectly skip Postgres for every request (health would show not_configured).
   return false;
+}
+
+/**
+ * Booleans only — for `/api/cli/health` when Postgres is down (never log the URL or password).
+ */
+export function getMastraPostgresConnectionDiagnostics(): {
+  env_value_present: boolean;
+  normalized_ok: boolean;
+  canonical_parse_ok: boolean;
+  deferred_during_next_build: boolean;
+} {
+  const raw = getPiCliDatabaseUrl();
+  const normalized = raw ? normalizePostgresConnectionUrl(raw) : undefined;
+  let canonicalParseOk = false;
+  if (normalized) {
+    try {
+      const p = parse(normalized);
+      canonicalParseOk = Boolean(p.host?.trim() && p.user);
+    } catch {
+      canonicalParseOk = false;
+    }
+  }
+  return {
+    env_value_present: Boolean(
+      process.env.PI_CLI_DATABASE_URL?.trim() || process.env.DATABASE_URL?.trim(),
+    ),
+    normalized_ok: Boolean(normalized),
+    canonical_parse_ok: canonicalParseOk,
+    deferred_during_next_build: isNextCompilerBuild(),
+  };
 }
 
 /**
