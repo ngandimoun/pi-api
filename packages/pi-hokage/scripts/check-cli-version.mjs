@@ -40,6 +40,14 @@ try {
     process.exit(1);
   }
 
+  // Assert exact version (no ^ or ~)
+  if (String(range).startsWith("^") || String(range).startsWith("~") || String(range).includes("||")) {
+    console.error("[pi-hokage] prepublish: @pi-api/cli must be pinned to an exact version (no ^ or ~ allowed).");
+    console.error(`         Current: ${range}`);
+    console.error("         Fix: Remove ^ or ~ prefix in packages/pi-hokage/package.json to pin to exact version.");
+    process.exit(1);
+  }
+
   const rangeVersion = String(range).replace(/^[^0-9]*/, "");
   const rangeParsed = parseSemver(rangeVersion);
   const cliParsed = parseSemver(cliVersion);

@@ -103,10 +103,11 @@ function scoreEntry(entry: RoutineIndexEntry, branchTokens: string[], changedRel
 /**
  * Picks a small set of routine index entries relevant to the current branch and/or changed files.
  * Caps results to avoid loading unrelated routines into IDE context.
+ * E4: When PI_CLI_ROUTINE_REPO_CONTEXT is on, also scores by intent-token overlap.
  */
 export async function detectRelevantRoutineRelPaths(
   cwd: string,
-  opts: { branchName?: string; changedRelPaths?: string[] }
+  opts: { branchName?: string; changedRelPaths?: string[]; intent?: string }
 ): Promise<string[]> {
   const entries = await getRoutineIndex(cwd);
   if (!entries.length) return [];
@@ -114,8 +115,28 @@ export async function detectRelevantRoutineRelPaths(
   const branchTokens = tokenizeBranch(opts.branchName ?? "");
   const changed = opts.changedRelPaths?.map((p) => p.replace(/\\/g, "/"));
 
+  // E4: Tokenize intent for cross-routine matching when REPO_CONTEXT is enabled
+  const intentTokens = opts.intent && process.env.PI_CLI_ROUTINE_REPO_CONTEXT
+    ? opts.intent
+        .toLowerCase()
+        .split(/[^a-z0-9]+/g)
+        .filter((t) => t.length > 2)
+    : [];
+
   const scored = entries
-    .map((e) => ({ e, s: scoreEntry(e, branchTokens, changed) }))
+    .map((e) => {
+      let s = scoreEntry(e, branchTokens, changed);
+      
+      // E4: Bonus for intent-token overlap
+      if (intentTokens.length > 0) {
+        const routineHay = `${e.intent} ${e.tags.join(" ")}`.toLowerCase();
+        for (const token of intentTokens) {
+          if (routineHay.includes(token)) s += 1;
+        }
+      }
+      
+      return { e, s };
+    })
     .filter((x) => x.s > 0)
     .sort((a, b) => b.s - a.s || a.e.file_path.localeCompare(b.e.file_path));
 

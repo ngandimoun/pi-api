@@ -96,6 +96,7 @@ export const POST = withApiAuth(async (request) => {
     const { object } = await generateObject({
       model,
       schema: nlpPlanSchema,
+      maxOutputTokens: 1500,
       prompt: `You are Pi's CLI Router. The developer will speak naturally in ANY language.
 
 Your job:
@@ -112,6 +113,8 @@ Important:
 - For each planned command, \`args\` MUST be argv tokens AFTER the subcommand (do not include "pi" or the subcommand itself).
 - Put free-text intents as a single string token inside args (quotes are not required in JSON strings).
 - Use flags as separate args (e.g. "--staged", "--async", "--json").
+- **Confidence scoring**: If the query lacks an unambiguous verb (build / fix / validate / explain / add / create / debug / refactor / test), or if the intent is vague, set confidence ≤ 0.5.
+- **Locale awareness**: ${parsed.data.prefer_locale ? `Respond using locale=${parsed.data.prefer_locale}. All rationale and warnings MUST be written in that locale.` : "Respond in the detected language of the query."}
 
 Output must match the JSON schema exactly.
 

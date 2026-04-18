@@ -35,6 +35,8 @@ export type DoctorOpts = {
   verbose?: boolean;
   /** Auto-fix detected issues (init, learn, sync) */
   fix?: boolean;
+  /** Exit non-zero when critical Mastra / server checks fail */
+  strict?: boolean;
 };
 
 async function pathExists(p: string): Promise<boolean> {
@@ -108,11 +110,13 @@ async function fetchServerHealth(): Promise<PiCliHealthReport | null> {
   }
 }
 
-function renderServerHealthBlock(health: PiCliHealthReport): void {
+function renderServerHealthBlock(health: PiCliHealthReport): { critical_failures: string[] } {
   const line = (label: string, ok: boolean, detail?: string) => {
     const head = ok ? chalk.green(`  ✓ ${label}`) : chalk.yellow(`  ✗ ${label}`);
     console.log(detail ? `${head}  ${chalk.dim(detail)}` : head);
   };
+
+  const criticalFailures: string[] = [];
 
   console.log(chalk.bold("\nServer readiness  (Pi CLI Hokage / Mastra)"));
   const c = health.checks;
@@ -158,6 +162,14 @@ function renderServerHealthBlock(health: PiCliHealthReport): void {
     return "store not created — check Vercel logs for [mastra-storage]";
   })();
   line("Postgres (Mastra schema)", c.postgres.reachable && c.postgres.configured, postgresDetail);
+  
+  // Critical check: PgVector / semantic recall
+  if (!c.postgres.reachable) {
+    criticalFailures.push("Postgres unreachable — set DATABASE_URL or PI_CLI_DATABASE_URL");
+  } else if (!c.memory.semantic_recall) {
+    criticalFailures.push("PgVector/semantic recall disabled — agents will not have memory");
+  }
+  
   line(
     "Workflow mode",
     c.workflow_mode.enabled,
@@ -169,12 +181,12 @@ function renderServerHealthBlock(health: PiCliHealthReport): void {
     c.routine_hitl.enabled ? "suspend/resume available" : "PI_CLI_ROUTINE_HITL off",
   );
   line(
-    "Memory",
-    c.memory.enabled,
+    "Memory / PgVector",
+    c.memory.semantic_recall,
     c.memory.semantic_recall
       ? "semantic recall on"
       : c.memory.enabled
-        ? "thread history only"
+        ? "thread history only (PgVector missing)"
         : "PI_CLI_ENABLE_MEMORY off / no Postgres",
   );
   line("Trigger.dev", c.trigger_dev.configured, c.trigger_dev.configured ? "async workflows" : "no TRIGGER_SECRET_KEY");
@@ -190,6 +202,15 @@ function renderServerHealthBlock(health: PiCliHealthReport): void {
   console.log(
     `  ${chalk.dim("·")} Overall:        ${health.ok ? chalk.green("production-ready") : chalk.yellow("degraded — see flags above")}`,
   );
+
+  if (criticalFailures.length > 0) {
+    console.log(chalk.red("\n⚠ Critical failures detected:"));
+    for (const failure of criticalFailures) {
+      console.log(chalk.red(`  • ${failure}`));
+    }
+  }
+
+  return { critical_failures: criticalFailures };
 }
 
 async function analyzeSystemStyle(cwd: string): Promise<{
@@ -295,10 +316,12 @@ export async function runDoctor(cwd: string, opts?: DoctorOpts): Promise<void> {
   if (apiCheck.reachable) score += 1;
 
   let serverHealth: PiCliHealthReport | null = null;
+  let mastraCriticalFailures: string[] = [];
   if (apiCheck.reachable) {
     serverHealth = await fetchServerHealth();
     if (serverHealth) {
-      renderServerHealthBlock(serverHealth);
+      const healthResult = renderServerHealthBlock(serverHealth);
+      mastraCriticalFailures = healthResult.critical_failures;
       if (serverHealth.ok) score += 2;
     }
   }
@@ -325,7 +348,14 @@ export async function runDoctor(cwd: string, opts?: DoctorOpts): Promise<void> {
   }
 
   const constitutionExists = await pathExists(path.join(cwd, PI_CONSTITUTION_FILE));
-  console.log(`  constitution.md    ${formatStatus(constitutionExists, "present", "optional")}`);
+  // E2: Constitution is now non-negotiable, not optional
+  if (constitutionExists) {
+    console.log(`  constitution.md    ${formatStatus(true, "present", "")}`);
+  } else {
+    console.log(`  constitution.md    ${chalk.yellow("⚠ WARNING")} — non-negotiable architecture rules missing`);
+    console.log(chalk.dim(`                     Run: pi init --constitution`));
+    score -= 1; // Penalty for missing constitution
+  }
   
   const graphExists = await pathExists(path.join(cwd, ".pi/graph-latest.json"));
   const hasServerGraph = styleAnalysis.hasGraph;
@@ -659,6 +689,13 @@ export async function runDoctor(cwd: string, opts?: DoctorOpts): Promise<void> {
   } else {
     console.log(chalk.dim(`\n  Run ${chalk.cyan("pi doctor --demo")} for local AST check.`));
     console.log(chalk.dim(`  Run ${chalk.cyan("pi doctor --verbose")} for detailed language breakdown.`));
+  }
+
+  // Strict mode: exit with error if critical Mastra failures detected
+  if (opts?.strict && mastraCriticalFailures.length > 0) {
+    console.log(chalk.red("\n✗ Strict mode: Doctor failed due to critical Mastra issues."));
+    console.log(chalk.dim("  Fix the issues above or remove --strict flag.\n"));
+    process.exit(1);
   }
 
   console.log("");

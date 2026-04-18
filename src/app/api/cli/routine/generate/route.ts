@@ -11,6 +11,8 @@ import { scrapeBrandingProfile } from "@/lib/firecrawl";
 import { gatherRoutineContext, routineContextPayloadSchema } from "@/lib/pi-cli-routine-context";
 import { generatePiRoutineDraft } from "@/lib/pi-cli-routine-generate";
 import { buildRoutineAdapterOutputs, type RoutineFormatId } from "@/lib/pi-cli-routine-adapters-output";
+import { EMBEDDED_ROUTINE_TEMPLATES } from "../../../../../../packages/pi-cli/src/lib/embedded-templates";
+import { scoreEmbeddedTemplates } from "../../../../../../packages/pi-cli/src/lib/routine-template-suggest";
 import { mastra } from "@/mastra";
 import { tasks } from "@trigger.dev/sdk/v3";
 
@@ -234,6 +236,21 @@ export const POST = withApiAuth(async (request) => {
     } catch (e) {
       docSnippets.push(`### ${url}\n(failed to scrape: ${e instanceof Error ? e.message : "error"})`);
     }
+  }
+
+  // Server-side: inject top-N matched embedded template routine_spec JSON for LLM synthesis
+  try {
+    const topTemplateIds = scoreEmbeddedTemplates(parsed.data.intent, EMBEDDED_ROUTINE_TEMPLATES, 3);
+
+    for (const templateId of topTemplateIds) {
+      const template = EMBEDDED_ROUTINE_TEMPLATES.find((t) => t.id === templateId);
+      if (template?.routine_spec) {
+        const compactSpec = JSON.stringify(template.routine_spec).slice(0, 3000);
+        docSnippets.push(`### Embedded reference: ${template.name}\n\`\`\`json\n${compactSpec}\n\`\`\``);
+      }
+    }
+  } catch (e) {
+    console.warn("[routine/generate] Failed to inject embedded templates:", e instanceof Error ? e.message : "unknown");
   }
 
   try {

@@ -36,6 +36,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@pi-api/cli": "^0.1.0"
+    "@pi-api/cli": "0.1.0"
   }
 }

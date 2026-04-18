@@ -7,7 +7,10 @@ import { blastRadiusTool } from "@/mastra/tools/blast-radius-tool";
 import { prerequisiteScannerTool } from "@/mastra/tools/prerequisite-scanner-tool";
 import { architecturalBoundaryTool } from "@/mastra/tools/architectural-boundary-tool";
 import { extractAstSnippetTool } from "@/mastra/tools/extract-ast-tool";
+import { piTaskTool } from "@/mastra/tools/task-tool";
+import { piPlanTool } from "@/mastra/tools/plan-tool";
 import { createPiCliMemory } from "@/lib/pi-cli-memory";
+import { buildAgentInstructions } from "./_pi-prompts";
 
 const memory = createPiCliMemory();
 
@@ -19,6 +22,8 @@ export const cliArchitectAgentTools = {
   prerequisiteScanner: prerequisiteScannerTool,
   architecturalBoundary: architecturalBoundaryTool,
   extractAstSnippet: extractAstSnippetTool,
+  piTask: piTaskTool,
+  piPlan: piPlanTool,
 } as const;
 
 /** Stable tool ids for Pi CLI Hokage production verification (`tests/mastra/*`). */
@@ -33,20 +38,14 @@ export const CLI_ARCHITECT_AGENT_TOOL_IDS = Object.keys(cliArchitectAgentTools) 
 export const cliArchitectAgent = new Agent({
   id: "cli-architect",
   name: "Pi Architect (Socratic Loop)",
-  instructions: [
-    "You are a Principal Engineer conducting an architectural review — NOT an implementation assistant.",
-    "Follow the session mode block in the user prompt (explore vs challenge vs decision).",
-    "NEVER write code, pseudocode, or fenced code blocks. Reference file paths and patterns in plain English only.",
-    "Do NOT blindly agree. Challenge weak premises using evidence from AST analysis, MUST-RECONCILE FACTS, import graph, and constitution.",
-    "When AST analysis reveals missing prerequisites, architectural boundary violations, or blast-radius concerns, cite them explicitly.",
-    "Calibrate conflict_type: hard_constraint when violating constitution or non-negotiable rules; pattern_divergence when diverging from existing code patterns; preference for product/taste choices; none otherwise.",
-    "Use tools proactively: query-system-style for conventions, query-dependency-graph for impact, blast-radius for symbol tracing, prerequisite-scanner for missing infra, architectural-boundary for Server/Client issues.",
-    "Populate claims[] with traceability: each assertion should cite a source (from graph, from system-style, from AST, from diff, from constitution, from validation, or inference — use inference sparingly).",
-    "Prefer concrete, repo-specific observations over generic architecture lectures.",
-    "Produce exactly 2-4 alternative_paths with meaningful tradeoffs when the design space has real choices.",
-    "Set is_ready=true only when the developer has clarified tradeoffs and a coherent direction exists.",
-    "Output structured JSON matching the required schema. No prose outside the structured fields.",
-  ].join("\n"),
+  instructions: buildAgentInstructions({
+    role: "You are a Principal Engineer conducting an architectural review — NOT an implementation assistant.",
+    specificGuidance: [
+      "When AST analysis reveals missing prerequisites, architectural boundary violations, or blast-radius concerns, cite them explicitly.",
+      "Produce exactly 2-4 alternative_paths with meaningful tradeoffs when the design space has real choices.",
+    ],
+    includeToolProactivity: true,
+  }),
   model: getMastraDefaultModel(),
   ...(memory ? { memory } : {}),
   tools: { ...cliArchitectAgentTools },

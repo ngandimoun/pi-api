@@ -52,6 +52,22 @@ export async function runRoutineNext(
       console.log(chalk.green("Final phase complete. Ship it."));
       return;
     }
+    
+    // D4: Validate dependencies before advancing
+    const nextPhase = phases[idx + 1];
+    if (nextPhase && "depends_on_phases" in nextPhase && Array.isArray(nextPhase.depends_on_phases)) {
+      const deps = nextPhase.depends_on_phases as string[];
+      const unlockedPhases = phases.slice(0, idx + 1).map(p => p.id);
+      const missingDeps = deps.filter(dep => !unlockedPhases.includes(dep));
+      
+      if (missingDeps.length > 0) {
+        console.log(chalk.red("Cannot advance: missing dependencies"));
+        console.log(chalk.yellow(`Phase "${nextPhase.title}" depends on: ${deps.join(", ")}`));
+        console.log(chalk.yellow(`Missing: ${missingDeps.join(", ")}`));
+        return;
+      }
+    }
+    
     idx += 1;
     progress.unlocked_phase_index = idx;
     await fs.writeFile(progressPath, JSON.stringify(progress, null, 2), "utf8");

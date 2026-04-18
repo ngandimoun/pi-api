@@ -31,6 +31,7 @@ type TargetSpec = {
 
 const DEFAULT_TARGETS: TargetSpec[] = [
   { relPath: ".cursorrules", createIfMissing: false },
+  { relPath: path.join(".cursor", "rules", "pi-context.mdc"), createIfMissing: true },
   { relPath: "CLAUDE.md", createIfMissing: false },
   { relPath: path.join(".claude", "CLAUDE.md"), createIfMissing: false },
   { relPath: ".clinerules", createIfMissing: true },
@@ -128,7 +129,8 @@ export async function injectPiContextToAllIDEs(
         continue;
       }
     } else {
-      if (rel.endsWith("pi-context.md")) {
+      // E1: YAML frontmatter for new pi-context files
+      if (rel.endsWith("pi-context.md") || rel.endsWith("pi-context.mdc")) {
         prior = "---\ndescription: Pi — repository conventions & active routines\ntype: always\n---\n\n";
       }
     }

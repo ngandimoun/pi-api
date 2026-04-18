@@ -7,6 +7,7 @@ export type CliActivity = {
   last_validate_at?: string;
   last_validate_ok?: boolean;
   last_prompt_at?: string;
+  seen_omni_router?: boolean;
 };
 
 async function readActivity(cwd: string): Promise<CliActivity> {
@@ -42,6 +43,19 @@ export async function touchPromptActivity(cwd: string): Promise<void> {
 
 export async function readCliActivity(cwd: string): Promise<CliActivity> {
   return readActivity(cwd);
+}
+
+export async function hasSeenOmniRouter(cwd: string): Promise<boolean> {
+  const activity = await readActivity(cwd);
+  return Boolean(activity.seen_omni_router);
+}
+
+export async function markOmniRouterSeen(cwd: string): Promise<void> {
+  const prev = await readActivity(cwd);
+  await writeActivity(cwd, {
+    ...prev,
+    seen_omni_router: true,
+  });
 }
 
 /** Days since ISO timestamp, or null if missing/invalid. */

@@ -75,9 +75,20 @@ export const POST = withApiAuth(async (request) => {
     }
 
     const bases = appBaseUrlCandidates();
+    /** Mastra workflow id → `/api/cli/<segment>/debug` path (camelCase keys from schema). */
+    const debugPathByWorkflow: Record<
+      "cliValidateWorkflow" | "cliRoutineWorkflow" | "cliLearnWorkflow" | "cliResonateWorkflow",
+      string
+    > = {
+      cliValidateWorkflow: "validate",
+      cliRoutineWorkflow: "routine",
+      cliLearnWorkflow: "learn",
+      cliResonateWorkflow: "resonate",
+    };
+    const debugPath = debugPathByWorkflow[workflowKey];
     const links = bases.map((base) => ({
-      label: "validate_debug_api",
-      url: `${base}/api/cli/validate/debug`,
+      label: `${debugPath}_debug_api`,
+      url: `${base}/api/cli/${debugPath}/debug`,
       method: "POST" as const,
       body: { run_id: parsed.data.run_id, workflow_key: workflowKey },
     }));

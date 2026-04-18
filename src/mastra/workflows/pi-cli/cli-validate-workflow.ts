@@ -13,6 +13,15 @@ const violationSchema = z.object({
   severity: z.enum(["error", "warning"]),
   message: z.string(),
   suggestion: z.string().optional(),
+}).superRefine((data, ctx) => {
+  // D5: Require non-empty suggestion for error violations
+  if (data.severity === "error" && (!data.suggestion || data.suggestion.trim().length === 0)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "severity='error' violations must include a non-empty suggestion",
+      path: ["suggestion"],
+    });
+  }
 });
 
 const semanticResponseSchema = z.object({
@@ -119,6 +128,7 @@ const collectContextStep = createStep({
         model,
         schema: z.object({ intentConfidence: z.number().min(0).max(1) }),
         prompt: `Rate confidence that the following intent is clear and actionable for code review (0-1). Intent: ${inputData.intent ?? "(none)"}`,
+        maxOutputTokens: 500,
       });
       intentConfidence = object.intentConfidence;
     } catch {
@@ -201,6 +211,7 @@ ${(inputData.file_excerpts ?? [])
   .map((f) => `--- ${f.path}\n${f.excerpt}`)
   .join("\n\n")
   .slice(0, 48_000)}`,
+        maxOutputTokens: 5000,
       });
       return { ...object, branch: "high" as const };
     }
@@ -283,8 +294,8 @@ export const cliValidateWorkflow = createWorkflow({
 })
   .then(collectContextStep)
   .branch([
-    [async ({ inputData }) => inputData.intentConfidence > 0.9, highSemanticStep],
-    [async ({ inputData }) => inputData.intentConfidence <= 0.9, lowAdaptiveStep],
+    [async ({ inputData }) => inputData.intentConfidence > 0.6, highSemanticStep],
+    [async ({ inputData }) => inputData.intentConfidence <= 0.6, lowAdaptiveStep],
   ])
   .then(mergeStep)
   .commit();

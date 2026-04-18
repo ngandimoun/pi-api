@@ -17,7 +17,13 @@ export const HUB_INJECTION_EXPANSION: Record<string, HubExpansionRule> = {
       "react-view-transitions-implementation-workflow",
     ],
   },
-  "shadcn-ui-playbook": { maxReferences: 3 },
+  "shadcn-ui-playbook": {
+    explicitReferenceIds: [
+      "shadcn-ui-best-practices-2026",
+      "shadcn-ui-principles-aesthetic",
+      "shadcn-ui-structure-for-scale",
+    ],
+  },
 };
 
 /**

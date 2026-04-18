@@ -116,10 +116,21 @@ Rules:
 4. Do not include full source code — specification only.`;
 
     try {
+      // C4: Include matched routine name+summary in glue prompt
+      const routineDescriptions = high.slice(0, 8).map((r) =>
+        `- ${r.routine_id}: ${r.reason}`
+      ).join("\n");
+      
+      const enrichedGluePrompt = `${gluePrompt}
+
+**Matched routines being integrated:**
+${routineDescriptions}`;
+
       const { object } = await generateObject({
         model,
         schema: routineSpecificationSchema,
-        prompt: gluePrompt,
+        prompt: enrichedGluePrompt,
+        maxOutputTokens: 6000,
       });
       const spec = routineSpecificationSchema.parse(object);
       const fixed = {
@@ -141,11 +152,11 @@ Rules:
         execution_plan_slug: planId,
       };
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      throw new Error(
-        `Pi execution-plan glue generation failed (no legacy fallback). ${msg}. ` +
-          `Check model structured output support and prompt/schema alignment.`
-      );
+      // C4: Soft-fallback to non-glue generation
+      console.warn("[routine-generate] Glue routine failed, falling back to non-glue generation...");
+      console.warn(e instanceof Error ? e.message : String(e));
+      
+      // Fall through to regular routine generation below (don't return early)
     }
   }
 
@@ -203,8 +214,53 @@ Rules:
       model,
       schema: routineSpecificationSchema,
       prompt: architectPrompt,
+      maxOutputTokens: 6000,
     });
-    const spec = routineSpecificationSchema.parse(object);
+    let spec = routineSpecificationSchema.parse(object);
+    
+    // C3: Lint pass - validate non-glue routines have substance
+    const isShallow =
+      (spec.files_manifest?.length ?? 0) < 1 &&
+      (spec.context.constraints.must_use?.length ?? 0) < 1 &&
+      (spec.validation?.test_commands?.length ?? 0) < 1;
+    
+    if (isShallow) {
+      console.warn("[routine-generate] Shallow routine detected, regenerating with explicit requirements...");
+      const retryPrompt = `${architectPrompt}
+
+REGENERATE: Previous output was too shallow. REQUIRED:
+- files_manifest: at least 1 entry (path, purpose, depends_on, action)
+- constraints.must_use: at least 1 concrete import/pattern/file, OR
+- validation.test_commands: at least 1 command to verify success`;
+      
+      try {
+        const { object: retryObject } = await generateObject({
+          model,
+          schema: routineSpecificationSchema,
+          prompt: retryPrompt,
+          maxOutputTokens: 6000,
+        });
+        spec = routineSpecificationSchema.parse(retryObject);
+        
+        // If still shallow after retry, fail with clear message
+        const stillShallow =
+          (spec.files_manifest?.length ?? 0) < 1 &&
+          (spec.context.constraints.must_use?.length ?? 0) < 1 &&
+          (spec.validation?.test_commands?.length ?? 0) < 1;
+        
+        if (stillShallow) {
+          throw new Error(
+            "Generated routine lacks substance: no files_manifest, no must_use constraints, and no test_commands. " +
+            "This spec cannot guide an executor. Please refine the intent or provide more context."
+          );
+        }
+      } catch (retryError) {
+        throw new Error(
+          `Shallow routine retry failed: ${retryError instanceof Error ? retryError.message : String(retryError)}`
+        );
+      }
+    }
+    
     const fixed = {
       ...spec,
       metadata: {

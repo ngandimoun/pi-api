@@ -10,13 +10,16 @@ export class CommandTaskTracker {
   private readonly ctx: Ctx;
   private readonly command: string;
   private readonly stepMap = new Map<string, string>();
+  private readonly sessionId?: string;
 
-  constructor(command: string, description: string, ctx: Ctx) {
+  constructor(command: string, description: string, ctx: Ctx, sessionId?: string) {
     this.command = command;
     this.ctx = ctx;
+    this.sessionId = sessionId;
     const root = createTask({
       command,
       description,
+      session_id: sessionId,
       context: { cwd: ctx.cwd, branch: ctx.branch, files: ctx.files },
     });
     this.rootTaskId = root.task_id;
@@ -26,6 +29,7 @@ export class CommandTaskTracker {
     const t = createTask({
       command: this.command,
       description,
+      session_id: this.sessionId,
       parent_task_id: this.rootTaskId,
       context: { cwd: this.ctx.cwd, branch: this.ctx.branch, files: this.ctx.files },
       metadata: { slug },

@@ -64,6 +64,7 @@ export async function compilePiPromptDraft(input: PromptCompileInput): Promise<P
     model,
     system: SYSTEM_INSTRUCTIONS,
     prompt: userContent,
+    maxOutputTokens: 4000,
   });
 
   const compiled_prompt = text.trim();

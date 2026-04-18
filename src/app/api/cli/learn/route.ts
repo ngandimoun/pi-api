@@ -16,6 +16,9 @@ import { isPiCliFailClosed } from "@/lib/pi-cli-fail-closed";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
 import { uploadLatestPiSystemStyle } from "@/lib/pi-cli-r2";
 import { mastra } from "@/mastra";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { createHash } from "node:crypto";
 
 const learnBodySchema = z
   .object({
@@ -39,6 +42,10 @@ const learnBodySchema = z
         )
         .max(30)
         .optional(),
+      governance_sources: z
+        .array(z.string().max(50_000))
+        .max(20)
+        .optional(),
     }),
   })
   .strict();
@@ -55,7 +62,46 @@ const systemStyleSchema = z.object({
   }),
   libraries: z.array(z.string()),
   version: z.number().int().min(1),
+  templates: z.object({
+    hash: z.string(),
+    version: z.string(),
+    count: z.number(),
+  }).optional(),
+  governance: z.object({
+    rationale: z.array(z.string()),
+    adrs: z.array(z.string()),
+    constraints: z.array(z.string()),
+  }).optional(),
 });
+
+async function hashCliTemplates(): Promise<{ hash: string; version: string; count: number }> {
+  try {
+    const templatesDir = path.join(process.cwd(), "packages/pi-cli/src/templates");
+    const files = await fs.readdir(templatesDir, { recursive: true, withFileTypes: true });
+    const jsonFiles = files
+      .filter((f) => f.isFile() && f.name.endsWith(".json"))
+      .map((f) => path.join(f.parentPath || f.path, f.name))
+      .sort();
+
+    const contents: string[] = [];
+    for (const file of jsonFiles) {
+      try {
+        const content = await fs.readFile(file, "utf8");
+        contents.push(content);
+      } catch {
+        // Skip unreadable files
+      }
+    }
+
+    const concatenated = contents.join("\n");
+    const hash = createHash("sha256").update(concatenated).digest("hex").slice(0, 16);
+    const version = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+    return { hash, version, count: contents.length };
+  } catch {
+    return { hash: "unknown", version: "0", count: 0 };
+  }
+}
 
 /**
  * pi learn — infer system-style.json from structural metadata; queue graph build.
@@ -219,18 +265,54 @@ export const POST = withApiAuth(async (request) => {
 
   try {
     const model = getPiCliGeminiModel("lite");
+    const templatesInfo = await hashCliTemplates();
+    
+    const governanceBlock = parsed.data.metadata.governance_sources?.length
+      ? `\n\n## Governance sources (WHY decisions, constraints)\n${parsed.data.metadata.governance_sources.join("\n\n")}`
+      : "";
+
     const { object: systemStyle } = await generateObject({
       model,
       schema: systemStyleSchema,
+      maxOutputTokens: 4000,
       prompt: `You are Pi (Intelligence Infrastructure). Given structural metadata only (no raw source code), infer a concise system-style profile for this repository.
 
 Metadata JSON:
 ${JSON.stringify(parsed.data.metadata, null, 2)}
+${governanceBlock}
 
 Also use polyglot_hints (file extension counts + sample paths) to infer non-TS stacks present in the repo (Python/Go/Rust/etc). Mention them in libraries[] when credible.
 
-Respond with best-effort labels (framework, ui library, state management, patterns, libraries).`,
+If governance_sources are present, extract:
+- governance.rationale[]: WHY choices were made (not WHAT stack) - 3-5 key architectural decisions
+- governance.adrs[]: Architecture Decision Record titles/summaries if present
+- governance.constraints[]: Explicit MUST/MUST NOT rules from constitution or docs
+
+Respond with best-effort labels (framework, ui library, state management, patterns, libraries, governance).`,
     });
+
+    // Validate libraries[] faithfulness: every entry must appear in import_histogram or package_json
+    const importKeys = new Set(Object.keys(parsed.data.metadata.import_histogram ?? {}));
+    const pkgKeys = new Set(Object.keys((parsed.data.metadata.package_json?.dependencies as Record<string, unknown>) ?? {}));
+    const devKeys = new Set(Object.keys((parsed.data.metadata.package_json?.devDependencies as Record<string, unknown>) ?? {}));
+    const allKnownLibs = new Set([...importKeys, ...pkgKeys, ...devKeys]);
+    
+    systemStyle.libraries = systemStyle.libraries.filter((lib) => {
+      // Allow lib if it's in package.json or import histogram, or is a well-known inferred stack
+      const normalized = lib.toLowerCase().replace(/[^a-z0-9]/g, "");
+      for (const known of allKnownLibs) {
+        if (known.toLowerCase().replace(/[^a-z0-9]/g, "").includes(normalized) || 
+            normalized.includes(known.toLowerCase().replace(/[^a-z0-9]/g, ""))) {
+          return true;
+        }
+      }
+      // Allow common framework/platform names even if not in deps (e.g., "next.js", "react")
+      const commonStacks = ["next", "react", "vue", "angular", "svelte", "tailwind", "typescript", "javascript"];
+      return commonStacks.some(stack => normalized.includes(stack) || stack.includes(normalized));
+    });
+
+    // Add templates hash to system-style
+    (systemStyle as Record<string, unknown>).templates = templatesInfo;
 
     let graphJobTriggered = false;
     if (allowTeamCloud) {

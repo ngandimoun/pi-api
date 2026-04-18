@@ -127,6 +127,32 @@ export async function runLearn(
 
   const polyglot_hints = await collectPolyglotHints(cwd);
 
+  // Scan for governance sources (WHY decisions, not just WHAT stack)
+  const governance_sources: string[] = [];
+  const governancePaths = [
+    "AGENTS.md",
+    ".pi/constitution.md",
+    "docs/architecture/**/*.md",
+    ".pi/decisions/**/*.md",
+  ];
+  
+  for (const pattern of governancePaths) {
+    try {
+      const matches = await fg(pattern, { cwd, absolute: true, ignore: ["**/node_modules/**"] });
+      for (const file of matches.slice(0, 5)) { // Max 5 per pattern to avoid overload
+        try {
+          const content = await fs.readFile(file, "utf8");
+          const truncated = content.slice(0, 4000); // Truncate to 4k chars per file
+          governance_sources.push(`### ${path.relative(cwd, file)}\n${truncated}`);
+        } catch {
+          /* skip */
+        }
+      }
+    } catch {
+      /* skip pattern */
+    }
+  }
+
   const metadata: {
     package_json?: Record<string, unknown>;
     import_histogram: Record<string, number>;
@@ -134,6 +160,7 @@ export async function runLearn(
     framework_hints: string[];
     polyglot_hints: typeof polyglot_hints;
     file_sources?: { path: string; content: string }[];
+    governance_sources?: string[];
   } = {
     package_json: packageJson,
     import_histogram,
@@ -141,6 +168,7 @@ export async function runLearn(
     framework_hints,
     polyglot_hints,
     ...(file_sources.length ? { file_sources } : {}),
+    ...(governance_sources.length ? { governance_sources } : {}),
   };
 
   if (opts?.dryRun) {

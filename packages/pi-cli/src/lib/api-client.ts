@@ -80,6 +80,8 @@ export type PiCliHealthReport = {
 };
 
 export class PiApiClient {
+  private lastRequestId?: string;
+
   constructor(
     private readonly opts: {
       apiKey?: string;
@@ -94,6 +96,21 @@ export class PiApiClient {
     return this.opts.fetchImpl ?? globalThis.fetch;
   }
 
+  /** Get the last request ID (useful for debugging) */
+  getLastRequestId(): string | undefined {
+    return this.lastRequestId;
+  }
+
+  /** Generate a unique request ID */
+  private generateRequestId(): string {
+    // Use Node.js crypto if available, otherwise fall back to simple random
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+      return `pi_${crypto.randomUUID()}`;
+    }
+    // Fallback for older environments
+    return `pi_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+  }
+
   private authHeader(): string {
     const key = this.opts.apiKey ?? getApiKey();
     if (!key) throw new Error("Missing API key. Run pi-hokage or set PI_API_KEY.");
@@ -105,17 +122,20 @@ export class PiApiClient {
   }
 
   /**
-   * Standard POST headers (auth + JSON content-type + persona + cli version).
+   * Standard POST headers (auth + JSON content-type + persona + cli version + request ID).
    * Every backend route sees X-Pi-Persona so Mastra agents and workflows can
    * adapt their responses without needing to read the global config file.
    */
   private headers(extra?: Record<string, string>): Record<string, string> {
     const persona = this.opts.persona ?? getPersona();
+    const requestId = this.generateRequestId();
+    this.lastRequestId = requestId;
     const h: Record<string, string> = {
       Authorization: this.authHeader(),
       "Content-Type": "application/json",
       "X-Pi-Persona": persona,
       "X-Pi-Cli-Version": PI_CLI_VERSION,
+      "X-Request-Id": requestId,
     };
     if (extra) Object.assign(h, extra);
     return h;
@@ -124,14 +144,23 @@ export class PiApiClient {
   /** Same as `headers()` but without Content-Type (for GET requests). */
   private getHeaders(): Record<string, string> {
     const persona = this.opts.persona ?? getPersona();
+    const requestId = this.generateRequestId();
+    this.lastRequestId = requestId;
     return {
       Authorization: this.authHeader(),
       "X-Pi-Persona": persona,
       "X-Pi-Cli-Version": PI_CLI_VERSION,
+      "X-Request-Id": requestId,
     };
   }
 
   private async parseEnvelope<T>(res: Response): Promise<T> {
+    // Capture request ID from response if server echoed it back
+    const responseRequestId = res.headers.get("X-Request-Id");
+    if (responseRequestId) {
+      this.lastRequestId = responseRequestId;
+    }
+
     const json = (await res.json()) as {
       data?: T;
       error?: { message?: string; code?: string; workflow_key?: string; phase?: string; reason?: string };

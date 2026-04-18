@@ -12,6 +12,7 @@ import { CommandTaskTracker } from "../lib/task-tracker.js";
 import { getCurrentBranch } from "../lib/vcs/index.js";
 import { collectRoutineRepoContext } from "../lib/routine-repo-context.js";
 import { touchPromptActivity } from "../lib/cli-activity.js";
+import { recordPiApiCall } from "../lib/token-budget.js";
 
 export type PromptCompileCliOpts = PreFlightGlobalOpts & {
   raw?: boolean;
@@ -208,6 +209,16 @@ export async function runPromptCompile(
     context_quality: "rich" | "partial" | "thin";
     memory_highlight?: string;
   };
+
+  // Budget check
+  const budget = await recordPiApiCall(cwd, "prompt");
+  if (!budget.ok) {
+    console.error(chalk.red(budget.warn));
+    return;
+  }
+  if (budget.warn) {
+    console.log(chalk.yellow(`⚠ ${budget.warn}`));
+  }
 
   let data: PromptGen;
   try {

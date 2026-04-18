@@ -9,6 +9,7 @@ import { runSync } from "../commands/sync.js";
 import { runTrace } from "../commands/trace.js";
 import { runValidate } from "../commands/validate.js";
 import { runWatch } from "../commands/watch.js";
+import { probeMastra, requiresMastra } from "./mastra-availability.js";
 
 export type CommandName = "sync" | "learn" | "validate" | "fix" | "prompt" | "routine" | "resonate" | "trace" | "watch";
 
@@ -114,6 +115,7 @@ export const commandRunnerMap: Record<CommandName, (opts: CommandRunnerOptions) 
 
 /**
  * Execute a command using the unified runner map.
+ * Checks Mastra availability and gates cloud-dependent commands.
  */
 export async function executeCommand(
   command: CommandName,
@@ -124,5 +126,23 @@ export async function executeCommand(
     console.log(chalk.yellow(`⚠ Unknown command: ${command}`));
     return;
   }
+
+  // Check Mastra availability for cloud-dependent commands
+  if (requiresMastra(command)) {
+    const health = await probeMastra(opts.cwd);
+    if (!health.ok) {
+      console.log(chalk.yellow(`\n⚠ Mastra: offline (local-only mode)`));
+      console.log(chalk.dim(`   ${health.reason || "Server unavailable"}\n`));
+      console.log(chalk.dim("   Commands available offline:"));
+      console.log(chalk.dim("   • pi init - Initialize Pi in this repo"));
+      console.log(chalk.dim("   • pi learn - Build system-style profile"));
+      console.log(chalk.dim("   • pi sync - Sync team config"));
+      console.log(chalk.dim("   • pi validate --local - Local validation\n"));
+      console.log(chalk.red(`✗ ${command} requires Mastra to be online.`));
+      console.log(chalk.dim("   Check your network and API key, or wait for server availability."));
+      return;
+    }
+  }
+
   await runner(opts);
 }

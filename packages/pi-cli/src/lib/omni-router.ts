@@ -10,6 +10,7 @@ import { planFromClassifier, planFromNlpPrimary, type OmniExecutionStep } from "
 import { translateAndRoute } from "./polyglot-router.js";
 import { autoSuggestLearn } from "./context-health.js";
 import { isInteractive, renderResumePreview, shouldUseColor } from "./ui/chat-ui.js";
+import { hasSeenOmniRouter, markOmniRouterSeen } from "./cli-activity.js";
 
 const ARCHITECTURE_SIGNALS = [
   "architecture",
@@ -207,21 +208,101 @@ export async function runOmniRouter(
 
   let stepsList = filtered.length ? filtered : primaryStep ? [primaryStep] : [];
   let planSource: "nlp" | "heuristic" = "nlp";
+  let confidence = poly.plan.routing.confidence;
 
   if (!stepsList.length) {
-    const ctx = await buildIntentContext(cwd, trimmed, poly.normalizedIntent);
-    const classified = classifyIntentHeuristic(ctx);
-    const plan = planFromClassifier(classified, "heuristic");
-    stepsList = plan.steps;
-    planSource = "heuristic";
+    // Locale-aware fallback: skip heuristic for non-English when offline
+    const locale = poly.language || "en";
+    const isEnglish = locale.toLowerCase().startsWith("en") || locale === "und";
+    
+    if (!isEnglish && poly.plan.routing.confidence === 0) {
+      // Non-English query with offline NLP - warn and default to prompt
+      console.log(chalk.yellow("⚠ Natural language routing not available for non-English queries offline."));
+      console.log(chalk.dim("  Try: pi resonate \"<your intent>\" or pi prompt \"<your intent>\""));
+      stepsList = ["prompt"];
+      planSource = "heuristic";
+      confidence = 0.3;
+    } else {
+      const ctx = await buildIntentContext(cwd, trimmed, poly.normalizedIntent);
+      const classified = classifyIntentHeuristic(ctx);
+      const plan = planFromClassifier(classified, "heuristic");
+      stepsList = plan.steps;
+      planSource = "heuristic";
+      confidence = plan.confidence;
+    }
   } else {
-    const plan = planFromNlpPrimary(poly.plan.routing.primary, stepsList);
+    const plan = planFromNlpPrimary(poly.plan.routing.primary, stepsList, poly.plan.routing.confidence);
     stepsList = plan.steps;
     planSource = plan.source;
+    confidence = plan.confidence;
+  }
+
+  // Confidence gate: ask for confirmation if confidence is low
+  if (confidence < 0.6 && isInteractive() && !opts.forceResonate && !opts.forceRoutine) {
+    const yesFlag =
+      process.env.PI_CLI_YES === "1" ||
+      process.argv.includes("--yes") ||
+      process.argv.includes("-y");
+    if (!yesFlag) {
+      console.log(chalk.yellow(`\n⚠ Low confidence (${(confidence * 100).toFixed(0)}%) in intent interpretation.`));
+      console.log(chalk.dim(`   Query: "${trimmed}"`));
+      console.log(chalk.dim(`   Proposed: ${stepsList.join(" → ")}\n`));
+      
+      const alternatives: { value: string; label: string }[] = [
+        { value: "proceed", label: `Proceed with ${stepsList.join(" → ")}` },
+        { value: "resonate", label: "Ask Pi to clarify (resonate)" },
+        { value: "prompt", label: "Generate a prompt for another agent" },
+        { value: "abort", label: "Cancel" },
+      ];
+      
+      const choice = await clack.select({
+        message: "How would you like to proceed?",
+        options: alternatives,
+      });
+      
+      if (clack.isCancel(choice) || choice === "abort") {
+        console.log(chalk.dim("Cancelled."));
+        return;
+      }
+      
+      if (choice === "resonate") {
+        stepsList = ["resonate"];
+      } else if (choice === "prompt") {
+        stepsList = ["prompt"];
+      }
+      // If "proceed", keep stepsList as-is
+    }
   }
 
   if (stepsList.length > 1) {
     console.log(chalk.dim(`◐ Execution plan (${planSource}): ${stepsList.join(" → ")}`));
+  }
+
+  // First-run dry-run: show plan and confirm
+  const skipFirstRunConfirm = process.env.PI_CLI_SKIP_FIRST_RUN_CONFIRM === "1";
+  const seenBefore = await hasSeenOmniRouter(cwd);
+  
+  if (!seenBefore && !skipFirstRunConfirm && isInteractive() && stepsList.length > 0) {
+    console.log(chalk.cyan("\n👋 First time using natural language with Pi!"));
+    console.log(chalk.dim("   Pi interpreted your query and will execute:\n"));
+    console.log(chalk.white(`   ${stepsList.map(s => `pi ${s}`).join(" → ")}\n`));
+    console.log(chalk.dim("   You can skip this confirmation in the future by setting:"));
+    console.log(chalk.dim("   PI_CLI_SKIP_FIRST_RUN_CONFIRM=1\n"));
+    
+    const proceed = await clack.confirm({
+      message: "Execute this plan?",
+      initialValue: true,
+    });
+    
+    if (clack.isCancel(proceed) || !proceed) {
+      console.log(chalk.dim("Cancelled. You can try:"));
+      console.log(chalk.dim(`  • pi resonate "${trimmed}" - interactive architecture discussion`));
+      console.log(chalk.dim(`  • pi routine "${trimmed}" - generate implementation spec`));
+      console.log(chalk.dim(`  • pi prompt "${trimmed}" - create prompt for another agent`));
+      return;
+    }
+    
+    await markOmniRouterSeen(cwd);
   }
 
   for (const step of stepsList) {

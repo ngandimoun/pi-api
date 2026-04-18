@@ -27,7 +27,7 @@ import {
 } from "../lib/dependency-chain.js";
 import { getTaskById, saveTaskRecord } from "../lib/task-store.js";
 import { loadSessions, upsertActiveSession } from "../lib/session-store.js";
-import { createStatusDisplay } from "../lib/rich-status.js";
+import { createStatusDisplay, renderClaimsTraceability } from "../lib/rich-status.js";
 import { initToolCallLogger } from "../lib/tool-call-logger.js";
 import {
   extractCategoryFromIntent,
@@ -63,6 +63,7 @@ import {
   showPersonaTips,
 } from "../lib/ui/persona-style.js";
 import { getPersona, type PiPersona } from "../lib/config.js";
+import { recordPiApiCall } from "../lib/token-budget.js";
 
 /** V1 = legacy rendering, V2 = new chat UI. Default: V2 unless PI_CLI_UI=v1. */
 function useV2Ui(): boolean {
@@ -603,6 +604,54 @@ function normalizeClaims(
   });
 }
 
+async function writeDecisionLog(
+  cwd: string,
+  params: {
+    intent: string;
+    decision: string;
+    alternatives_rejected: string[];
+    reason: string;
+    claim_sources: Array<{ claim: string; source: string; evidence_type?: string }>;
+    files_likely_touched: string[];
+  }
+): Promise<string> {
+  const decisionsDir = path.join(cwd, ".pi/decisions");
+  await fs.mkdir(decisionsDir, { recursive: true });
+  
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const slug = params.intent.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
+  const filename = `${timestamp}-${slug}.md`;
+  const abs = path.join(decisionsDir, filename);
+  
+  const body = `# Decision: ${params.intent}
+
+**Date:** ${new Date().toISOString().slice(0, 10)}  
+**Decision:** ${params.decision}
+
+## Rationale
+
+${params.reason}
+
+## Alternatives Considered & Rejected
+
+${params.alternatives_rejected.length ? params.alternatives_rejected.map((a, i) => `${i + 1}. ${a}`).join("\n") : "(none documented)"}
+
+## Evidence / Claims
+
+${params.claim_sources.length ? params.claim_sources.map((c) => {
+    const ev = c.evidence_type ? ` [${c.evidence_type}]` : "";
+    return `- ${c.claim} (${c.source})${ev}`;
+  }).join("\n") : "(none)"}
+
+## Files Affected
+
+${params.files_likely_touched.length ? params.files_likely_touched.map(f => `- \`${f}\``).join("\n") : "(none listed)"}
+`;
+
+  await fs.writeFile(abs, body, "utf8");
+  return path.relative(cwd, abs);
+}
+
 async function writeHandoffFile(
   cwd: string,
   params: {
@@ -843,11 +892,9 @@ function renderSocraticChallenge(challenge: SocraticChallenge, astInsights?: Ast
     }
   }
 
+  // Render claims traceability
   if (challenge.claims.length > 0) {
-    console.log(chalk.bold("\nClaims (cited)"));
-    for (const c of challenge.claims.slice(0, 12)) {
-      console.log(`  * ${c.claim} ${chalk.dim(`(${c.source})`)}`);
-    }
+    renderClaimsTraceability(challenge.claims.slice(0, 12));
   }
 
   if (challenge.files_likely_touched?.length) {
@@ -953,6 +1000,16 @@ async function runResonateWorkflow(
     chalk.dim(" (workflow)") +
     (deep ? chalk.dim(" (deep)") : chalk.dim(" (fast)"))
   );
+
+  // Budget check
+  const budget = await recordPiApiCall(cwd, "resonate");
+  if (!budget.ok) {
+    console.error(chalk.red(budget.warn));
+    return;
+  }
+  if (budget.warn) {
+    console.log(chalk.yellow(`⚠ ${budget.warn}`));
+  }
 
   const s = clack.spinner();
   s.start("Initializing Socratic Loop workflow...");
@@ -1214,8 +1271,9 @@ export async function runResonate(cwd: string, intentArg: string, opts?: Resonat
     console.log(chalk.dim(`◐ Staged/working diff summary: ${git_diff_summary.length} chars`));
   }
 
-  // ---------- Workflow mode ----------
-  if (opts?.workflow) {
+  // ---------- Workflow mode (default unless PI_CLI_USE_WORKFLOWS=0) ----------
+  const useWorkflowMode = opts?.workflow !== false && process.env.PI_CLI_USE_WORKFLOWS !== "0";
+  if (useWorkflowMode) {
     printLocalFirstBanner({ workflow: true });
     try {
       await runResonateWorkflow(cwd, intent, {
@@ -1318,6 +1376,19 @@ export async function runResonate(cwd: string, intentArg: string, opts?: Resonat
           /* ignore timer render errors */
         }
       }, 1500);
+    }
+
+    // Budget check for each turn
+    const turnBudget = await recordPiApiCall(cwd, "resonate");
+    if (!turnBudget.ok) {
+      if (thinkingSpinner) {
+        thinkingSpinner.stop("Budget exceeded");
+      }
+      console.error(chalk.red(turnBudget.warn));
+      break;
+    }
+    if (turnBudget.warn && thinkingSpinner) {
+      thinkingSpinner.message(chalk.yellow(turnBudget.warn));
     }
 
     try {
@@ -1639,6 +1710,22 @@ export async function runResonate(cwd: string, intentArg: string, opts?: Resonat
     last,
     resonanceRel: rel,
   });
+
+  // Persist structured decision log when session reaches "building" status
+  if (last.session_status === "building" && last.is_ready) {
+    const decision = last.recommended_approach?.label === "A" || last.recommended_approach?.label === "B" 
+      ? `Proceed with approach ${last.recommended_approach.label}: ${last.recommended_approach.rationale}`
+      : last.message.slice(0, 300);
+    
+    await writeDecisionLog(cwd, {
+      intent,
+      decision,
+      alternatives_rejected: last.suggested_alternatives ?? [],
+      reason: last.recommended_approach?.rationale ?? last.message.slice(0, 500),
+      claim_sources: last.claims ?? [],
+      files_likely_touched: last.files_likely_touched ?? [],
+    });
+  }
 
   let planRel: string | undefined;
   if (opts?.plan) {

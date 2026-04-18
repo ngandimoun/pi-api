@@ -10,9 +10,9 @@ export type IntentContext = {
 
 export type ClassifiedIntent = {
   /** Primary verb for omnirouter execution */
-  primary: "resonate" | "routine" | "validate" | "fix";
+  primary: "resonate" | "routine" | "validate" | "fix" | "prompt";
   /** Optional ordered chain (e.g. validate → fix) */
-  chain: Array<"resonate" | "routine" | "validate" | "fix">;
+  chain: Array<"resonate" | "routine" | "validate" | "fix" | "prompt">;
   confidence: number;
 };
 
@@ -21,6 +21,8 @@ const VALIDATION_HINTS =
 const FIX_HINTS = /\b(fix|autofix|repair|correct|patch)\b/i;
 const ROUTINE_HINTS =
   /\b(routine|spec|markdown\s+spec|cursor\s+rules|generate\s+the\s+spec|implementation\s+plan)\b/i;
+const RESONATE_HINTS =
+  /\b(should|why|architecture|design|tradeoff|approach|recommend|advice|consider|evaluate|compare)\b|[?？]/i;
 
 /** Heuristic routing when NLP is unavailable — git-aware. */
 export async function buildIntentContext(cwd: string, query: string, normalizedQuery?: string): Promise<IntentContext> {
@@ -67,5 +69,11 @@ export function classifyIntentHeuristic(ctx: IntentContext): ClassifiedIntent {
     return { primary: "routine", chain: ["routine"], confidence: 0.48 };
   }
 
-  return { primary: "resonate", chain: ["resonate"], confidence: 0.4 };
+  // Require positive evidence for resonate (questions, architectural keywords)
+  if (RESONATE_HINTS.test(lower)) {
+    return { primary: "resonate", chain: ["resonate"], confidence: 0.42 };
+  }
+
+  // Default to prompt (cheapest meaningful action) instead of resonate
+  return { primary: "prompt", chain: ["prompt"], confidence: 0.35 };
 }

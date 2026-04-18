@@ -32,6 +32,7 @@ import { buildReferenceMap, getRoutineIndex, rebuildRoutineIndex } from "../lib/
 import { isEnhancedRoutineMarkdown, listRoutines, resolveRoutineFile } from "../lib/routine-library.js";
 import { EMBEDDED_ROUTINE_TEMPLATES } from "../lib/embedded-templates.js";
 import { getCurrentBranch, getPendingChanges } from "../lib/vcs/index.js";
+import { recordPiApiCall } from "../lib/token-budget.js";
 
 async function writeRoutineFile(
   cwd: string,
@@ -90,6 +91,23 @@ async function writeProgressiveRoutinePlan(
     }
     for (const st of ph.steps) {
       lines.push(`## ${st.id}`, "", st.description, "");
+      
+      // D3: Include full RoutineStep fields for coding agents
+      if (st.action) {
+        lines.push(`**Action:** \`${st.action}\``, "");
+      }
+      if (st.file_path) {
+        lines.push(`**File:** \`${st.file_path}\``, "");
+      }
+      if (st.command) {
+        lines.push(`**Command:** \`${st.command}\``, "");
+      }
+      if (st.critical_rules?.length) {
+        lines.push("**Critical rules:**", ...st.critical_rules.map(r => `- ${r}`), "");
+      }
+      if (st.validation_checks?.length) {
+        lines.push("**Validation checks:**", ...st.validation_checks.map(v => `- ${v}`), "");
+      }
       if (st.depends_on_steps?.length) {
         lines.push(`_Depends on steps:_ ${st.depends_on_steps.join(", ")}`, "");
       }
@@ -98,9 +116,18 @@ async function writeProgressiveRoutinePlan(
     console.log(chalk.green("✓"), "Wrote", path.join(PI_ROUTINES_DIR, safeSlug, fileName));
   }
 
+  // D4: Write real DAG with dependencies (phase `file` must match written phase markdown names)
+  const dagPhases = spec.phases.map((ph, idx) => ({
+    id: ph.id,
+    title: ph.title,
+    file: phaseMeta[idx]!.file,
+    depends_on_phases: ph.depends_on_phases ?? [],
+    unlock_condition: ph.unlock_condition,
+  }));
+
   await fs.writeFile(
     path.join(base, ".dag.json"),
-    JSON.stringify({ routine: slug, version, phases: phaseMeta }, null, 2),
+    JSON.stringify({ routine: slug, version, phases: dagPhases }, null, 2),
     "utf8"
   );
   await fs.writeFile(
@@ -263,6 +290,7 @@ function suggestKnowledgeRoutineIds(intent: string): string[] {
   // shadcn
   if (/(shadcn|radix|cva|class-variance-authority)/.test(q)) {
     out.add("shadcn-ui-playbook");
+    out.add("shadcn-ui-best-practices-2026");
   }
 
   // Chakra
@@ -312,16 +340,29 @@ export async function runRoutineGenerate(
   const branch_name = (await getCurrentBranch(cwd)) ?? "unknown-branch";
   const developer_id = process.env.PI_CLI_DEVELOPER_ID?.trim() || undefined;
 
+  // Create session upfront so tracker can link to it
+  const sessionId = `routine-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
   const tracker = new CommandTaskTracker("routine", `Routine: ${intent.slice(0, 120)}`, {
     cwd,
     branch: branch_name,
-  });
+  }, sessionId);
   tracker.startStep("context", "Collect routine repo context");
   const routine_context = await collectRoutineRepoContext(cwd, intent, {
     withExcerpts: Boolean(opts?.withExcerpts),
   });
   tracker.completeStep("context");
   tracker.startStep("api", "Generate routine (API)");
+
+  // Budget check
+  const budget = await recordPiApiCall(cwd, "routine");
+  if (!budget.ok) {
+    console.error(chalk.red(budget.warn));
+    return;
+  }
+  if (budget.warn) {
+    console.log(chalk.yellow(`⚠ ${budget.warn}`));
+  }
 
   const useAsync = Boolean(opts?.async) || process.env.PI_CLI_ASYNC === "true";
 
@@ -443,8 +484,7 @@ export async function runRoutineGenerate(
       tracker.completeStep("write");
       tracker.complete();
       
-      // Create lightweight session for routine command
-      const sessionId = `routine-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      // Session already created and linked to tracker
       upsertActiveSession({
         cwd,
         branch_name,
@@ -508,8 +548,7 @@ export async function runRoutineGenerate(
   tracker.completeStep("write");
   tracker.complete();
   
-  // Create lightweight session for routine command
-  const sessionId = `routine-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  // Session already created and linked to tracker
   upsertActiveSession({
     cwd,
     branch_name,

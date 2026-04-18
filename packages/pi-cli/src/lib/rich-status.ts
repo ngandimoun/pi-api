@@ -51,11 +51,24 @@ export class RichStatusDisplay {
   private startTime: number;
   private phaseStartTime: number;
   private phaseIndex: number = 0;
+  private mastraOffline: boolean = false;
 
   constructor(mode: StatusDisplayMode = "rich") {
     this.mode = mode;
     this.startTime = Date.now();
     this.phaseStartTime = Date.now();
+  }
+
+  /** Mark Mastra as offline/unavailable */
+  setMastraOffline(offline: boolean): void {
+    this.mastraOffline = offline;
+  }
+
+  /** Get Mastra availability status badge */
+  getMastraBadge(): string {
+    if (!this.mastraOffline) return "";
+    const label = shouldUseColor() ? chalk.yellow("⚠ Mastra: offline (local-only mode)") : "⚠ Mastra: offline (local-only mode)";
+    return `${label}\n`;
   }
 
   /** Seconds since the current phase began. */
@@ -168,4 +181,26 @@ export function createStatusDisplay(opts?: { verbose?: boolean; quiet?: boolean 
   }
 
   return new RichStatusDisplay(mode);
+}
+
+/**
+ * Render claims traceability evidence from Pi agents.
+ * Shows which claims were made and their sources (files, tools, memory).
+ */
+export function renderClaimsTraceability(
+  claims: Array<{ claim: string; source: string; tool?: string }>
+): void {
+  if (!claims || claims.length === 0) return;
+
+  console.log("");
+  console.log(chalk.bold.cyan("Evidence & Claims Traceability"));
+  console.log(chalk.dim("(sources used by Pi to ground architectural analysis)\n"));
+
+  for (const c of claims) {
+    const toolBadge = c.tool ? chalk.dim(` [via ${c.tool}]`) : "";
+    console.log(chalk.white(`  • ${c.claim}`));
+    console.log(chalk.dim(`    Source: ${c.source}${toolBadge}`));
+  }
+  
+  console.log("");
 }

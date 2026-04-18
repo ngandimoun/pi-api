@@ -1,0 +1,128 @@
+name: Pi CLI Canary (Post-Deploy)
+
+on:
+  workflow_run:
+    workflows: ["Vercel Production Deployment"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  canary:
+    name: Post-Deploy Smoke Test
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Pi CLI
+        run: |
+          cd packages/pi-cli
+          npm run build
+          npm link
+          cd ../..
+
+      - name: Run canary test - pi resonate "ping"
+        id: canary
+        env:
+          PI_API_KEY: ${{ secrets.PI_CANARY_API_KEY }}
+          PI_API_BASE_URL: ${{ secrets.PI_STAGING_URL || 'https://piii-black.vercel.app' }}
+        run: |
+          set -e
+          
+          # Create temp test directory
+          mkdir -p /tmp/pi-canary-test
+          cd /tmp/pi-canary-test
+          
+          # Initialize Pi
+          pi init --yes || true
+          
+          # Run canary ping
+          echo "Testing pi resonate against staging..."
+          pi resonate "ping" --json > canary-output.json || {
+            echo "::error::Pi resonate command failed"
+            cat canary-output.json
+            exit 1
+          }
+          
+          # Parse and validate response
+          node -e "
+            const fs = require('fs');
+            const output = JSON.parse(fs.readFileSync('canary-output.json', 'utf8'));
+            
+            // Check claims_traceability exists and is non-empty
+            if (!output.claims || !Array.isArray(output.claims) || output.claims.length === 0) {
+              console.error('FAIL: claims_traceability is empty or missing');
+              process.exit(1);
+            }
+            
+            console.log('✓ claims_traceability present with', output.claims.length, 'claims');
+            console.log('✓ Canary passed');
+          "
+
+      - name: Check Mastra health endpoint
+        env:
+          PI_API_BASE_URL: ${{ secrets.PI_STAGING_URL || 'https://piii-black.vercel.app' }}
+        run: |
+          set -e
+          
+          echo "Checking /api/cli/health..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" "$PI_API_BASE_URL/api/cli/health")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Health check failed with status $HTTP_CODE"
+            echo "$BODY"
+            exit 1
+          fi
+          
+          # Validate semantic_recall is enabled
+          node -e "
+            const health = JSON.parse('$BODY'.replace(/'/g, \"'\"));
+            
+            if (!health.data?.checks?.memory?.semantic_recall) {
+              console.error('FAIL: memory.semantic_recall is false or missing');
+              console.error(JSON.stringify(health.data?.checks?.memory, null, 2));
+              process.exit(1);
+            }
+            
+            console.log('✓ Postgres reachable:', health.data.checks.postgres.reachable);
+            console.log('✓ Semantic recall enabled:', health.data.checks.memory.semantic_recall);
+            console.log('✓ Health check passed');
+          "
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL || secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -n "$WEBHOOK_URL" ]; then
+            curl -X POST "$WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"text\": \"🚨 Pi CLI Canary FAILED after deployment\",
+                \"blocks\": [{
+                  \"type\": \"section\",
+                  \"text\": {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \"*Pi CLI Post-Deploy Canary Failed*\n\nWorkflow: ${{ github.workflow }}\nCommit: \`${{ github.sha }}\`\nBranch: ${{ github.ref_name }}\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>\"
+                  }
+                }]
+              }"
+          else
+            echo "No webhook URL configured (SLACK_WEBHOOK_URL or DISCORD_WEBHOOK_URL)"
+          fi

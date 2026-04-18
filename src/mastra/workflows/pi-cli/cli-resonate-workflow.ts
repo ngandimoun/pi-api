@@ -30,6 +30,17 @@ const alternativePathSchema = z.object({
   tradeoffs: z.string(),
 });
 
+const claimEvidenceSchema = z.enum([
+  "graph",
+  "system_style",
+  "ast",
+  "diff",
+  "constitution",
+  "validation",
+  "memory",
+  "inference",
+]);
+
 const socraticChallengeSchema = z.object({
   understanding: z.string(),
   missing_prerequisites: z.array(z.string()).max(16),
@@ -38,11 +49,67 @@ const socraticChallengeSchema = z.object({
   probing_question: z.string(),
   risks: z.array(z.string()).max(16),
   invariants: z.array(z.string()).max(16),
-  claims: z.array(z.object({ claim: z.string(), source: z.string() })).max(24),
+  claims: z.array(z.object({ 
+    claim: z.string(), 
+    source: z.string(),
+    evidence_type: claimEvidenceSchema,
+    confidence: z.number().min(0).max(1).optional(),
+  })).max(24),
   conflict_type: z.enum(["hard_constraint", "pattern_divergence", "preference", "none"]),
   files_likely_touched: z.array(z.string()).max(80).optional(),
   is_ready: z.boolean(),
 });
+
+/**
+ * Post-generation validation that enforces pushback contract based on mode.
+ * Downgrades is_ready when schema violations occur.
+ */
+function validateSocraticChallenge(
+  challenge: z.infer<typeof socraticChallengeSchema>,
+  mode: "explore" | "challenge" | "decision" | undefined,
+  grounding: { graph_available: boolean; constitution_loaded: boolean }
+): z.infer<typeof socraticChallengeSchema> {
+  let downgradeReady = false;
+  const warnings: string[] = [];
+  
+  // Challenge/decision modes require meaningful alternatives
+  if ((mode === "challenge" || mode === "decision") && challenge.alternative_paths.length < 2) {
+    warnings.push(`${mode} mode requires at least 2 alternative_paths`);
+    downgradeReady = true;
+  }
+  
+  // Forbid conflict_type='none' when violations exist
+  const hasViolations = challenge.missing_prerequisites.length > 0 || challenge.architectural_traps.length > 0;
+  if (hasViolations && challenge.conflict_type === "none") {
+    warnings.push("conflict_type cannot be 'none' when violations exist");
+    challenge.conflict_type = "pattern_divergence"; // auto-correct
+  }
+  
+  // Explore mode should not mark is_ready
+  if (mode === "explore" && challenge.is_ready) {
+    warnings.push("explore mode cannot set is_ready=true");
+    downgradeReady = true;
+  }
+  
+  // Reject all-inference responses when graph+constitution loaded
+  if (grounding.graph_available && grounding.constitution_loaded && challenge.claims.length > 0) {
+    const allInference = challenge.claims.every(c => c.evidence_type === "inference");
+    if (allInference) {
+      warnings.push("all claims are 'inference' despite available graph+constitution");
+      downgradeReady = true;
+    }
+  }
+  
+  // Apply downgrades
+  if (downgradeReady && challenge.is_ready) {
+    challenge.is_ready = false;
+    if (warnings.length > 0) {
+      challenge.probing_question = `[Validation: ${warnings.join("; ")}] ${challenge.probing_question}`;
+    }
+  }
+  
+  return challenge;
+}
 
 const groundingQualitySchema = z.object({
   graph_available: z.boolean(),
@@ -152,16 +219,100 @@ const hydrateContextStep = createStep({
 });
 
 // ---------------------------------------------------------------------------
-// Step 2: AST Analysis
+// Step 2: Sliding-Window History Summarization
 // ---------------------------------------------------------------------------
 
-const afterAstSchema = hydrateOutputSchema.extend({
+const historySummarySchema = z.object({
+  key_decisions: z.array(z.string()),
+  open_questions: z.array(z.string()),
+  accepted_constraints: z.array(z.string()),
+});
+
+const afterHistorySummarySchema = hydrateOutputSchema.extend({
+  history_summary: z.string().optional(),
+  recent_messages: z.array(messageSchema),
+});
+
+const summarizeHistoryStep = createStep({
+  id: "summarize-history",
+  inputSchema: hydrateOutputSchema,
+  outputSchema: afterHistorySummarySchema,
+  execute: async ({ inputData }) => {
+    const messages = inputData.messages;
+    
+    // If conversation is short, no summarization needed
+    if (messages.length <= 20) {
+      return {
+        ...inputData,
+        history_summary: undefined,
+        recent_messages: messages,
+      };
+    }
+
+    // Keep last 10 messages verbatim
+    const recentMessages = messages.slice(-10);
+    const olderMessages = messages.slice(0, -10);
+
+    // Summarize older messages
+    const olderContent = olderMessages
+      .map((m) => `${m.role}: ${m.content.slice(0, 8000)}`)
+      .join("\n\n");
+
+    try {
+      const model = getPiCliGeminiModel("lite");
+      const { object } = await generateObject({
+        model,
+        schema: historySummarySchema,
+        maxOutputTokens: 2000,
+        prompt: `Summarize the following conversation history into structured key points:
+
+${olderContent}
+
+Extract:
+- key_decisions: architectural or design decisions that were made
+- open_questions: unresolved questions or concerns
+- accepted_constraints: rules, patterns, or constraints that were agreed upon`,
+      });
+
+      const summary = `## Conversation History Summary
+      
+**Key Decisions:**
+${object.key_decisions.map((d) => `- ${d}`).join("\n")}
+
+**Open Questions:**
+${object.open_questions.map((q) => `- ${q}`).join("\n")}
+
+**Accepted Constraints:**
+${object.accepted_constraints.map((c) => `- ${c}`).join("\n")}`;
+
+      return {
+        ...inputData,
+        history_summary: summary,
+        recent_messages: recentMessages,
+      };
+    } catch (e) {
+      console.warn("[summarize-history] Failed to summarize:", e instanceof Error ? e.message : "unknown");
+      // Fallback: just truncate
+      return {
+        ...inputData,
+        history_summary: `(${olderMessages.length} older messages truncated)`,
+        recent_messages: recentMessages,
+      };
+    }
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Step 3: AST Analysis
+// ---------------------------------------------------------------------------
+
+const afterAstSchema = afterHistorySummarySchema.extend({
   ast_insights: astInsightsSchema,
 });
 
 const astAnalysisStep = createStep({
   id: "ast-analysis",
-  inputSchema: hydrateOutputSchema,
+  inputSchema: afterHistorySummarySchema,
   outputSchema: afterAstSchema,
   execute: async ({ inputData }) => {
     const excerpts = inputData.routine_context?.file_excerpts ?? [];
@@ -198,13 +349,26 @@ const astAnalysisStep = createStep({
         // AST boundary check non-critical
       }
 
-      // Blast radius for key symbols mentioned in the intent
+      // Blast radius for key symbols - broadened beyond PascalCase intent words
       try {
+        const symbolsToCheck = new Set<string>();
+        
+        // Original: PascalCase intent words
         const intentWords = inputData.intent
           .split(/\s+/)
           .filter((w) => /^[A-Z][a-zA-Z]+$/.test(w))
           .slice(0, 3);
-        for (const symbol of intentWords) {
+        intentWords.forEach(w => symbolsToCheck.add(w));
+        
+        // New: Extract exports from top-relevance excerpts
+        for (const excerpt of excerpts.slice(0, 10)) {
+          const exportMatches = excerpt.excerpt.matchAll(/export\s+(?:const|function|class|interface|type)\s+([A-Z][a-zA-Z0-9]*)/g);
+          for (const match of exportMatches) {
+            if (match[1]) symbolsToCheck.add(match[1]);
+          }
+        }
+        
+        for (const symbol of Array.from(symbolsToCheck).slice(0, 5)) {
           const matchingExcerpt = excerpts.find(
             (e) => e.excerpt.includes(`export`) && e.excerpt.includes(symbol)
           );
@@ -266,9 +430,13 @@ ${data.ast_insights.blast_radius_summaries.length > 0 ? `### Blast Radius\n${dat
     ? `## Current working tree / staged changes (highest priority)\n${data.git_diff_summary.trim().slice(0, 90_000)}`
     : "";
 
-  const conversation = data.messages
-    .map((m) => `${m.role === "user" ? "User" : "Pi"}: ${m.content}`)
+  const recentConversation = data.recent_messages
+    .map((m) => `${m.role === "user" ? "User" : "Pi"}: ${m.content.slice(0, 8000)}`)
     .join("\n\n");
+
+  const historyBlock = data.history_summary
+    ? `## Previous Conversation Summary\n${data.history_summary}\n\n`
+    : "";
 
   return `${modeBlock(data.mode)}
 
@@ -296,8 +464,8 @@ ${data.ast_summaries.slice(0, 12_000)}
 ### Existing routines
 ${data.existing_routines_note.slice(0, 6000)}
 
-## Conversation (respond to latest User turn)
-${conversation}
+${historyBlock}## Recent Conversation (respond to latest User turn)
+${recentConversation}
 
 ## Output rules
 You are a Staff Engineer. Output a Socratic challenge as structured JSON.
@@ -394,13 +562,19 @@ async function generateSocraticChallenge(
   const persona = data.persona ?? "normal";
   const prompt = withPersonaPreamble(persona, rawPrompt);
 
+  const grounding = {
+    graph_available: data.grounding_quality.graph_available,
+    constitution_loaded: data.grounding_quality.constitution_loaded,
+  };
+
   try {
     const agent = (await import("@/mastra")).mastra.getAgent("cliArchitectAgent");
     const result = await agent.generate([{ role: "user", content: prompt }], {
       structuredOutput: { schema: socraticChallengeSchema },
       memory: { resource: data.resource_id, thread: data.thread_id },
     });
-    return result.object as z.infer<typeof socraticChallengeSchema>;
+    const challenge = result.object as z.infer<typeof socraticChallengeSchema>;
+    return validateSocraticChallenge(challenge, data.mode, grounding);
   } catch {
     // Fallback to direct Gemini generateObject
     try {
@@ -408,8 +582,9 @@ async function generateSocraticChallenge(
         model: getPiCliGeminiModel("lite"),
         schema: socraticChallengeSchema,
         prompt: `${prompt}\n\nReturn JSON matching the schema. Do not write code.`,
+        maxOutputTokens: 8000,
       });
-      return object;
+      return validateSocraticChallenge(object, data.mode, grounding);
     } catch (e2) {
       return {
         understanding: "Unable to generate challenge — model error.",
@@ -420,7 +595,7 @@ async function generateSocraticChallenge(
         risks: [],
         invariants: [],
         claims: [],
-        conflict_type: "none",
+        conflict_type: "preference", // Changed from "none" per A3
         files_likely_touched: [],
         is_ready: false,
       };
@@ -590,6 +765,7 @@ export const cliResonateWorkflow = createWorkflow({
   outputSchema: shadowPlanOutputSchema,
 })
   .then(hydrateContextStep)
+  .then(summarizeHistoryStep)
   .then(astAnalysisStep)
   .then(socraticDebateStep)
   .then(commitMemoryStep)
