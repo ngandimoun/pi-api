@@ -32,8 +32,18 @@ jobs:
         run: PI_BASE_URL=https://piii-black.vercel.app npm run verify:mastra-hokage
         continue-on-error: true
       
+      - name: Verify NPM_TOKEN secret is configured
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "::error::NPM_TOKEN is missing. Add repository secret NPM_TOKEN (npm automation token with publish rights for @pi-api scope and pi-hokage)."
+            exit 1
+          fi
+          echo "NODE_AUTH_TOKEN is set (length hidden)."
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
       - name: Publish @pi-api/cli
-        run: npm publish -w packages/pi-cli --access public --provenance
+        run: npm publish -w packages/pi-cli --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
@@ -56,6 +66,6 @@ jobs:
           exit 0
       
       - name: Publish pi-hokage
-        run: npm publish -w packages/pi-hokage --access public --provenance
+        run: npm publish -w packages/pi-hokage --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
