@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { apiError, apiSuccessEnvelope } from "@/lib/api-response";
 import { ensureUserProfileRow } from "@/lib/ensure-user-profile";
+import { workflowQuotaMatrixForTier } from "@/lib/pi-cli-plan-limits";
 import { createSupabaseForBearer } from "@/lib/supabase-route-user";
 
 /**
@@ -74,6 +75,8 @@ export async function GET(request: NextRequest) {
       .eq("user_id", user.id)
       .is("revoked_at", null);
 
+    const workflow_quotas = workflowQuotaMatrixForTier(profile?.subscription_tier as string | null);
+
     return apiSuccessEnvelope({
       data: {
         ...profile,
@@ -81,6 +84,7 @@ export async function GET(request: NextRequest) {
           total_requests: totalRequests || 0,
           monthly_requests: monthlyRequests || 0,
           api_keys_count: apiKeysCount || 0,
+          workflow_quotas,
         },
       },
       object: "user_profile",

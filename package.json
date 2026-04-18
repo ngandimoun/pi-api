@@ -25,7 +25,9 @@
     "cli:build": "npm -w packages/pi-cli run build",
     "cli:ci": "npm -w packages/pi-cli run ci",
     "hokage:build": "npm -w packages/pi-hokage run build",
-    "test:cli-e2e": "node scripts/pi-cli-e2e.mjs"
+    "test:cli-e2e": "node scripts/pi-cli-e2e.mjs",
+    "verify:mastra-hokage": "node scripts/mastra-hokage-verify.mjs",
+    "verify:mastra-schema": "node scripts/verify-mastra-schema.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.0",

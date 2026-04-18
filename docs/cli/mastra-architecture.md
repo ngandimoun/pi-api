@@ -128,6 +128,17 @@ After the env flip, confirm production is hot:
 3. Soft call: `POST /api/cli/validate` with `X-Pi-Fail-Closed: false` + intentionally invalid workflow input → `200` with legacy semantic result.
 4. Strict call: same with `X-Pi-Fail-Closed: true` → `503 workflow_unavailable`.
 5. HITL: `pi routine "…" --approval --async` → `202 accepted` + suspended run visible via `POST /api/cli/workflow/poll`.
+6. **Automated (repo):** `npx vitest run tests/mastra/mastra-registry.test.ts tests/mastra/mastra-architect-tools.test.ts` — asserts all 22 workflows + 4 agents and architect tool wiring.
+7. **Automated (live HTTP):** `npm run verify:mastra-hokage` — hits `GET /api/cli/health` (set `PI_BASE_URL` for remote). With `PI_API_KEY` or Unkey mint env vars, also runs validate (sync + async + strict header), memory pair, routine HITL resume, and trace.
+8. **Postgres schema:** `npm run verify:mastra-schema` — confirms `mastra` schema exists when `PI_CLI_DATABASE_URL` is set.
+
+## TLS hardening (Postgres)
+
+When `GET /api/cli/health` shows `checks.postgres.diagnostics.ssl_peer_verification_relaxed: true`, the deployment has `PI_CLI_DATABASE_SSL_REJECT_UNAUTHORIZED=false` (node-postgres accepts the chain without full peer verification).
+
+- Prefer fixing trust (correct Supabase pooler host, no TLS-intercepting proxy, corporate CA) and **removing** `PI_CLI_DATABASE_SSL_REJECT_UNAUTHORIZED` from Vercel so verification is strict.
+- Our canonicalizer adds `sslmode=require` for Supabase pooler hosts when verification is strict ([`src/lib/mastra-storage.ts`](../../src/lib/mastra-storage.ts)).
+- After removing the relax flag, redeploy and confirm health shows `ssl_peer_verification_relaxed: false` and Postgres still `reachable: true`.
 
 ## Storage and Memory
 
@@ -269,3 +280,4 @@ These jobs now attempt workflow execution first and fall back safely on errors:
 - Keep workflow mode gated in production rollouts using environment flags.
 - For strict runtime safety, set `PI_MASTRA_DEFAULT_MODEL` in deployed environments.
 - Ensure Postgres connectivity before enabling workflows/memory broadly.
+- See [mastra-monitoring.md](./mastra-monitoring.md) for suggested production alerts and dashboards.

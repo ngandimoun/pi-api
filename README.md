@@ -176,6 +176,12 @@ Enable with environment flags:
 
 Architecture details: `[docs/cli/mastra-architecture.md](docs/cli/mastra-architecture.md)`.
 
+Production verification (automated):
+
+- `npx vitest run tests/mastra/mastra-registry.test.ts tests/mastra/mastra-architect-tools.test.ts` — registry + tool wiring (no live HTTP).
+- `npm run verify:mastra-hokage` — `GET /api/cli/health` (set `PI_BASE_URL` for remote). With `PI_API_KEY` or Unkey mint env vars, runs validate / async / HITL / trace checks (`scripts/mastra-hokage-verify.mjs`).
+- `npm run verify:mastra-schema` — confirms `mastra` schema when `PI_CLI_DATABASE_URL` is set.
+
 ## Local development
 
 - `npm install`

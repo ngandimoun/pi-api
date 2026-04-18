@@ -11,6 +11,21 @@ import { createPiCliMemory } from "@/lib/pi-cli-memory";
 
 const memory = createPiCliMemory();
 
+/** Exported for Pi CLI Hokage production verification tests. */
+export const cliArchitectAgentTools = {
+  querySystemStyle: querySystemStyleTool,
+  queryDependencyGraph: queryDependencyGraphTool,
+  blastRadius: blastRadiusTool,
+  prerequisiteScanner: prerequisiteScannerTool,
+  architecturalBoundary: architecturalBoundaryTool,
+  extractAstSnippet: extractAstSnippetTool,
+} as const;
+
+/** Stable tool ids for Pi CLI Hokage production verification (`tests/mastra/*`). */
+export const CLI_ARCHITECT_AGENT_TOOL_IDS = Object.keys(cliArchitectAgentTools) as Array<
+  keyof typeof cliArchitectAgentTools
+>;
+
 /**
  * Enhanced Staff Engineer agent for the Socratic Loop workflow.
  * Has access to all AST analysis tools for deterministic codebase reasoning.
@@ -34,12 +49,5 @@ export const cliArchitectAgent = new Agent({
   ].join("\n"),
   model: getMastraDefaultModel(),
   ...(memory ? { memory } : {}),
-  tools: {
-    querySystemStyle: querySystemStyleTool,
-    queryDependencyGraph: queryDependencyGraphTool,
-    blastRadius: blastRadiusTool,
-    prerequisiteScanner: prerequisiteScannerTool,
-    architecturalBoundary: architecturalBoundaryTool,
-    extractAstSnippet: extractAstSnippetTool,
-  },
+  tools: { ...cliArchitectAgentTools },
 });

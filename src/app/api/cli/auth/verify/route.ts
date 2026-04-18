@@ -1,30 +1,7 @@
 import { apiError, apiSuccessEnvelope } from "@/lib/api-response";
 import { resolveOrganizationIdFromUnkeyData } from "@/lib/pi-cli-server";
 import { getServiceSupabaseClient } from "@/lib/supabase";
-import { verifyUnkeyApiKey } from "@/lib/unkey";
-
-type VerifyInner = {
-  valid?: boolean;
-  code?: string;
-  keyId?: string;
-  ratelimits?: unknown;
-  meta?: Record<string, unknown>;
-};
-
-/** Unkey SDK may return `{ data: inner }` or `{ data: { data: inner, meta } }` depending on version. */
-function getVerifyInner(verify: unknown): VerifyInner | undefined {
-  const v = verify as { data?: Record<string, unknown> };
-  const top = v.data;
-  if (!top) return undefined;
-  if (typeof top.valid === "boolean") {
-    return top as VerifyInner;
-  }
-  const inner = top.data as Record<string, unknown> | undefined;
-  if (inner && typeof inner.valid === "boolean") {
-    return inner as VerifyInner;
-  }
-  return undefined;
-}
+import { getUnkeyVerifyPayload, verifyUnkeyApiKey } from "@/lib/unkey";
 
 /**
  * Verify Pi API key for CLI / pi-hokage wizard (Bearer auth).
@@ -52,8 +29,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const verify = await verifyUnkeyApiKey(apiKey);
-    const data = getVerifyInner(verify);
+    const verify = await verifyUnkeyApiKey(apiKey, null, "identity");
+    const data = getUnkeyVerifyPayload(verify);
     const valid = data?.valid === true;
     if (!valid) {
       const code = typeof data?.code === "string" ? data.code : "";

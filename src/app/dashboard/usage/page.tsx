@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, BarChart3 } from "lucide-react";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
-import { monthlyLimitForTier } from "@/lib/pi-cli-plan-limits";
+import { monthlyLimitForTier, workflowQuotaMatrixForTier } from "@/lib/pi-cli-plan-limits";
+import { WORKFLOW_FAMILIES, type WorkflowFamily } from "@/lib/workflow-family";
 import { isPaidSubscriptionStatus } from "@/lib/subscription";
 import { getSupabaseBrowser } from "@/lib/supabase-browser-client";
 
@@ -46,7 +47,11 @@ export default function UsagePage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const meJson = (await meRes.json()) as {
-          data?: { subscription_tier?: string; subscription_status?: string; usage?: { monthly_requests?: number } };
+          data?: {
+            subscription_tier?: string;
+            subscription_status?: string;
+            usage?: { monthly_requests?: number; workflow_quotas?: Record<WorkflowFamily, number> };
+          };
         };
         if (meJson.data?.subscription_tier) setTier(meJson.data.subscription_tier);
         if (meJson.data?.subscription_status) setStatus(meJson.data.subscription_status);
@@ -86,6 +91,7 @@ export default function UsagePage() {
 
   const limit = monthlyLimitForTier(tier);
   const remaining = Math.max(0, limit - monthlyCount);
+  const quotaMatrix = workflowQuotaMatrixForTier(tier);
 
   const last7 = useMemo(() => {
     const out: { label: string; count: number }[] = [];
@@ -134,8 +140,8 @@ export default function UsagePage() {
             <div>
               <h1 className="text-xl font-semibold">Usage</h1>
               <p className="text-sm text-muted-foreground">
-                CLI requests recorded this month (verify + metering). Plan limit: {limit.toLocaleString()}/mo (
-                {tier}).
+                Usage events + per-family monthly quotas (Unkey). Aggregate CLI-style limit: {limit.toLocaleString()}
+                /mo ({tier}). Per-family caps below; live remaining counts are enforced in Unkey.
                 {status && !isPaidSubscriptionStatus(status) ? (
                   <span className="text-amber-600 dark:text-amber-400">
                     {" "}
@@ -149,6 +155,18 @@ export default function UsagePage() {
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-8">
+        <div className="mb-8 rounded-xl border border-border/50 bg-card p-6">
+          <h2 className="mb-4 font-semibold">Per-family monthly limits (~30d window)</h2>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {WORKFLOW_FAMILIES.map((fam) => (
+              <div key={fam} className="flex items-center justify-between rounded-lg border border-border/40 px-3 py-2 text-sm">
+                <span className="font-mono text-muted-foreground">{fam}</span>
+                <span className="font-semibold">{quotaMatrix[fam].toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
           <div className="rounded-xl border border-border/50 bg-card p-6">
             <p className="text-sm text-muted-foreground">This month</p>

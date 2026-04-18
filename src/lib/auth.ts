@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { apiError, type StripeErrorType } from "@/lib/api-response";
 import { readProviderKeysFromRequest } from "@/lib/provider-keys";
-import { verifyUnkeyApiKey } from "@/lib/unkey";
+import { getUnkeyVerifyPayload, verifyUnkeyApiKey } from "@/lib/unkey";
 import type { AppRouteContext, AuthenticatedRequest } from "@/types/api";
 
 type AuthenticatedHandler<TContext extends AppRouteContext = AppRouteContext> = (
@@ -110,6 +110,19 @@ function withCommonHeaders(
   return response;
 }
 
+function pickPrimaryRatelimit(data: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+  const list = data?.ratelimits;
+  if (!Array.isArray(list) || list.length === 0) return undefined;
+  const exceeded = list.find((r) => (r as { exceeded?: boolean }).exceeded === true) as
+    | Record<string, unknown>
+    | undefined;
+  if (exceeded) return exceeded;
+  const cli = list.find((r) => (r as { name?: string }).name === "cli_requests_monthly") as
+    | Record<string, unknown>
+    | undefined;
+  return cli ?? (list[0] as Record<string, unknown>);
+}
+
 export function withApiAuth<TContext extends AppRouteContext = AppRouteContext>(
   handler: AuthenticatedHandler<TContext>
 ) {
@@ -159,12 +172,11 @@ export function withApiAuth<TContext extends AppRouteContext = AppRouteContext>(
     }
 
     try {
-      const verify = await verifyUnkeyApiKey(token);
-      const data = (verify as { data?: Record<string, unknown> }).data;
+      const pathname = new URL(request.url).pathname;
+      const verify = await verifyUnkeyApiKey(token, pathname, "billing");
+      const data = getUnkeyVerifyPayload(verify);
 
-      const ratelimit = Array.isArray(data?.ratelimits)
-        ? (data?.ratelimits[0] as Record<string, unknown> | undefined)
-        : undefined;
+      const ratelimit = pickPrimaryRatelimit(data);
 
       const rateHeaders: Record<string, string> | undefined = ratelimit
         ? {
@@ -223,6 +235,7 @@ export function withApiAuth<TContext extends AppRouteContext = AppRouteContext>(
       authenticatedRequest.organizationId = organizationId;
       authenticatedRequest.requestId = requestId;
       authenticatedRequest.developerId = resolveDeveloperId(data, organizationId);
+      authenticatedRequest.apiKey = token;
       authenticatedRequest.providerKeys = readProviderKeysFromRequest(request);
 
       const handlerResponse = await handler(authenticatedRequest, context);

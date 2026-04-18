@@ -1,5 +1,7 @@
 import { PgVector, PostgresStore } from "@mastra/pg";
 import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import type { ConnectionOptions } from "node:tls";
 import { parse } from "pg-connection-string";
 
@@ -22,14 +24,58 @@ function isPiCliPgTlsPeerVerificationRelaxed(): boolean {
   return v === "false" || v === "0";
 }
 
+let relaxedTlsDeprecationLogged = false;
+
+/**
+ * PEM for a private CA (corporate proxy) or path to a PEM file.
+ * If the value contains `BEGIN`, it is treated as inline PEM (use `\n` in env for newlines).
+ * Otherwise it is read as a filesystem path (absolute or relative to cwd).
+ */
+function loadPiCliDatabaseCaPem(): string | undefined {
+  const raw = process.env.PI_CLI_DATABASE_CA_BUNDLE?.trim();
+  if (!raw) return undefined;
+  if (raw.includes("BEGIN CERTIFICATE") || raw.includes("BEGIN TRUSTED CERTIFICATE")) {
+    return raw.replace(/\\n/g, "\n");
+  }
+  try {
+    const p = path.isAbsolute(raw) ? raw : path.resolve(process.cwd(), raw);
+    if (!existsSync(p)) {
+      console.warn("[mastra-storage] PI_CLI_DATABASE_CA_BUNDLE file not found:", p);
+      return undefined;
+    }
+    return readFileSync(p, "utf8");
+  } catch (e) {
+    console.warn("[mastra-storage] Failed to read PI_CLI_DATABASE_CA_BUNDLE:", e);
+    return undefined;
+  }
+}
+
 function getPiCliPgSslOption(): ConnectionOptions | undefined {
-  return isPiCliPgTlsPeerVerificationRelaxed() ? { rejectUnauthorized: false } : undefined;
+  const caPem = loadPiCliDatabaseCaPem();
+  if (caPem) {
+    return { ca: caPem, rejectUnauthorized: true };
+  }
+  if (isPiCliPgTlsPeerVerificationRelaxed()) {
+    if (process.env.NODE_ENV === "production" && !relaxedTlsDeprecationLogged) {
+      relaxedTlsDeprecationLogged = true;
+      console.warn(
+        "[mastra-storage] WARN: PI_CLI_DATABASE_SSL_REJECT_UNAUTHORIZED=false is deprecated in production. Prefer PI_CLI_DATABASE_CA_BUNDLE or fix the server TLS trust chain.",
+      );
+    }
+    return { rejectUnauthorized: false };
+  }
+  return undefined;
 }
 
 /** Hash of effective DB URL + ssl mode so we recreate pools after Vercel env edits without redeploy. */
 function pgPoolInitFingerprint(): string {
   const u = getPiCliDatabaseUrl() ?? "";
-  const mode = isPiCliPgTlsPeerVerificationRelaxed() ? "r" : "s";
+  const relaxed = isPiCliPgTlsPeerVerificationRelaxed();
+  const ca = loadPiCliDatabaseCaPem();
+  let mode: string;
+  if (relaxed) mode = "r";
+  else if (ca) mode = `c:${createHash("sha256").update(ca).digest("hex").slice(0, 16)}`;
+  else mode = "s";
   const h = createHash("sha256").update(u).digest("hex").slice(0, 32);
   return `${mode}:${h}`;
 }
@@ -234,6 +280,7 @@ export function getMastraPostgresConnectionDiagnostics(): {
   canonical_parse_ok: boolean;
   deferred_during_next_build: boolean;
   ssl_peer_verification_relaxed: boolean;
+  ssl_ca_bundle_configured: boolean;
   store_init_error?: string;
   flags: PostgresUrlAnalysisFlags;
 } {
@@ -260,6 +307,7 @@ export function getMastraPostgresConnectionDiagnostics(): {
     canonical_parse_ok: canonicalParseOk,
     deferred_during_next_build: isNextCompilerBuild(),
     ssl_peer_verification_relaxed: isPiCliPgTlsPeerVerificationRelaxed(),
+    ssl_ca_bundle_configured: Boolean(loadPiCliDatabaseCaPem()),
     flags: analysis.flags,
     ...(initErr ? { store_init_error: initErr.slice(0, 240) } : {}),
   };
