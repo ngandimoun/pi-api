@@ -12,11 +12,11 @@ import { z } from "zod";
 export const piPlanTool = createTool({
   id: "pi-plan",
   description:
-    "Query or advance Pi routine plans. Use 'status' to see current phase, 'next' to get next phase path, 'advance' to unlock next phase.",
+    "Query or advance Pi routine plans for one routine (pass routine_slug). Use 'status' for current phase, 'next' for next path, 'advance' to unlock.",
   inputSchema: z.object({
     action: z.enum(["status", "next", "advance"]),
     cwd: z.string(),
-    routine_slug: z.string().optional(),
+    routine_slug: z.string().min(1),
   }),
   outputSchema: z.object({
     success: z.boolean(),
@@ -28,36 +28,17 @@ export const piPlanTool = createTool({
   }),
   execute: async ({ action, cwd, routine_slug }) => {
     try {
-      // Find .dag.json - either specific routine or latest in .pi/routines/
-      let dagPath: string;
-      if (routine_slug) {
-        dagPath = path.join(/* turbopackIgnore: true */ cwd, ".pi/routines", routine_slug, ".dag.json");
-      } else {
-        const routinesDir = path.join(/* turbopackIgnore: true */ cwd, ".pi/routines");
-        const entries = await fs.readdir(routinesDir, { withFileTypes: true });
-        const dirs = entries.filter((e) => e.isDirectory());
-
-        let latestDag: { path: string; mtime: number } | null = null;
-        for (const dir of dirs) {
-          const candidatePath = path.join(/* turbopackIgnore: true */ routinesDir, dir.name, ".dag.json");
-          try {
-            const stat = await fs.stat(candidatePath);
-            if (!latestDag || stat.mtimeMs > latestDag.mtime) {
-              latestDag = { path: candidatePath, mtime: stat.mtimeMs };
-            }
-          } catch {
-            continue;
-          }
-        }
-
-        if (!latestDag) {
-          return {
-            success: false,
-            message: "No .dag.json found in .pi/routines/",
-          };
-        }
-        dagPath = latestDag.path;
+      // Require routine_slug: scanning `.pi/routines` with `readdir` on user-controlled `cwd`
+      // makes Turbopack/NFT treat the trace as unbounded (pulls repo root + next.config into lambdas).
+      if (!routine_slug?.trim()) {
+        return {
+          success: false,
+          message:
+            "routine_slug is required (e.g. the folder name under .pi/routines/<slug>). Automatic discovery is disabled in server builds.",
+        };
       }
+
+      const dagPath = path.join(/* turbopackIgnore: true */ cwd, ".pi/routines", routine_slug.trim(), ".dag.json");
 
       const progressPath = path.join(path.dirname(dagPath), ".progress.json");
 
