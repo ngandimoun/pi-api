@@ -124,9 +124,13 @@ function renderServerHealthBlock(health: PiCliHealthReport): void {
   const pgDiag = c.postgres.diagnostics;
   const postgresDetail = (() => {
     if (c.postgres.configured) {
-      return c.postgres.reachable
-        ? "reachable"
-        : `unreachable${c.postgres.error ? ` — ${c.postgres.error}` : ""}`;
+      if (c.postgres.reachable) return "reachable";
+      const err = c.postgres.error ?? "";
+      const tlsHint =
+        /certificate|self-signed|SSL|TLS/i.test(err) && !pgDiag?.ssl_peer_verification_relaxed
+          ? " — if trust chain is broken (proxy/custom CA), set PI_CLI_DATABASE_SSL_REJECT_UNAUTHORIZED=false on Vercel (dev only) or fix host/CA"
+          : "";
+      return `unreachable${err ? ` — ${err}` : ""}${tlsHint}`;
     }
     if (pgDiag?.deferred_during_next_build) return "deferred during Next build (unexpected in prod)";
     if (!pgDiag?.env_value_present) return "no PI_CLI_DATABASE_URL or DATABASE_URL on this Vercel env";

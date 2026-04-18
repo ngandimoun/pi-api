@@ -48,6 +48,7 @@ export type PiCliHealthReport = {
         normalized_ok: boolean;
         canonical_parse_ok: boolean;
         deferred_during_next_build: boolean;
+        ssl_peer_verification_relaxed?: boolean;
         store_init_error?: string;
         flags?: {
           raw_length: number;

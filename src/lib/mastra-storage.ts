@@ -1,4 +1,5 @@
 import { PgVector, PostgresStore } from "@mastra/pg";
+import type { ConnectionOptions } from "node:tls";
 import { parse } from "pg-connection-string";
 
 let postgresStore: PostgresStore | null | undefined;
@@ -6,6 +7,20 @@ let pgVector: PgVector | null | undefined;
 
 /** Set when PostgresStore init fails; safe to surface in /api/cli/health (no secrets). */
 let lastPostgresStoreInitError: string | undefined;
+
+/**
+ * When `PI_CLI_DATABASE_SSL_REJECT_UNAUTHORIZED=false`, pass through to `pg` so TLS connects
+ * even if the chain includes a self-signed cert (corporate proxy, custom CA, misconfigured host).
+ * Default is strict verification (omit `ssl` and let `pg` + system trust store decide).
+ */
+function isPiCliPgTlsPeerVerificationRelaxed(): boolean {
+  const v = process.env.PI_CLI_DATABASE_SSL_REJECT_UNAUTHORIZED?.trim().toLowerCase();
+  return v === "false" || v === "0";
+}
+
+function getPiCliPgSslOption(): ConnectionOptions | undefined {
+  return isPiCliPgTlsPeerVerificationRelaxed() ? { rejectUnauthorized: false } : undefined;
+}
 
 const NEWLINE_EDGE = /^[\r\n]+|[\r\n]+$/g;
 const UNICODE_EDGE = /^[\u00A0\u200B]+|[\u00A0\u200B]+$/g;
@@ -206,6 +221,7 @@ export function getMastraPostgresConnectionDiagnostics(): {
   normalized_ok: boolean;
   canonical_parse_ok: boolean;
   deferred_during_next_build: boolean;
+  ssl_peer_verification_relaxed: boolean;
   store_init_error?: string;
   flags: PostgresUrlAnalysisFlags;
 } {
@@ -231,6 +247,7 @@ export function getMastraPostgresConnectionDiagnostics(): {
     normalized_ok: Boolean(normalized),
     canonical_parse_ok: canonicalParseOk,
     deferred_during_next_build: isNextCompilerBuild(),
+    ssl_peer_verification_relaxed: isPiCliPgTlsPeerVerificationRelaxed(),
     flags: analysis.flags,
     ...(initErr ? { store_init_error: initErr.slice(0, 240) } : {}),
   };
@@ -306,10 +323,12 @@ export function getMastraPostgresStore(): PostgresStore | null {
         lastPostgresStoreInitError = "toCanonical_failed";
         postgresStore = null;
       } else {
+        const ssl = getPiCliPgSslOption();
         postgresStore = new PostgresStore({
           id: "mastra-pi-cli-storage",
           connectionString: built.connectionString,
           ...(built.schemaName ? { schemaName: built.schemaName } : {}),
+          ...(ssl ? { ssl } : {}),
         });
       }
     } catch (e) {
@@ -337,10 +356,12 @@ export function getMastraPgVector(): PgVector | null {
       if (!built) {
         pgVector = null;
       } else {
+        const ssl = getPiCliPgSslOption();
         pgVector = new PgVector({
           id: "mastra-pi-cli-vector",
           connectionString: built.connectionString,
           ...(built.schemaName ? { schemaName: built.schemaName } : {}),
+          ...(ssl ? { ssl } : {}),
         });
       }
     } catch (e) {
