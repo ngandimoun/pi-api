@@ -2,9 +2,9 @@ import { Mastra } from "@mastra/core";
 
 import { getMastraPostgresStore } from "@/lib/mastra-storage";
 
-import { cliArchitectAgent } from "@/mastra/agents/cli-architect-agent";
-import { cliEnforcerAgent } from "@/mastra/agents/cli-enforcer-agent";
-import { cliResonateAgent } from "@/mastra/agents/cli-resonate-agent";
+import { cliArchitectAgentLite } from "@/mastra/agents/cli-architect-agent-lite";
+import { cliEnforcerAgentLite } from "@/mastra/agents/cli-enforcer-agent-lite";
+import { cliResonateAgentLite } from "@/mastra/agents/cli-resonate-agent-lite";
 import { cliAdaptiveEngineWorkflow } from "@/mastra/workflows/pi-cli/cli-adaptive-engine-workflow";
 import { cliGithubPrCheckWorkflow } from "@/mastra/workflows/pi-cli/cli-github-pr-check-workflow";
 import { cliGraphBuilderWorkflow } from "@/mastra/workflows/pi-cli/cli-graph-builder-workflow";
@@ -27,8 +27,8 @@ export const piCliMastra = new Mastra({
     cliResonateWorkflow,
   },
   agents: {
-    cliEnforcerAgent,
-    cliResonateAgent,
-    cliArchitectAgent,
+    cliEnforcerAgent: cliEnforcerAgentLite,
+    cliResonateAgent: cliResonateAgentLite,
+    cliArchitectAgent: cliArchitectAgentLite,
   },
 });

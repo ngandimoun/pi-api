@@ -13,7 +13,18 @@ function supabaseImageHostname(): string | null {
 const supabaseHost = supabaseImageHostname();
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pg", "pg-connection-string"],
+  serverExternalPackages: ["pg", "pg-connection-string", "ts-morph"],
+  outputFileTracingExcludes: {
+    "/api/cli/**": [
+      "**/node_modules/ts-morph/**",
+      "**/node_modules/@ts-morph/**",
+      "**/node_modules/typescript/**",
+      "**/node_modules/sharp/**",
+      "**/node_modules/satori/**",
+      "**/node_modules/livekit-server-sdk/**",
+      "**/node_modules/@aws-sdk/**",
+    ],
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com", pathname: "/**" },
