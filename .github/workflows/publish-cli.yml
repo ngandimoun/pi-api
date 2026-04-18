@@ -42,8 +42,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
+      - name: npm auth sanity (whoami)
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
       - name: Publish @pi-api/cli
-        run: npm publish -w packages/pi-cli --access public
+        run: npm publish -w packages/pi-cli --access public --loglevel verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
