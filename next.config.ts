@@ -13,6 +13,7 @@ function supabaseImageHostname(): string | null {
 const supabaseHost = supabaseImageHostname();
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["pg", "pg-connection-string"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com", pathname: "/**" },

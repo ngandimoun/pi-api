@@ -2,8 +2,11 @@ import { z } from "zod";
 
 import { apiError, apiSuccessEnvelope } from "@/lib/api-response";
 import { withApiAuth } from "@/lib/auth";
+import {
+  isPromptFeedbackPersistenceEnabled,
+  persistPromptFeedbackToMastraMemoryTables,
+} from "@/lib/pi-cli-feedback-persist";
 import { buildCliResourceId, buildCliThreadId } from "@/lib/pi-cli-thread";
-import { createPiCliMemory, isCliMemoryEnabled } from "@/lib/pi-cli-memory";
 
 const feedbackBodySchema = z
   .object({
@@ -36,24 +39,11 @@ export const POST = withApiAuth(async (request) => {
       parsed.error.issues[0]?.message ?? "Invalid body.",
       400,
       requestId,
-      "invalid_request_error"
+      "invalid_request_error",
     );
   }
 
-  if (!isCliMemoryEnabled()) {
-    const res = apiSuccessEnvelope({
-      data: { ok: true as const, persisted: false },
-      object: "pi_cli_prompt_feedback",
-      requestId,
-      status: "completed",
-      httpStatus: 200,
-    });
-    res.headers.set("X-Request-Id", requestId);
-    return res;
-  }
-
-  const mem = createPiCliMemory();
-  if (!mem) {
+  if (!isPromptFeedbackPersistenceEnabled()) {
     const res = apiSuccessEnvelope({
       data: { ok: true as const, persisted: false },
       object: "pi_cli_prompt_feedback",
@@ -74,31 +64,40 @@ export const POST = withApiAuth(async (request) => {
       developerId: parsed.data.developer_id,
     });
 
-  const label = parsed.data.feedback === "up" ? "useful" : "not_useful";
-  const content = `[prompt-feedback:${label}] slug=${parsed.data.intent_slug} intent=${JSON.stringify(parsed.data.intent)}`;
+  const feedbackLabel = parsed.data.feedback === "up" ? "useful" : "not_useful";
 
-  try {
-    await mem.createThread({
-      resourceId,
-      threadId,
-      title: "Pi prompt feedback",
-      saveThread: true,
-    });
-  } catch {
-    /* thread may already exist */
-  }
+  const result = await persistPromptFeedbackToMastraMemoryTables({
+    resourceId,
+    threadId,
+    intentSlug: parsed.data.intent_slug,
+    intent: parsed.data.intent,
+    feedbackLabel,
+  });
 
-  try {
-    await mem.addMessage({
-      threadId,
-      resourceId,
-      role: "user",
-      type: "text",
-      content,
-    });
-  } catch (e) {
-    const message = e instanceof Error ? e.message : "Failed to persist feedback.";
-    return apiError("feedback_failed", message, 500, requestId, "api_error");
+  if (!result.ok) {
+    if (result.error === "database_not_configured" || result.error === "deferred_during_build") {
+      const res = apiSuccessEnvelope({
+        data: { ok: true as const, persisted: false },
+        object: "pi_cli_prompt_feedback",
+        requestId,
+        status: "completed",
+        httpStatus: 200,
+      });
+      res.headers.set("X-Request-Id", requestId);
+      return res;
+    }
+    if (result.error === "canonical_parse_failed") {
+      const res = apiSuccessEnvelope({
+        data: { ok: true as const, persisted: false },
+        object: "pi_cli_prompt_feedback",
+        requestId,
+        status: "completed",
+        httpStatus: 200,
+      });
+      res.headers.set("X-Request-Id", requestId);
+      return res;
+    }
+    return apiError("feedback_failed", result.error, 500, requestId, "api_error");
   }
 
   const res = apiSuccessEnvelope({
