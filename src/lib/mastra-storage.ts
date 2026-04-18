@@ -1,9 +1,13 @@
 import { PgVector, PostgresStore } from "@mastra/pg";
+import { createHash } from "node:crypto";
 import type { ConnectionOptions } from "node:tls";
 import { parse } from "pg-connection-string";
 
 let postgresStore: PostgresStore | null | undefined;
 let pgVector: PgVector | null | undefined;
+/** Fingerprint of URL + TLS relax flag used when the pool was created (warm Lambdas must rebuild after env change). */
+let mastraPgStoreInitFingerprint: string | undefined;
+let mastraPgVectorInitFingerprint: string | undefined;
 
 /** Set when PostgresStore init fails; safe to surface in /api/cli/health (no secrets). */
 let lastPostgresStoreInitError: string | undefined;
@@ -20,6 +24,14 @@ function isPiCliPgTlsPeerVerificationRelaxed(): boolean {
 
 function getPiCliPgSslOption(): ConnectionOptions | undefined {
   return isPiCliPgTlsPeerVerificationRelaxed() ? { rejectUnauthorized: false } : undefined;
+}
+
+/** Hash of effective DB URL + ssl mode so we recreate pools after Vercel env edits without redeploy. */
+function pgPoolInitFingerprint(): string {
+  const u = getPiCliDatabaseUrl() ?? "";
+  const mode = isPiCliPgTlsPeerVerificationRelaxed() ? "r" : "s";
+  const h = createHash("sha256").update(u).digest("hex").slice(0, 32);
+  return `${mode}:${h}`;
 }
 
 const NEWLINE_EDGE = /^[\r\n]+|[\r\n]+$/g;
@@ -315,6 +327,18 @@ export function getMastraPostgresStore(): PostgresStore | null {
   if (!url) return null;
   if (isNextCompilerBuild()) return null;
 
+  const fp = pgPoolInitFingerprint();
+  if (
+    postgresStore !== undefined &&
+    mastraPgStoreInitFingerprint !== undefined &&
+    mastraPgStoreInitFingerprint !== fp
+  ) {
+    const prev = postgresStore;
+    postgresStore = undefined;
+    mastraPgStoreInitFingerprint = undefined;
+    if (prev) void prev.close().catch(() => {});
+  }
+
   if (postgresStore === undefined) {
     lastPostgresStoreInitError = undefined;
     try {
@@ -322,6 +346,7 @@ export function getMastraPostgresStore(): PostgresStore | null {
       if (!built) {
         lastPostgresStoreInitError = "toCanonical_failed";
         postgresStore = null;
+        mastraPgStoreInitFingerprint = undefined;
       } else {
         const ssl = getPiCliPgSslOption();
         postgresStore = new PostgresStore({
@@ -330,12 +355,14 @@ export function getMastraPostgresStore(): PostgresStore | null {
           ...(built.schemaName ? { schemaName: built.schemaName } : {}),
           ...(ssl ? { ssl } : {}),
         });
+        mastraPgStoreInitFingerprint = fp;
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "PostgresStore_constructor_failed";
       lastPostgresStoreInitError = msg;
       console.warn("[mastra-storage] PostgresStore constructor failed:", e);
       postgresStore = null;
+      mastraPgStoreInitFingerprint = undefined;
     }
   }
   return postgresStore ?? null;
@@ -350,11 +377,21 @@ export function getMastraPgVector(): PgVector | null {
   if (!url) return null;
   if (isNextCompilerBuild()) return null;
 
+  const fp = pgPoolInitFingerprint();
+  if (pgVector !== undefined && mastraPgVectorInitFingerprint !== undefined && mastraPgVectorInitFingerprint !== fp) {
+    const prev = pgVector;
+    pgVector = undefined;
+    mastraPgVectorInitFingerprint = undefined;
+    const pool = (prev as { pool?: { end: () => Promise<void> } })?.pool;
+    if (pool) void pool.end().catch(() => {});
+  }
+
   if (pgVector === undefined) {
     try {
       const built = toCanonicalPgConnectionString(url);
       if (!built) {
         pgVector = null;
+        mastraPgVectorInitFingerprint = undefined;
       } else {
         const ssl = getPiCliPgSslOption();
         pgVector = new PgVector({
@@ -363,10 +400,12 @@ export function getMastraPgVector(): PgVector | null {
           ...(built.schemaName ? { schemaName: built.schemaName } : {}),
           ...(ssl ? { ssl } : {}),
         });
+        mastraPgVectorInitFingerprint = fp;
       }
     } catch (e) {
       console.warn("[mastra-storage] PgVector constructor failed:", e);
       pgVector = null;
+      mastraPgVectorInitFingerprint = undefined;
     }
   }
   return pgVector ?? null;
