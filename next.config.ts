@@ -13,7 +13,7 @@ function supabaseImageHostname(): string | null {
 const supabaseHost = supabaseImageHostname();
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pg", "pg-connection-string", "ts-morph"],
+  serverExternalPackages: ["pg", "pg-connection-string"],
   outputFileTracingExcludes: {
     "/api/cli/**": [
       "**/node_modules/ts-morph/**",
@@ -22,7 +22,9 @@ const nextConfig: NextConfig = {
       "**/node_modules/sharp/**",
       "**/node_modules/satori/**",
       "**/node_modules/livekit-server-sdk/**",
-      "**/node_modules/@aws-sdk/**",
+      "**/node_modules/livekit-client/**",
+      "**/node_modules/@mastra/memory/**",
+      "**/node_modules/@google/generative-ai/**",
     ],
   },
   images: {
