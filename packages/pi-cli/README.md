@@ -48,7 +48,7 @@ Change it later: re-run `pi-hokage` or export `PI_PERSONA=expert` in your shell.
 ## Env
 
 - `PI_API_KEY` — Pi API key (`pi_...`), or configure via `pi auth login` / `pi-hokage`.
-- `PI_CLI_BASE_URL` — API origin (default `http://localhost:3000`).
+- `PI_CLI_BASE_URL` — API origin (default `https://piii-black.vercel.app`).
 - `PI_PERSONA` — override the configured persona for the current shell (one of `newbie` / `normal` / `expert` / `designer` / `pm`). See the **Personas** section below.
 - `PI_CLI_ASYNC` — set to `true` to always use async workflows (`?async=true`) for learn / validate / routine (optional; can use `--async` per command instead).
 - `PI_CLI_AUTO_SYNC` — set to `true` to always run `pi sync` before validate when an API key is present (optional; by default sync also runs when `.pi/system-style.json` is missing).

@@ -55,6 +55,22 @@ export async function POST(request: Request) {
     const ratelimits = data?.ratelimits;
     const first = Array.isArray(ratelimits) ? (ratelimits[0] as Record<string, unknown> | undefined) : undefined;
 
+    // Fetch subscription tier if organizationId is present
+    let subscriptionTier: string | null = null;
+    if (organizationId) {
+      try {
+        const supabase = getServiceSupabaseClient();
+        const { data: userRow } = await supabase
+          .from("users")
+          .select("subscription_tier")
+          .eq("id", organizationId)
+          .maybeSingle();
+        subscriptionTier = userRow?.subscription_tier ?? null;
+      } catch {
+        // ignore tier fetch failures
+      }
+    }
+
     // Metering: record CLI verify as a lightweight usage event (best-effort)
     if (organizationId && typeof data?.keyId === "string") {
       try {
@@ -81,6 +97,7 @@ export async function POST(request: Request) {
         valid: true,
         organization_id: organizationId,
         remaining: typeof first?.remaining === "number" ? first.remaining : null,
+        subscription_tier: subscriptionTier,
       },
       object: "cli_auth_verify",
       requestId,

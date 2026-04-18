@@ -2,6 +2,7 @@
 // prepublishOnly guard: ensure the local @pi-api/cli package we depend on is
 // at least as new as the semver range we declare in dependencies. This prevents
 // shipping a pi-hokage that resolves to a stale CLI on the npm registry.
+import { execSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -61,6 +62,19 @@ try {
   console.log(
     `[pi-hokage] prepublish OK — @pi-api/cli ${cliVersion} satisfies ${range}`
   );
+
+  // Also verify that @pi-api/cli@cliVersion is available on npm registry
+  try {
+    console.log(`[pi-hokage] checking npm registry for @pi-api/cli@${cliVersion}...`);
+    execSync(`npm view @pi-api/cli@${cliVersion} version`, { stdio: "ignore" });
+    console.log(`[pi-hokage] confirmed: @pi-api/cli@${cliVersion} is available on npm`);
+  } catch {
+    console.error(
+      `[pi-hokage] prepublish: @pi-api/cli@${cliVersion} is not yet available on npm.`
+    );
+    console.error("         Wait for npm propagation after publishing @pi-api/cli, then retry.");
+    process.exit(1);
+  }
 } catch (err) {
   console.error("[pi-hokage] prepublish: version check failed");
   console.error(err instanceof Error ? err.message : err);

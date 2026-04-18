@@ -8,7 +8,9 @@
   },
   "files": [
     "bin.mjs",
-    "scripts"
+    "scripts",
+    "LICENSE",
+    "README.md"
   ],
   "scripts": {
     "build": "node -e \"console.log('pi-hokage: no build step')\"",
@@ -21,6 +23,15 @@
     "ai"
   ],
   "license": "MIT",
+  "homepage": "https://piii-black.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ngandimoun/pi-api.git",
+    "directory": "packages/pi-hokage"
+  },
+  "bugs": {
+    "url": "https://github.com/ngandimoun/pi-api/issues"
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -1,5 +1,5 @@
 /** Default Pi API base (override with PI_CLI_BASE_URL). */
-export const DEFAULT_PI_BASE_URL = "http://localhost:3000";
+export const DEFAULT_PI_BASE_URL = "https://piii-black.vercel.app";
 
 export const PI_DIR = ".pi";
 export const PI_CACHE_DIR = ".pi/.cache";

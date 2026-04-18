@@ -27,6 +27,7 @@ export type PiNlpPlan = {
 export type VerifyResult = {
   valid: boolean;
   organization_id: string | null;
+  subscription_tier?: string | null;
 };
 
 /**

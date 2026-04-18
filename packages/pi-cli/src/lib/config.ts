@@ -1,6 +1,7 @@
 import Conf from "conf";
 import { homedir } from "node:os";
 import path from "node:path";
+import { DEFAULT_PI_BASE_URL } from "./constants.js";
 
 export const PERSONA_IDS = ["newbie", "normal", "expert", "designer", "pm"] as const;
 export type PiPersona = (typeof PERSONA_IDS)[number];
@@ -40,7 +41,7 @@ export function getBaseUrl(): string {
   const store = getGlobalConfigStore();
   const fromFile = store.get("baseUrl")?.trim();
   if (fromFile) return fromFile.replace(/\/$/, "");
-  return "http://localhost:3000";
+  return DEFAULT_PI_BASE_URL;
 }
 
 export function getApiKey(): string | undefined {

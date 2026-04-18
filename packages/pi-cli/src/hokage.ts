@@ -186,7 +186,8 @@ async function runHokageNonInteractive(flags: HokageFlags): Promise<void> {
       process.exitCode = 1;
       return;
     }
-    console.log(chalk.green("✓ Hokage authenticated"));
+    const tierLabel = verified.subscription_tier ? ` — ${verified.subscription_tier} plan` : "";
+    console.log(chalk.green(`✓ Hokage authenticated${tierLabel}`));
 
     setGlobalConfig({
       apiKey,
@@ -317,7 +318,7 @@ export async function runHokageWizard(): Promise<void> {
     const baseUrlRaw = await p.text({
       message: "Pi API base URL:",
       initialValue: getBaseUrl(),
-      placeholder: "http://localhost:3000",
+      placeholder: "https://piii-black.vercel.app",
     });
     if (isCancel(baseUrlRaw)) {
       p.cancel("Setup cancelled");
@@ -336,7 +337,7 @@ export async function runHokageWizard(): Promise<void> {
     });
     if (isCancel(hasKey) || !hasKey) {
       p.note(
-        chalk.cyan("Visit your Pi deployment keys page or POST /api/keys to mint a key."),
+        chalk.cyan(`Visit ${baseUrl}/dashboard/keys to mint a Pi API key (requires an active subscription).`),
         "Training Required",
       );
       p.cancel("Setup cancelled");
@@ -368,7 +369,8 @@ export async function runHokageWizard(): Promise<void> {
       process.exitCode = 1;
       return;
     }
-    spin.stop(chalk.green("Hokage authenticated"));
+    const tierLabel = verified.subscription_tier ? ` — ${verified.subscription_tier} plan` : "";
+    spin.stop(chalk.green(`Hokage authenticated${tierLabel}`));
 
     // --- Persona (right after auth, so later prompts + agents can see it) ---
     let persona: PiPersona;

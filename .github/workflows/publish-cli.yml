@@ -17,11 +17,44 @@ jobs:
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
-      - run: npm ci
-      - run: npm run cli:build
-      - run: npm publish -w packages/pi-cli --access public
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build and test CLI package
+        run: npm run cli:ci
+      
+      - name: Verify Mastra registry parity
+        run: npm run test -- tests/mastra/mastra-registry.test.ts
+      
+      - name: Smoke test against deployed API
+        run: PI_BASE_URL=https://piii-black.vercel.app npm run verify:mastra-hokage
+        continue-on-error: true
+      
+      - name: Publish @pi-api/cli
+        run: npm publish -w packages/pi-cli --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: npm publish -w packages/pi-hokage --access public
+      
+      - name: Wait for npm registry propagation
+        run: |
+          VERSION=$(node -p "require('./packages/pi-cli/package.json').version")
+          echo "Waiting for @pi-api/cli@${VERSION} to propagate..."
+          RETRY=0
+          MAX_RETRIES=18
+          while [ $RETRY -lt $MAX_RETRIES ]; do
+            if npm view @pi-api/cli@${VERSION} version > /dev/null 2>&1; then
+              echo "@pi-api/cli@${VERSION} is available on npm"
+              exit 0
+            fi
+            echo "Not yet available (attempt $((RETRY+1))/${MAX_RETRIES}), waiting 5s..."
+            sleep 5
+            RETRY=$((RETRY+1))
+          done
+          echo "Warning: @pi-api/cli@${VERSION} not confirmed on npm after 90s, but proceeding anyway"
+          exit 0
+      
+      - name: Publish pi-hokage
+        run: npm publish -w packages/pi-hokage --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

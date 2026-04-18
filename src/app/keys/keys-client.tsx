@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CodeBlock } from "@/components/landing/code-block";
 import { InstallCommand } from "@/components/landing/install-command";
 import { ArrowRight, Check, Copy, Loader2, ShieldAlert } from "lucide-react";
@@ -70,6 +71,7 @@ function KeyRow({ value }: { value: string }) {
 }
 
 export function KeysClient() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [apiKey, setApiKey] = useState<string | null>(null);
@@ -87,48 +89,7 @@ export function KeysClient() {
   }, [apiKey]);
 
   async function onGenerate() {
-    setError(null);
-    setLoading(true);
-    try {
-      const res = await fetch("/api/keys", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim() || undefined }),
-      });
-
-      const text = await res.text();
-      let json: unknown = null;
-      try {
-        json = text ? JSON.parse(text) : null;
-      } catch {
-        json = null;
-      }
-
-      if (!res.ok) {
-        const message =
-          json &&
-          typeof json === "object" &&
-          "error" in json &&
-          json.error &&
-          typeof json.error === "object" &&
-          "message" in json.error
-            ? String((json.error as { message?: unknown }).message ?? "Failed to generate key.")
-            : "Failed to generate key.";
-        setError(message);
-        return;
-      }
-
-      const data = json as ApiKeyResponse;
-      if (!data?.data?.key) {
-        setError("Key was created, but the response was missing the key. Please try again.");
-        return;
-      }
-
-      setApiKey(data.data.key);
-      setOrganizationId(data.data.organization_id ?? null);
-    } finally {
-      setLoading(false);
-    }
+    router.push("/dashboard/keys");
   }
 
   return (
