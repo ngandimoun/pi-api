@@ -1,10 +1,7 @@
 import { z } from "zod";
 
-import { extractAstFactsFromExcerpt } from "@/mastra/tools/extract-ast-tool";
-import { createPiCliMemory } from "@/lib/pi-cli-memory";
 import { buildCliThreadId } from "@/lib/pi-cli-thread";
 import type { DependencyGraph } from "@/lib/pi-cli-graph";
-import { downloadLatestPiGraph } from "@/lib/pi-cli-r2";
 import { findRelevantRoutines } from "@/lib/pi-cli-routine-composer";
 
 export const routineContextPayloadSchema = z
@@ -134,6 +131,7 @@ async function recallMemory(
   threadId: string | undefined,
   intent: string
 ): Promise<string> {
+  const { createPiCliMemory } = await import("@/lib/pi-cli-memory");
   const mem = createPiCliMemory();
   if (!mem || !threadId?.trim()) return "";
   const learnThreadId = buildCliThreadId({
@@ -182,6 +180,7 @@ async function summarizeAstFromExcerpts(
   for (const { path, excerpt } of excerpts.slice(0, 15)) {
     try {
       const base = path.split("/").pop() || path;
+      const { extractAstFactsFromExcerpt } = await import("@/mastra/tools/extract-ast-tool");
       const facts = await extractAstFactsFromExcerpt(base, excerpt.slice(0, 50_000));
       lines.push(`### ${path}`);
       lines.push(`- hooks: ${facts.reactHookNames.slice(0, 12).join(", ") || "(none)"}`);
@@ -205,6 +204,7 @@ export async function gatherRoutineContext(input: {
   routine_context?: RoutineContextPayload;
 }): Promise<GatheredRoutineContext> {
   const rc = input.routine_context ?? {};
+  const { downloadLatestPiGraph } = await import("@/lib/pi-cli-r2");
   const graph = await downloadLatestPiGraph(input.organization_id);
   const sample = rc.file_sample_paths ?? [];
   const graph_summary = summarizeGraphForIntent(graph, input.intent, sample);

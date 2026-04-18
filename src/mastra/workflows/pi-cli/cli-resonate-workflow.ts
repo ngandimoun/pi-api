@@ -2,16 +2,12 @@ import { randomUUID } from "node:crypto";
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
 
-import { createPiCliMemory } from "@/lib/pi-cli-memory";
 import { buildCliResourceId, buildCliThreadId } from "@/lib/pi-cli-thread";
 import { buildDeterministicFacts } from "@/lib/pi-cli-resonate-deterministic";
 import { gatherRoutineContext, routineContextPayloadSchema } from "@/lib/pi-cli-routine-context";
 import type { GatheredRoutineContext } from "@/lib/pi-cli-routine-context";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
 import { PI_PERSONA_IDS, withPersonaPreamble } from "@/mastra/agents/_persona";
-import { analyzeBoundary } from "@/mastra/tools/architectural-boundary-tool";
-import { computeBlastRadius } from "@/mastra/tools/blast-radius-tool";
-import { scanForPrerequisites } from "@/mastra/tools/prerequisite-scanner-tool";
 import { generateObject } from "ai";
 
 // ---------------------------------------------------------------------------
@@ -324,6 +320,11 @@ const astAnalysisStep = createStep({
     let prereqSeverity: "none" | "low" | "medium" | "high" = "none";
 
     if (excerpts.length > 0) {
+      const [{ scanForPrerequisites }, { analyzeBoundary }, { computeBlastRadius }] = await Promise.all([
+        import("@/mastra/tools/prerequisite-scanner-tool"),
+        import("@/mastra/tools/architectural-boundary-tool"),
+        import("@/mastra/tools/blast-radius-tool"),
+      ]);
       // Prerequisite scan
       try {
         const prereqResult = scanForPrerequisites(
@@ -633,6 +634,7 @@ const commitMemoryStep = createStep({
   execute: async ({ inputData }) => {
     let adrSaved = false;
     try {
+      const { createPiCliMemory } = await import("@/lib/pi-cli-memory");
       const mem = createPiCliMemory();
       if (mem && inputData.is_consensus) {
         const adrPayload = {

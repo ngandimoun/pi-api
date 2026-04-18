@@ -2,11 +2,9 @@ import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { generateObject } from "ai";
 import { z } from "zod";
 
-import { createPiCliMemory } from "@/lib/pi-cli-memory";
 import { buildCliResourceId, buildCliThreadId } from "@/lib/pi-cli-thread";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
 import { PI_PERSONA_IDS, withPersonaPreamble } from "@/mastra/agents/_persona";
-import { tasks } from "@trigger.dev/sdk/v3";
 
 const violationSchema = z.object({
   rule: z.string(),
@@ -68,6 +66,7 @@ const collectContextStep = createStep({
   outputSchema: contextOutputSchema,
   execute: async ({ inputData }) => {
     let memoryContext = "";
+    const { createPiCliMemory } = await import("@/lib/pi-cli-memory");
     const mem = createPiCliMemory();
     const threadId = inputData.thread_id?.trim();
     const learnThreadId = buildCliThreadId({
@@ -227,6 +226,7 @@ const lowAdaptiveStep = createStep({
   }),
   execute: async ({ inputData }) => {
     try {
+      const { tasks } = await import("@trigger.dev/sdk/v3");
       await tasks.trigger("cli-adaptive-engine", {
         organizationId: inputData.organization_id,
         libraryHint: inputData.intent ?? "unknown",

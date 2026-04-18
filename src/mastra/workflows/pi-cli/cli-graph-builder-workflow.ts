@@ -2,7 +2,6 @@ import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
 
 import { buildImportGraphFromSources } from "@/lib/pi-cli-graph";
-import { uploadPiGraphJson } from "@/lib/pi-cli-r2";
 
 export const cliGraphBuilderWorkflowInputSchema = z.object({
   organization_id: z.string(),
@@ -48,6 +47,7 @@ const buildGraphStep = createStep({
     let r2_object_key: string | undefined;
     try {
       if (process.env.R2_BUCKET_NAME?.trim() || process.env.R2_PI_GRAPHS_BUCKET?.trim()) {
+        const { uploadPiGraphJson } = await import("@/lib/pi-cli-r2");
         r2_object_key = await uploadPiGraphJson(inputData.organization_id, graph);
       }
     } catch (e) {

@@ -2,7 +2,6 @@ import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { generateText } from "ai";
 import { z } from "zod";
 
-import { scrapeBrandingProfile } from "@/lib/firecrawl";
 import { gatherRoutineContext, routineContextPayloadSchema } from "@/lib/pi-cli-routine-context";
 import { generatePiRoutineDraft } from "@/lib/pi-cli-routine-generate";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
@@ -53,6 +52,7 @@ const scrapeStep = createStep({
   outputSchema: afterScrapeSchema,
   execute: async ({ inputData }) => {
     const doc_snippets: string[] = [];
+    const { scrapeBrandingProfile } = await import("@/lib/firecrawl");
     for (const url of inputData.doc_urls ?? []) {
       try {
         const scraped = await scrapeBrandingProfile(url);

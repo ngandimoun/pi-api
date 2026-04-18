@@ -3,10 +3,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 
 import { buildCliResourceId, buildCliThreadId } from "@/lib/pi-cli-thread";
-import { createPiCliMemory, isCliMemoryEnabled } from "@/lib/pi-cli-memory";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
-import { uploadLatestPiSystemStyle } from "@/lib/pi-cli-r2";
-import { tasks } from "@trigger.dev/sdk/v3";
 
 const metadataSchema = z.object({
   package_json: z.record(z.unknown()).optional(),
@@ -85,6 +82,7 @@ const uploadSystemStyleStep = createStep({
     let system_style_r2_key: string | undefined;
     try {
       if (process.env.R2_BUCKET_NAME?.trim() || process.env.R2_PI_GRAPHS_BUCKET?.trim()) {
+        const { uploadLatestPiSystemStyle } = await import("@/lib/pi-cli-r2");
         system_style_r2_key = await uploadLatestPiSystemStyle(inputData.organization_id, inputData.system_style);
       }
     } catch (e) {
@@ -105,6 +103,7 @@ const persistMemoryStep = createStep({
     rules_persisted: z.number().int().min(0),
   }),
   execute: async ({ inputData }) => {
+    const { createPiCliMemory, isCliMemoryEnabled } = await import("@/lib/pi-cli-memory");
     if (!isCliMemoryEnabled()) {
       return { ...inputData, rules_persisted: 0 };
     }
@@ -163,6 +162,7 @@ const triggerGraphStep = createStep({
   }),
   execute: async ({ inputData }) => {
     try {
+      const { tasks } = await import("@trigger.dev/sdk/v3");
       await tasks.trigger("cli-graph-builder", {
         organizationId: inputData.organization_id,
         fileSamplePaths: inputData.metadata.file_sample_paths ?? [],

@@ -1,5 +1,3 @@
-import { createPiCliMemory } from "@/lib/pi-cli-memory";
-
 export type RoutineMatch = {
   routine_id: string;
   routine_file: string;
@@ -89,6 +87,7 @@ export async function findRelevantRoutines(
     }
   }
 
+  const { createPiCliMemory } = await import("@/lib/pi-cli-memory");
   const mem = createPiCliMemory();
   if (mem && threadId?.trim()) {
     try {

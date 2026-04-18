@@ -39,7 +39,7 @@ export const piPlanTool = createTool({
 
         let latestDag: { path: string; mtime: number } | null = null;
         for (const dir of dirs) {
-          const candidatePath = path.join(routinesDir, dir.name, ".dag.json");
+          const candidatePath = path.join(/* turbopackIgnore: true */ routinesDir, dir.name, ".dag.json");
           try {
             const stat = await fs.stat(candidatePath);
             if (!latestDag || stat.mtimeMs > latestDag.mtime) {
