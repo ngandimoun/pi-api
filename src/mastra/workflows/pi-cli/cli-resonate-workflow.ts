@@ -7,6 +7,7 @@ import { buildDeterministicFacts } from "@/lib/pi-cli-resonate-deterministic";
 import { gatherRoutineContext, routineContextPayloadSchema } from "@/lib/pi-cli-routine-context";
 import type { GatheredRoutineContext } from "@/lib/pi-cli-routine-context";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
+import { cliArchitectAgentLite } from "@/mastra/agents/cli-architect-agent-lite";
 import { PI_PERSONA_IDS, withPersonaPreamble } from "@/mastra/agents/_persona";
 import { generateObject } from "ai";
 
@@ -569,10 +570,9 @@ async function generateSocraticChallenge(
   };
 
   try {
-    const agent = (await import("@/mastra")).mastra.getAgent("cliArchitectAgent");
-    const result = await agent.generate([{ role: "user", content: prompt }], {
+    // Never `import("@/mastra")` here — NFT/Vercel would bundle the entire registry (~250MB+).
+    const result = await cliArchitectAgentLite.generate([{ role: "user", content: prompt }], {
       structuredOutput: { schema: socraticChallengeSchema },
-      memory: { resource: data.resource_id, thread: data.thread_id },
     });
     const challenge = result.object as z.infer<typeof socraticChallengeSchema>;
     return validateSocraticChallenge(challenge, data.mode, grounding);
