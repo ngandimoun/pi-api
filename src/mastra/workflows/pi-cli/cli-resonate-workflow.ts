@@ -4,10 +4,9 @@ import { z } from "zod";
 
 import { buildCliResourceId, buildCliThreadId } from "@/lib/pi-cli-thread";
 import { buildDeterministicFacts } from "@/lib/pi-cli-resonate-deterministic";
-import { gatherRoutineContext, routineContextPayloadSchema } from "@/lib/pi-cli-routine-context";
-import type { GatheredRoutineContext } from "@/lib/pi-cli-routine-context";
+import type { GatheredRoutineContext } from "@/lib/pi-cli-routine-context-schema";
+import { routineContextPayloadSchema } from "@/lib/pi-cli-routine-context-schema";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
-import { cliArchitectAgentLite } from "@/mastra/agents/cli-architect-agent-lite";
 import { PI_PERSONA_IDS, withPersonaPreamble } from "@/mastra/agents/_persona";
 import { generateObject } from "ai";
 
@@ -167,6 +166,7 @@ const hydrateContextStep = createStep({
     });
     const resourceId = buildCliResourceId(inputData.organization_id);
 
+    const { gatherRoutineContext } = await import("@/lib/pi-cli-routine-context");
     const gathered = await gatherRoutineContext({
       organization_id: inputData.organization_id,
       thread_id: threadId,
@@ -570,37 +570,27 @@ async function generateSocraticChallenge(
   };
 
   try {
-    // Never `import("@/mastra")` here — NFT/Vercel would bundle the entire registry (~250MB+).
-    const result = await cliArchitectAgentLite.generate([{ role: "user", content: prompt }], {
-      structuredOutput: { schema: socraticChallengeSchema },
+    const { object } = await generateObject({
+      model: getPiCliGeminiModel("lite"),
+      schema: socraticChallengeSchema,
+      prompt: `${prompt}\n\nReturn JSON matching the schema. Do not write code.`,
+      maxOutputTokens: 8000,
     });
-    const challenge = result.object as z.infer<typeof socraticChallengeSchema>;
-    return validateSocraticChallenge(challenge, data.mode, grounding);
+    return validateSocraticChallenge(object, data.mode, grounding);
   } catch {
-    // Fallback to direct Gemini generateObject
-    try {
-      const { object } = await generateObject({
-        model: getPiCliGeminiModel("lite"),
-        schema: socraticChallengeSchema,
-        prompt: `${prompt}\n\nReturn JSON matching the schema. Do not write code.`,
-        maxOutputTokens: 8000,
-      });
-      return validateSocraticChallenge(object, data.mode, grounding);
-    } catch (e2) {
-      return {
-        understanding: "Unable to generate challenge — model error.",
-        missing_prerequisites: [],
-        architectural_traps: [],
-        alternative_paths: [],
-        probing_question: "Can you rephrase your intent?",
-        risks: [],
-        invariants: [],
-        claims: [],
-        conflict_type: "preference", // Changed from "none" per A3
-        files_likely_touched: [],
-        is_ready: false,
-      };
-    }
+    return {
+      understanding: "Unable to generate challenge — model error.",
+      missing_prerequisites: [],
+      architectural_traps: [],
+      alternative_paths: [],
+      probing_question: "Can you rephrase your intent?",
+      risks: [],
+      invariants: [],
+      claims: [],
+      conflict_type: "preference", // Changed from "none" per A3
+      files_likely_touched: [],
+      is_ready: false,
+    };
   }
 }
 
