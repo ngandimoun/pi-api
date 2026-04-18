@@ -141,6 +141,8 @@ function renderServerHealthBlock(health: PiCliHealthReport): void {
         return `does not start with postgres:// — remove "export VAR=" prefix or stray quotes${src}`;
       if (!f.length_ok) return `looks truncated (<24 chars)${src}`;
       if (f.hostname_is_base) return `literal "base" hostname (unfilled template)${src}`;
+      if (f.regex_fallback_ok && !f.pg_parse_ok)
+        return `libpq cannot parse URI (often unencoded @ or # in password) — use Supabase "URI" with encoded userinfo${src}`;
       if (!f.whatwg_url_ok && !f.pg_parse_ok && !f.regex_fallback_ok)
         return `unparseable — percent-encode @ : / ? # [ ] % in the password${src}`;
       return `URL failed validation${src}`;

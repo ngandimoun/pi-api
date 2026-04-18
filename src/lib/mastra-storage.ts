@@ -175,10 +175,9 @@ function analyzeConnectionUrl(raw: string): PostgresUrlAnalysis {
           url = t;
         }
       } catch {
-        if (regex_fallback_ok) {
-          ok = true;
-          url = t;
-        }
+        // Do not accept regex_fallback_ok alone: `toCanonicalPgConnectionString` always uses
+        // `parse()`; a string that matches the heuristic but throws in parse() would yield
+        // normalized_ok true + store_init_error "toCanonical_failed" (misleading).
       }
     }
   }
