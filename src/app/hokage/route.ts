@@ -5,7 +5,7 @@ import path from "node:path";
  * curl -fsSL https://<your-host>/hokage | sh
  */
 export async function GET() {
-  const scriptPath = path.join(process.cwd(), "scripts", "install-hokage.sh");
+  const scriptPath = path.join(/* turbopackIgnore: true */ process.cwd(), "scripts", "install-hokage.sh");
   const script = await readFile(scriptPath, "utf8");
 
   return new Response(script, {

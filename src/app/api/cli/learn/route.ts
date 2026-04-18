@@ -15,7 +15,7 @@ import { isPiCliWorkflowModeEnabled } from "@/lib/pi-cli-workflows";
 import { isPiCliFailClosed } from "@/lib/pi-cli-fail-closed";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
 import { uploadLatestPiSystemStyle } from "@/lib/pi-cli-r2";
-import { piCliMastra as mastra } from "@/lib/pi-cli-mastra";
+import { piCliMastraLearn as mastra } from "@/lib/pi-cli-mastra-learn";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -76,7 +76,7 @@ const systemStyleSchema = z.object({
 
 async function hashCliTemplates(): Promise<{ hash: string; version: string; count: number }> {
   try {
-    const templatesDir = path.join(process.cwd(), "packages/pi-cli/src/templates");
+    const templatesDir = path.join(/* turbopackIgnore: true */ process.cwd(), "packages/pi-cli/src/templates");
     const files = await fs.readdir(templatesDir, { recursive: true, withFileTypes: true });
     const jsonFiles = files
       .filter((f) => f.isFile() && f.name.endsWith(".json"))

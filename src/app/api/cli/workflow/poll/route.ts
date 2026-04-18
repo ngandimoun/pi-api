@@ -3,7 +3,7 @@ import { z } from "zod";
 import { apiError, apiSuccessEnvelope } from "@/lib/api-response";
 import { withApiAuth } from "@/lib/auth";
 import { isPiCliWorkflowModeEnabled } from "@/lib/pi-cli-workflows";
-import { piCliMastra as mastra } from "@/lib/pi-cli-mastra";
+import { piCliMastraSevenWorkflows as mastra } from "@/lib/pi-cli-mastra-seven-workflows";
 
 const bodySchema = z
   .object({
