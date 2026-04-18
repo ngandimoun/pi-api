@@ -16,7 +16,7 @@ import {
 import { isPiCliWorkflowModeEnabled } from "@/lib/pi-cli-workflows";
 import { isPiCliFailClosed } from "@/lib/pi-cli-fail-closed";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
-import { mastra } from "@/mastra";
+import { piCliMastra as mastra } from "@/lib/pi-cli-mastra";
 import { readPersonaFromHeaders, withPersonaPreamble, type PiPersona } from "@/mastra/agents/_persona";
 
 function shaShort(obj: unknown): string {

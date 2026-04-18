@@ -13,7 +13,7 @@ import { generatePiRoutineDraft } from "@/lib/pi-cli-routine-generate";
 import { buildRoutineAdapterOutputs, type RoutineFormatId } from "@/lib/pi-cli-routine-adapters-output";
 import { EMBEDDED_ROUTINE_TEMPLATES } from "../../../../../../packages/pi-cli/src/lib/embedded-templates";
 import { scoreEmbeddedTemplates } from "../../../../../../packages/pi-cli/src/lib/routine-template-suggest";
-import { mastra } from "@/mastra";
+import { piCliMastra as mastra } from "@/lib/pi-cli-mastra";
 import { tasks } from "@trigger.dev/sdk/v3";
 
 const formatEnum = z.enum(["cursor", "claude", "windsurf"]);

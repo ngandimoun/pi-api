@@ -15,7 +15,7 @@ import { isPiCliWorkflowModeEnabled } from "@/lib/pi-cli-workflows";
 import { isPiCliFailClosed } from "@/lib/pi-cli-fail-closed";
 import { getPiCliGeminiModel } from "@/lib/pi-cli-llm";
 import { uploadLatestPiSystemStyle } from "@/lib/pi-cli-r2";
-import { mastra } from "@/mastra";
+import { piCliMastra as mastra } from "@/lib/pi-cli-mastra";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";

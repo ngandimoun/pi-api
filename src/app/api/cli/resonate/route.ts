@@ -17,7 +17,7 @@ import type { GatheredRoutineContext } from "@/lib/pi-cli-routine-context";
 import { buildCliResourceId, buildCliThreadId } from "@/lib/pi-cli-thread";
 import { isPiCliWorkflowModeEnabled } from "@/lib/pi-cli-workflows";
 import { isPiCliFailClosed } from "@/lib/pi-cli-fail-closed";
-import { mastra } from "@/mastra";
+import { piCliMastra as mastra } from "@/lib/pi-cli-mastra";
 import { readPersonaFromHeaders, withPersonaPreamble } from "@/mastra/agents/_persona";
 
 const messageSchema = z.object({

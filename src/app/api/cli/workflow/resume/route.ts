@@ -3,7 +3,7 @@ import { z } from "zod";
 import { apiError, apiSuccessEnvelope } from "@/lib/api-response";
 import { withApiAuth } from "@/lib/auth";
 import { getMastraPostgresStore } from "@/lib/mastra-storage";
-import { mastra } from "@/mastra";
+import { piCliMastra as mastra } from "@/lib/pi-cli-mastra";
 
 const bodySchema = z
   .object({
