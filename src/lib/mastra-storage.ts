@@ -309,11 +309,18 @@ function toCanonicalPgConnectionString(normalizedUrl: string): { connectionStrin
 
   const qs = new URLSearchParams();
   if (parsed.sslmode) qs.set("sslmode", String(parsed.sslmode));
+  const relaxedTls = isPiCliPgTlsPeerVerificationRelaxed();
   if (
     (host.endsWith(".pooler.supabase.com") || host.includes("pooler.supabase.com") || host.endsWith(".supabase.co")) &&
-    !qs.has("sslmode")
+    !qs.has("sslmode") &&
+    !relaxedTls
   ) {
     qs.set("sslmode", "require");
+  }
+  // `pg` merges `parse(connectionString)` over Pool config; `sslmode=require` becomes `ssl: {}`
+  // and wipes `ssl: { rejectUnauthorized: false }`. Omit sslmode from the URI when using TLS relax.
+  if (relaxedTls) {
+    qs.delete("sslmode");
   }
 
   const qstr = qs.toString();
